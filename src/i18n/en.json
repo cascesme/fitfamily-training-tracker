@@ -236,6 +236,42 @@
     "deleteItemError": "Failed to remove item",
     "reorderError": "Failed to reorder items"
   },
+  "home": {
+    "greeting": "Who's training today?",
+    "subtitle": "Pick your name to get started.",
+    "noTrainees": "No trainees set up yet. Ask your trainer."
+  },
+  "traineeDashboard": {
+    "lastSession": "Last session: {date}",
+    "startTraining": "Start Training",
+    "noPlans": "No training plans available yet.",
+    "singleExercise": "Train Single Exercise",
+    "searchExercise": "Search exercise…"
+  },
+  "sessionRunner": {
+    "itemProgress": "{current} of {total}",
+    "allSetsDone": "Done",
+    "logError": "Failed to log set. Please try again."
+  },
+  "singleSession": {
+    "setTarget": "Set your target",
+    "sets": "Sets",
+    "reps": "Reps",
+    "start": "Start",
+    "startError": "Failed to start session",
+    "setLabel": "Set {current} of {total}",
+    "logError": "Failed to log set. Please try again."
+  },
+  "finish": {
+    "title": "Session Complete",
+    "subtitle": "Great work!",
+    "caloriesLabel": "Calories burned (optional)",
+    "caloriesPlaceholder": "e.g. 320",
+    "caloriesHint": "Enter the value from your Apple Watch",
+    "saveFinish": "Save & Finish",
+    "saving": "Saving…",
+    "saveError": "Failed to save session"
+  },
   "trainees": {
     "title": "Trainees",
     "empty": "No trainees yet.",
