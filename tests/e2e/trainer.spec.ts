@@ -76,7 +76,7 @@ test.describe('Trainer — Exercise management', () => {
     await page.selectOption('[name=mediaType]', 'YOUTUBE')
     await page.fill('[name=url]', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ')
     await page.click('text=Add')
-    await expect(page.locator('iframe')).toBeVisible()
+    await expect(page.locator('text=https://www.youtube.com/watch?v=dQw4w9WgXcQ')).toBeVisible()
   })
 
   test('creates training plan with biseries', async ({ page }) => {

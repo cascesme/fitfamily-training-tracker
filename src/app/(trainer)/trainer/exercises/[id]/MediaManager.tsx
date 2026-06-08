@@ -127,10 +127,12 @@ export function MediaManager({ exerciseId, initialMedia }: Props) {
     setError(null)
     setUploading(true)
     try {
+      const form = new FormData()
+      form.append('type', 'YOUTUBE')
+      form.append('url', youtubeUrl)
       const res = await fetch(`/api/exercises/${exerciseId}/media`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'YOUTUBE', url: youtubeUrl }),
+        body: form,
       })
       if (res.status === 422) {
         setError(t('limitReached', { max: MAX_EXERCISE_MEDIA }))
