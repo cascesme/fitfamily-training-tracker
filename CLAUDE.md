@@ -188,6 +188,16 @@ prisma/
 
 ---
 
+## API Documentation
+
+Every API route must be documented with OpenAPI/Swagger annotations. Use `next-swagger-doc` (or equivalent) to generate the spec from JSDoc comments in route files. Serve the Swagger UI at `/api-docs`.
+
+- Annotations live in the route file, not a separate file.
+- Document all request params, body schema (reference the Zod schema), response shapes, and error codes.
+- Keep docs in sync with implementation — outdated docs are worse than no docs.
+
+---
+
 ## Docker
 
 - `docker-compose.yml` — production: `app` (port 3000, LAN-exposed) + `db` (internal only).
