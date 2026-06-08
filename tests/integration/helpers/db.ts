@@ -12,7 +12,7 @@ export async function setupTestDb(): Promise<TestDb> {
   const container = await new PostgreSqlContainer('postgres:17-alpine').start()
   const url = container.getConnectionUri()
   process.env.DATABASE_URL = url
-  execSync(`DATABASE_URL="${url}" /home/ccastro/.nvm/versions/node/v24.1.0/bin/npx prisma migrate deploy`, { stdio: 'inherit' })
+  execSync('npx prisma migrate deploy', { stdio: 'inherit', env: { ...process.env, DATABASE_URL: url } })
   const adapter = new PrismaPg({ connectionString: url })
   const prisma = new PrismaClient({ adapter })
   return { prisma, container }
