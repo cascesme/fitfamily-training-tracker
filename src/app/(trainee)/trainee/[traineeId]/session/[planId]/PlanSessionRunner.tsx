@@ -29,7 +29,7 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
     })
       .then((r) => r.json())
       .then((s) => setSessionId(s.id))
-  }, [])
+  }, [traineeId, plan.id])
 
   const currentItem = plan.items[itemIndex]
 
