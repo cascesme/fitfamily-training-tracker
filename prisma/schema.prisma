@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TrackingType {
+  WEIGHT
+  TIME
+  NONE
+}
+
+enum MediaType {
+  VIDEO
+  PHOTO
+  PDF
+  YOUTUBE
+}
+
+model Trainee {
+  id        String           @id @default(cuid())
+  name      String
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  sessions  TrainingSession[]
+}
+
+model Exercise {
+  id           String                     @id @default(cuid())
+  name         String
+  description  String?
+  trackingType TrackingType               @default(WEIGHT)
+  createdAt    DateTime                   @default(now())
+  updatedAt    DateTime                   @updatedAt
+  media        ExerciseMedia[]
+  planItems    TrainingPlanItemExercise[]
+  sessionLogs  TrainingSessionLog[]
+}
+
+model ExerciseMedia {
+  id               String    @id @default(cuid())
+  exerciseId       String
+  exercise         Exercise  @relation(fields: [exerciseId], references: [id])
+  type             MediaType
+  filePath         String?
+  url              String?
+  originalFilename String?
+  position         Int
+  createdAt        DateTime  @default(now())
+
+  @@unique([exerciseId, position])
+}
+
+model TrainingPlan {
+  id          String             @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  items       TrainingPlanItem[]
+  sessions    TrainingSession[]
+}
+
+model TrainingPlanItem {
+  id        String                     @id @default(cuid())
+  planId    String
+  plan      TrainingPlan               @relation(fields: [planId], references: [id])
+  position  Int
+  exercises TrainingPlanItemExercise[]
+
+  @@unique([planId, position])
+}
+
+model TrainingPlanItemExercise {
+  id         String           @id @default(cuid())
+  itemId     String
+  item       TrainingPlanItem @relation(fields: [itemId], references: [id])
+  exerciseId String
+  exercise   Exercise         @relation(fields: [exerciseId], references: [id])
+  sets       Int
+  reps       Int
+  slot       Int
+
+  @@unique([itemId, slot])
+}
+
+model TrainingSession {
+  id             String               @id @default(cuid())
+  traineeId      String
+  trainee        Trainee              @relation(fields: [traineeId], references: [id])
+  planId         String?
+  plan           TrainingPlan?        @relation(fields: [planId], references: [id])
+  startedAt      DateTime             @default(now())
+  finishedAt     DateTime?
+  caloriesBurned Int?
+  logs           TrainingSessionLog[]
+}
+
+model TrainingSessionLog {
+  id           String          @id @default(cuid())
+  sessionId    String
+  session      TrainingSession @relation(fields: [sessionId], references: [id])
+  exerciseId   String
+  exercise     Exercise        @relation(fields: [exerciseId], references: [id])
+  planItemId   String?
+  setNumber    Int
+  weightKg     Float?
+  durationSecs Int?
+  repsDone     Int?
+  completedAt  DateTime        @default(now())
+}
