@@ -38,7 +38,15 @@ export interface ISessionRepository {
 }
 
 export interface ISessionLogRepository {
-  create(sessionId: string, data: LogSetInput): Promise<TrainingSessionLog>
+  create(data: {
+    sessionId: string
+    exerciseId: string
+    setNumber: number
+    weightKg?: number
+    durationSecs?: number
+    repsDone?: number
+    planItemId?: string
+  }): Promise<TrainingSessionLog>
   findBySession(sessionId: string): Promise<TrainingSessionLog[]>
-  findLastForExercise(traineeId: string, exerciseId: string): Promise<TrainingSessionLog | null>
+  findBySessionAndExercise(sessionId: string, exerciseId: string): Promise<TrainingSessionLog[]>
 }
