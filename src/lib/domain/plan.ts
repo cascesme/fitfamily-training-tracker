@@ -40,7 +40,7 @@ export interface ITrainingPlanRepository {
   create(data: CreatePlanInput): Promise<TrainingPlan>
   update(id: string, data: UpdatePlanInput): Promise<TrainingPlan>
   delete(id: string): Promise<void>
-  addItem(planId: string, data: AddPlanItemInput): Promise<TrainingPlanItem>
+  addItem(planId: string, position: number, exercises: Array<{ exerciseId: string; sets: number; reps: number; slot: number }>): Promise<TrainingPlanItem>
   removeItem(itemId: string): Promise<void>
   reorderItems(planId: string, positions: Array<{ id: string; position: number }>): Promise<void>
   findItemSlot(itemId: string, slot: number): Promise<TrainingPlanItemExercise | null>
