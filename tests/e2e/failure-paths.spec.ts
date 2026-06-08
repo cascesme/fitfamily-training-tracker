@@ -51,7 +51,7 @@ test.describe('Failure paths', () => {
     await page.click('text=Exercise A')
     await page.getByRole('dialog').getByRole('button', { name: 'Add Item' }).click()
 
-    await expect(page.locator('text=slot 1')).toBeVisible()
+    await expect(page.locator('text=Slot 1 exercise is required')).toBeVisible()
   })
 
   test('PWA manifest and service worker present', async ({ page }) => {

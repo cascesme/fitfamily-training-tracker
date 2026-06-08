@@ -75,7 +75,7 @@ test.describe('Trainer — Exercise management', () => {
     await page.click('text=Add media')
     await page.selectOption('[name=mediaType]', 'YOUTUBE')
     await page.fill('[name=url]', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ')
-    await page.click('text=Add')
+    await page.click('button:has-text("Add")')
     await expect(page.locator('text=https://www.youtube.com/watch?v=dQw4w9WgXcQ')).toBeVisible()
   })
 
