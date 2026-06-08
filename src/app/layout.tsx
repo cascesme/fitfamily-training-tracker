@@ -3,6 +3,7 @@ import { Manrope, Inter } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { ModeProvider } from '@/lib/context/ModeContext'
+import { AppLayout } from '@/components/layout/AppLayout'
 import './globals.css'
 
 const manrope = Manrope({ subsets: ['latin'], variable: '--font-display' })
@@ -21,7 +22,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         <NextIntlClientProvider messages={messages}>
           <ModeProvider>
-            {children}
+            <AppLayout>
+              {children}
+            </AppLayout>
           </ModeProvider>
         </NextIntlClientProvider>
       </body>
