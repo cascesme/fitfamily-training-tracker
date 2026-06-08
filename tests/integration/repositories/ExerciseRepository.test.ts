@@ -1,5 +1,4 @@
 import { setupTestDb, teardownTestDb, TestDb } from '../helpers/db'
-import { PrismaClient } from '@prisma/client'
 import { ExerciseRepository } from '@/lib/repositories/ExerciseRepository'
 
 let db: TestDb

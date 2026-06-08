@@ -14,14 +14,15 @@ export function ModeProvider({ children }: { children: React.ReactNode }) {
   const [mode, setModeState] = useState<Mode>('trainee')
 
   useEffect(() => {
+    // localStorage/window unavailable at SSR — read on mount to avoid hydration mismatch
     const stored = localStorage.getItem('fitfamily-mode') as Mode | null
-    // localStorage unavailable at SSR time — reading inside useEffect avoids hydration mismatch
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (stored === 'trainer' || stored === 'trainee') {
-      setModeState(stored)
-    } else if (window.location.pathname.startsWith('/trainer')) {
-      setModeState('trainer')
-    }
+    const initial: Mode =
+      stored === 'trainer' || stored === 'trainee'
+        ? stored
+        : window.location.pathname.startsWith('/trainer')
+          ? 'trainer'
+          : 'trainee'
+    setModeState(initial) // eslint-disable-line react-hooks/set-state-in-effect
   }, [])
 
   const setMode = (m: Mode) => {

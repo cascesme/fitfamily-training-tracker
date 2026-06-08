@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import type { ExerciseMedia } from '@prisma/client'
 
 interface MediaStripProps {
@@ -20,9 +21,11 @@ export function MediaStrip({ media, className }: MediaStripProps) {
 function MediaItem({ item }: { item: ExerciseMedia }) {
   if (item.type === 'PHOTO') {
     return (
-      <img
+      <Image
         src={`/api/media/${item.filePath}`}
         alt=""
+        width={128}
+        height={128}
         className="h-32 w-32 flex-shrink-0 rounded-[8px] object-cover border border-[rgba(255,255,255,0.08)]"
       />
     )
