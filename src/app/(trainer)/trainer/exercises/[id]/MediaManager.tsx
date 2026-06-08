@@ -82,29 +82,44 @@ export function MediaManager({ exerciseId, initialMedia }: Props) {
     async (event: DragEndEvent) => {
       const { active, over } = event
       if (!over || active.id === over.id) return
+      const previous = media
       const oldIndex = media.findIndex((m) => m.id === active.id)
       const newIndex = media.findIndex((m) => m.id === over.id)
       const reordered = arrayMove(media, oldIndex, newIndex)
       setMedia(reordered)
-      await fetch(`/api/exercises/${exerciseId}/media/reorder`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderedIds: reordered.map((m) => m.id) }),
-      })
-      router.refresh()
+      try {
+        const res = await fetch(`/api/exercises/${exerciseId}/media/reorder`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderedIds: reordered.map((m) => m.id) }),
+        })
+        if (!res.ok) {
+          setMedia(previous)
+          setError(t('reorderError'))
+          return
+        }
+        router.refresh()
+      } catch {
+        setMedia(previous)
+        setError(t('reorderError'))
+      }
     },
-    [media, exerciseId, router],
+    [media, exerciseId, router, t],
   )
 
   async function handleDelete(mediaId: string) {
     setError(null)
-    const res = await fetch(`/api/exercises/${exerciseId}/media/${mediaId}`, { method: 'DELETE' })
-    if (!res.ok) {
+    try {
+      const res = await fetch(`/api/exercises/${exerciseId}/media/${mediaId}`, { method: 'DELETE' })
+      if (!res.ok) {
+        setError(t('deleteError'))
+        return
+      }
+      setMedia((prev) => prev.filter((m) => m.id !== mediaId))
+      router.refresh()
+    } catch {
       setError(t('deleteError'))
-      return
     }
-    setMedia((prev) => prev.filter((m) => m.id !== mediaId))
-    router.refresh()
   }
 
   async function handleAddYoutube(e: React.FormEvent) {

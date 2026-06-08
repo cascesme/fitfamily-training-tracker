@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import {
@@ -127,35 +127,54 @@ export function PlanBuilder({ plan, allExercises }: Props) {
   const [showAddModal, setShowAddModal] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  useEffect(() => {
+    setItems(plan.items ?? [])
+  }, [plan.items])
+
   const sensors = useSensors(useSensor(PointerSensor))
 
   const handleDragEnd = useCallback(
     async (event: DragEndEvent) => {
       const { active, over } = event
       if (!over || active.id === over.id) return
+      const previous = items
       const oldIndex = items.findIndex((i) => i.id === active.id)
       const newIndex = items.findIndex((i) => i.id === over.id)
       const reordered = arrayMove(items, oldIndex, newIndex)
       setItems(reordered)
-      await fetch(`/api/plans/${plan.id}/items/reorder`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderedIds: reordered.map((i) => i.id) }),
-      })
-      router.refresh()
+      try {
+        const res = await fetch(`/api/plans/${plan.id}/items/reorder`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderedIds: reordered.map((i) => i.id) }),
+        })
+        if (!res.ok) {
+          setItems(previous)
+          setError(t('reorderError'))
+          return
+        }
+        router.refresh()
+      } catch {
+        setItems(previous)
+        setError(t('reorderError'))
+      }
     },
-    [items, plan.id, router],
+    [items, plan.id, router, t],
   )
 
   async function handleDelete(itemId: string) {
     setError(null)
-    const res = await fetch(`/api/plans/${plan.id}/items/${itemId}`, { method: 'DELETE' })
-    if (!res.ok) {
+    try {
+      const res = await fetch(`/api/plans/${plan.id}/items/${itemId}`, { method: 'DELETE' })
+      if (!res.ok) {
+        setError(t('deleteItemError'))
+        return
+      }
+      setItems((prev) => prev.filter((i) => i.id !== itemId))
+      router.refresh()
+    } catch {
       setError(t('deleteItemError'))
-      return
     }
-    setItems((prev) => prev.filter((i) => i.id !== itemId))
-    router.refresh()
   }
 
   async function handleItemAdded() {

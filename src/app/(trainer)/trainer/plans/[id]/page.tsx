@@ -1,5 +1,4 @@
 import { trainingPlanService, exerciseService } from '@/lib/api/services'
-import { getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { PlanBuilder } from './PlanBuilder'
 
@@ -9,7 +8,6 @@ interface Props {
 
 export default async function PlanDetailPage({ params }: Props) {
   const { id } = await params
-  await getTranslations('planBuilder')
   const [plan, exercises] = await Promise.all([
     trainingPlanService.findWithItems(id),
     exerciseService.list(),

@@ -21,6 +21,7 @@ export function TraineeList({ initialTrainees }: Props) {
   const [adding, setAdding] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
+  const [editError, setEditError] = useState<string | null>(null)
   const [deleteErrors, setDeleteErrors] = useState<Record<string, string>>({})
 
   async function handleAdd(e: React.FormEvent) {
@@ -55,16 +56,24 @@ export function TraineeList({ initialTrainees }: Props) {
   }
 
   async function handleSaveEdit(id: string) {
-    const res = await fetch(`/api/trainees/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: editName }),
-    })
-    if (!res.ok) return
-    const updated: Trainee = await res.json()
-    setTrainees((prev) => prev.map((tr) => (tr.id === id ? updated : tr)))
-    setEditingId(null)
-    router.refresh()
+    setEditError(null)
+    try {
+      const res = await fetch(`/api/trainees/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editName }),
+      })
+      if (!res.ok) {
+        setEditError(t('saveEditError'))
+        return
+      }
+      const updated: Trainee = await res.json()
+      setTrainees((prev) => prev.map((tr) => (tr.id === id ? updated : tr)))
+      setEditingId(null)
+      router.refresh()
+    } catch {
+      setEditError(t('saveEditError'))
+    }
   }
 
   async function handleDelete(id: string) {
@@ -117,7 +126,7 @@ export function TraineeList({ initialTrainees }: Props) {
                       autoFocus
                     />
                     <Button onClick={() => handleSaveEdit(trainee.id)}>{t('save')}</Button>
-                    <Button variant="ghost" onClick={() => setEditingId(null)}>{t('cancel')}</Button>
+                    <Button variant="ghost" onClick={() => { setEditingId(null); setEditError(null) }}>{t('cancel')}</Button>
                   </>
                 ) : (
                   <>
@@ -133,6 +142,9 @@ export function TraineeList({ initialTrainees }: Props) {
                   </>
                 )}
               </div>
+              {editingId === trainee.id && editError && (
+                <p className="mt-2 text-sm text-red-400">{editError}</p>
+              )}
               {deleteErrors[trainee.id] && (
                 <p className="mt-2 text-sm text-red-400">{deleteErrors[trainee.id]}</p>
               )}

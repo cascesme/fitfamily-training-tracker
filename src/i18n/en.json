@@ -199,7 +199,8 @@
     "remove": "Remove",
     "limitReached": "Maximum of {max} media items reached",
     "addError": "Failed to add media",
-    "deleteError": "Failed to remove media"
+    "deleteError": "Failed to remove media",
+    "reorderError": "Failed to reorder media"
   },
   "plans": {
     "title": "Training Plans",
@@ -232,7 +233,8 @@
     "slot1Required": "Slot 1 exercise is required",
     "slot2Required": "Slot 2 exercise is required for biseries",
     "addItemError": "Failed to add item",
-    "deleteItemError": "Failed to remove item"
+    "deleteItemError": "Failed to remove item",
+    "reorderError": "Failed to reorder items"
   },
   "trainees": {
     "title": "Trainees",
@@ -247,6 +249,7 @@
     "delete": "Delete",
     "deleteLabel": "Delete {name}",
     "deleteError": "Failed to delete",
-    "deleteBlockedError": "Cannot delete — trainee has training sessions"
+    "deleteBlockedError": "Cannot delete — trainee has training sessions",
+    "saveEditError": "Failed to save"
   }
 }
