@@ -143,5 +143,16 @@
     "validationError": "Invalid input. Please check your entries.",
     "deleteBlocked": "This item cannot be deleted because it is referenced by existing data.",
     "mediaLimit": "Maximum media limit (10) reached for this exercise."
+  },
+  "trainer": {
+    "title": "Trainer",
+    "exercises": "Exercises",
+    "exercisesDesc": "Create and manage exercises",
+    "plans": "Training Plans",
+    "plansDesc": "Build and organise training plans",
+    "trainees": "Trainees",
+    "traineesDesc": "Manage trainee profiles",
+    "progress": "Progress",
+    "progressDesc": "View progression charts"
   }
 }
