@@ -24,6 +24,7 @@ export const LogSetSchema = z.object({
 export type LogSetInput = z.infer<typeof LogSetSchema>
 
 export const FinishSessionSchema = z.object({
+  finishedAt: z.date().optional(),
   caloriesBurned: z.number().int().positive().optional(),
 })
 export type FinishSessionInput = z.infer<typeof FinishSessionSchema>
@@ -32,6 +33,7 @@ export interface ISessionRepository {
   create(data: StartSessionInput): Promise<TrainingSession>
   findById(id: string): Promise<TrainingSession | null>
   findWithLogs(id: string): Promise<TrainingSession | null>
+  findByTrainee(traineeId: string): Promise<TrainingSession[]>
   finish(id: string, data: FinishSessionInput): Promise<TrainingSession>
 }
 
