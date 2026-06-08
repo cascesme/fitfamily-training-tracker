@@ -9,7 +9,7 @@ services:
       - "5433:5432"
     networks: [internal]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U fitfamily"]
+      test: ["CMD-SHELL", "pg_isready -U fitfamily -d fitfamily_test"]
       interval: 5s
       timeout: 5s
       retries: 10
