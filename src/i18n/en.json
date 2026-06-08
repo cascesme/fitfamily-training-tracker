@@ -233,5 +233,20 @@
     "slot2Required": "Slot 2 exercise is required for biseries",
     "addItemError": "Failed to add item",
     "deleteItemError": "Failed to remove item"
+  },
+  "trainees": {
+    "title": "Trainees",
+    "empty": "No trainees yet.",
+    "namePlaceholder": "Trainee name",
+    "add": "Add",
+    "adding": "Adding…",
+    "addError": "Failed to add trainee",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteLabel": "Delete {name}",
+    "deleteError": "Failed to delete",
+    "deleteBlockedError": "Cannot delete — trainee has training sessions"
   }
 }
