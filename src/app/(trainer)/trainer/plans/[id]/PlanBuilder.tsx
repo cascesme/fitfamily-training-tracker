@@ -128,6 +128,7 @@ export function PlanBuilder({ plan, allExercises }: Props) {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    // intentional controlled sync of local state from prop change
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setItems(plan.items ?? [])
   }, [plan.items])
