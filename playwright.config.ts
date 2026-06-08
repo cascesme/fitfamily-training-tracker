@@ -5,19 +5,19 @@ export default defineConfig({
   fullyParallel: false,
   retries: 0,
   workers: 1,
-  reporter: 'list',
+  reporter: 'html',
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
   },
   projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 14'] },
-    },
+    { name: 'Mobile Chrome', use: { ...devices['Pixel 5'] } },
+    { name: 'Mobile Safari', use: { ...devices['iPhone 13'] } },
   ],
+  webServer: {
+    command: 'docker-compose -f docker-compose.test.yml up --wait',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !!process.env.CI,
+    timeout: 120000,
+  },
 })

@@ -7,26 +7,29 @@ services:
       POSTGRES_PASSWORD: fitfamily
     ports:
       - "5433:5432"
-    networks:
-      - test
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fitfamily"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   app:
     build: .
-    ports:
-      - "3001:3000"
+    ports: ["3000:3000"]
     environment:
       DATABASE_URL: postgresql://fitfamily:fitfamily@db:5432/fitfamily_test
       MEDIA_PATH: /data/media
-      NODE_ENV: test
+      NODE_ENV: production
     volumes:
-      - media_test:/data/media
+      - test_media:/data/media
     depends_on:
-      - db
-    networks:
-      - test
+      db:
+        condition: service_healthy
+    networks: [internal]
 
 volumes:
-  media_test:
+  test_media:
 
 networks:
-  test:
+  internal:
