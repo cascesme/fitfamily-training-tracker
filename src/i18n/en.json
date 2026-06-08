@@ -154,5 +154,20 @@
     "traineesDesc": "Manage trainee profiles",
     "progress": "Progress",
     "progressDesc": "View progression charts"
+  },
+  "exercises": {
+    "title": "Exercises",
+    "empty": "No exercises yet. Create your first one.",
+    "newExercise": "New Exercise",
+    "name": "Name",
+    "description": "Description (optional)",
+    "trackingType": "Tracking type",
+    "trackingWeight": "Weight",
+    "trackingTime": "Time",
+    "trackingNone": "None",
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "createError": "Failed to create exercise"
   }
 }
