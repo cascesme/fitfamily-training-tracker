@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { exerciseService } from '@/lib/api/services'
 import { getTranslations } from 'next-intl/server'
 import { ExerciseCard } from '@/components/ExerciseCard'

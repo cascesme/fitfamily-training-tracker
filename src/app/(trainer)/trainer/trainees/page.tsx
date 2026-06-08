@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { traineeService } from '@/lib/api/services'
 import { getTranslations } from 'next-intl/server'
 import { TraineeList } from './TraineeList'

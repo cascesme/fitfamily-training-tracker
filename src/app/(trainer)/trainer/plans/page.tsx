@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { trainingPlanService } from '@/lib/api/services'
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'

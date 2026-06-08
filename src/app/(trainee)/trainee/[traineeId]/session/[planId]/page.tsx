@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { trainingPlanService } from '@/lib/api/services'
 import { notFound } from 'next/navigation'
 import { PlanSessionRunner } from './PlanSessionRunner'
