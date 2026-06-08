@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { MediaStrip } from '@/components/MediaStrip'
@@ -27,6 +27,7 @@ export function ExerciseSessionRunner({ exercise, traineeId }: Props) {
   const [currentSet, setCurrentSet] = useState(0)
   const [startError, setStartError] = useState<string | null>(null)
   const [logError, setLogError] = useState<string | null>(null)
+  const logging = useRef(false)
 
   async function handleStart(e: React.FormEvent) {
     e.preventDefault()
@@ -51,6 +52,8 @@ export function ExerciseSessionRunner({ exercise, traineeId }: Props) {
 
   async function handleMarkDone(data: { weightKg?: number; repsDone?: number }) {
     if (!sessionId) return
+    if (logging.current) return
+    logging.current = true
     setLogError(null)
     const nextSet = currentSet + 1
     try {
@@ -71,6 +74,8 @@ export function ExerciseSessionRunner({ exercise, traineeId }: Props) {
     } catch {
       setLogError(t('logError'))
       return
+    } finally {
+      logging.current = false
     }
     if (nextSet >= targetSets) {
       router.push(`/trainee/${traineeId}/finish?sessionId=${sessionId}`)

@@ -1,4 +1,4 @@
-import { trainingPlanService, sessionService } from '@/lib/api/services'
+import { trainingPlanService } from '@/lib/api/services'
 import { notFound } from 'next/navigation'
 import { PlanSessionRunner } from './PlanSessionRunner'
 
@@ -11,7 +11,5 @@ export default async function PlanSessionPage({ params }: Props) {
   const plan = await trainingPlanService.findForSession(planId)
   if (!plan) notFound()
 
-  const session = await sessionService.start(traineeId, planId)
-
-  return <PlanSessionRunner plan={plan} session={session} traineeId={traineeId} />
+  return <PlanSessionRunner plan={plan} traineeId={traineeId} />
 }

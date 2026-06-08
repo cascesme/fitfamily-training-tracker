@@ -25,7 +25,6 @@ export class TrainingPlanService {
   }
 
   async findForSession(id: string): Promise<TrainingPlanWithDetails | null> {
-    logger.info({ service: 'TrainingPlanService', operation: 'findForSession', entityId: id }, 'Fetching plan for session')
     return this.repo.findForSession(id)
   }
 

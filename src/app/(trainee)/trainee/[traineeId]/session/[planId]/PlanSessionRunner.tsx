@@ -1,27 +1,39 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { MediaStrip } from '@/components/MediaStrip'
 import { SetLogger } from '@/components/SetLogger'
-import type { TrainingSession } from '@prisma/client'
 import type { TrainingPlanWithDetails } from '@/lib/domain/plan'
 
 interface Props {
   plan: TrainingPlanWithDetails
-  session: TrainingSession
   traineeId: string
 }
 
-export function PlanSessionRunner({ plan, session, traineeId }: Props) {
+export function PlanSessionRunner({ plan, traineeId }: Props) {
   const t = useTranslations('sessionRunner')
   const router = useRouter()
+  const [sessionId, setSessionId] = useState<string | null>(null)
   const [itemIndex, setItemIndex] = useState(0)
   const [setProgress, setSetProgress] = useState<Record<string, number>>({})
   const [logError, setLogError] = useState<string | null>(null)
+  const logging = useRef(false)
+
+  useEffect(() => {
+    fetch('/api/sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ traineeId, planId: plan.id }),
+    })
+      .then((r) => r.json())
+      .then((s) => setSessionId(s.id))
+  }, [])
 
   const currentItem = plan.items[itemIndex]
+
+  if (!sessionId) return <p>Loading…</p>
 
   if (!currentItem) return null
 
@@ -31,11 +43,14 @@ export function PlanSessionRunner({ plan, session, traineeId }: Props) {
     sets: number,
     data: { weightKg?: number; repsDone?: number },
   ) {
+    if (!sessionId) return
+    if (logging.current) return
+    logging.current = true
     setLogError(null)
     const currentSet = (setProgress[planItemExerciseId] ?? 0) + 1
 
     try {
-      const res = await fetch(`/api/sessions/${session.id}/logs`, {
+      const res = await fetch(`/api/sessions/${sessionId}/logs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -53,6 +68,8 @@ export function PlanSessionRunner({ plan, session, traineeId }: Props) {
     } catch {
       setLogError(t('logError'))
       return
+    } finally {
+      logging.current = false
     }
 
     const newProgress = { ...setProgress, [planItemExerciseId]: currentSet }
@@ -62,7 +79,7 @@ export function PlanSessionRunner({ plan, session, traineeId }: Props) {
     if (!allDone) return
 
     if (itemIndex + 1 >= plan.items.length) {
-      router.push(`/trainee/${traineeId}/finish?sessionId=${session.id}&planId=${plan.id}`)
+      router.push(`/trainee/${traineeId}/finish?sessionId=${sessionId}&planId=${plan.id}`)
       return
     }
     setItemIndex((prev) => prev + 1)
