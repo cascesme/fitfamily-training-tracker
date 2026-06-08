@@ -49,4 +49,13 @@ export class SessionService {
     logger.info({ service: 'SessionService', operation: 'finishSession', entityId: sessionId, outcome: 'finished' }, 'Session finished')
     return session
   }
+
+  async listByTrainee(traineeId: string): Promise<TrainingSession[]> {
+    return this.sessionRepo.findByTrainee(traineeId)
+  }
+
+  async start(traineeId: string, planId?: string): Promise<TrainingSession> {
+    if (planId) return this.startPlanSession(traineeId, planId)
+    return this.startExerciseSession(traineeId)
+  }
 }

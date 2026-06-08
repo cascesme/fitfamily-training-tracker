@@ -1,4 +1,4 @@
-import type { ITrainingPlanRepository, CreatePlanInput, UpdatePlanInput, TrainingPlan } from '@/lib/domain/plan'
+import type { ITrainingPlanRepository, CreatePlanInput, UpdatePlanInput, TrainingPlan, TrainingPlanItem } from '@/lib/domain/plan'
 import { NotFoundError, ValidationError } from '@/lib/errors'
 import { logger } from '@/lib/logger'
 
@@ -52,7 +52,7 @@ export class TrainingPlanService {
     planId: string,
     position: number,
     exercises: PlanItemExerciseInput[],
-  ): Promise<void> {
+  ): Promise<TrainingPlanItem> {
     logger.info({ service: 'TrainingPlanService', operation: 'addItem', entityId: planId }, 'Adding item to plan')
     const hasSlot2 = exercises.some(e => e.slot === 2)
     const hasSlot1 = exercises.some(e => e.slot === 1)
@@ -60,8 +60,9 @@ export class TrainingPlanService {
       logger.info({ service: 'TrainingPlanService', operation: 'addItem', entityId: planId, outcome: 'blocked' }, 'Biseries slot 2 requires slot 1')
       throw new ValidationError('biseries slot 2 requires slot 1 to exist in the same item')
     }
-    await this.repo.addItem(planId, position, exercises)
-    logger.info({ service: 'TrainingPlanService', operation: 'addItem', entityId: planId, outcome: 'created' }, 'Plan item added')
+    const item = await this.repo.addItem(planId, position, exercises)
+    logger.info({ service: 'TrainingPlanService', operation: 'addItem', entityId: item.id, outcome: 'created' }, 'Plan item added')
+    return item
   }
 
   async removeItem(itemId: string): Promise<void> {
