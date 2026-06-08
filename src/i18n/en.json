@@ -116,7 +116,7 @@
     "caloriesLabel": "Calories Burned (optional)",
     "caloriesPlaceholder": "From Apple Watch",
     "saveSession": "Save Session",
-    "lastSession": "Last time: {weight}kg × {reps}",
+    "lastSession": "Last session",
     "noHistory": "No previous data",
     "setsTarget": "Target: {sets} sets × {reps} reps",
     "totalSets": "Total sets: {count}",
