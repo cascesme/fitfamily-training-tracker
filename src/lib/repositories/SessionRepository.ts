@@ -33,4 +33,11 @@ export class SessionRepository implements ISessionRepository {
       include: { logs: true },
     })
   }
+
+  findLastByTrainee(traineeId: string): Promise<TrainingSession | null> {
+    return this.prisma.trainingSession.findFirst({
+      where: { traineeId },
+      orderBy: { startedAt: 'desc' },
+    })
+  }
 }

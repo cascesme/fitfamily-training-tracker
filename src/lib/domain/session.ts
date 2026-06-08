@@ -34,6 +34,7 @@ export interface ISessionRepository {
   findById(id: string): Promise<TrainingSession | null>
   findWithLogs(id: string): Promise<TrainingSession | null>
   findByTrainee(traineeId: string): Promise<TrainingSession[]>
+  findLastByTrainee(traineeId: string): Promise<TrainingSession | null>
   finish(id: string, data: FinishSessionInput): Promise<TrainingSession>
 }
 

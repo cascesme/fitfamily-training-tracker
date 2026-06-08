@@ -54,6 +54,11 @@ export class SessionService {
     return this.sessionRepo.findByTrainee(traineeId)
   }
 
+  async findLastByTrainee(traineeId: string): Promise<TrainingSession | null> {
+    logger.info({ service: 'SessionService', operation: 'findLastByTrainee', entityId: traineeId }, 'Finding last session for trainee')
+    return this.sessionRepo.findLastByTrainee(traineeId)
+  }
+
   async start(traineeId: string, planId?: string): Promise<TrainingSession> {
     if (planId) return this.startPlanSession(traineeId, planId)
     return this.startExerciseSession(traineeId)

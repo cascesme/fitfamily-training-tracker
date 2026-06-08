@@ -5,6 +5,7 @@ const mockSessionRepo: jest.Mocked<ISessionRepository> = {
   create: jest.fn(),
   finish: jest.fn(),
   findByTrainee: jest.fn(),
+  findLastByTrainee: jest.fn(),
   findById: jest.fn(),
   findWithLogs: jest.fn(),
 }
