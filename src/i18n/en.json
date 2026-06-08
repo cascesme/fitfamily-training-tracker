@@ -283,6 +283,7 @@
     "cancel": "Cancel",
     "edit": "Edit",
     "delete": "Delete",
+    "confirm": "Confirm",
     "deleteLabel": "Delete {name}",
     "deleteError": "Failed to delete",
     "deleteBlockedError": "Cannot delete — trainee has training sessions",

@@ -49,7 +49,7 @@ test.describe('Failure paths', () => {
     await page.click('text=Biseries')
     await page.fill('[placeholder="Exercise 2"]', 'Exercise A')
     await page.click('text=Exercise A')
-    await page.click('text=Add Item')
+    await page.getByRole('dialog').getByRole('button', { name: 'Add Item' }).click()
 
     await expect(page.locator('text=slot 1')).toBeVisible()
   })

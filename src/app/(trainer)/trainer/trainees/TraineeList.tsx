@@ -23,6 +23,7 @@ export function TraineeList({ initialTrainees }: Props) {
   const [editName, setEditName] = useState('')
   const [editError, setEditError] = useState<string | null>(null)
   const [deleteErrors, setDeleteErrors] = useState<Record<string, string>>({})
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null)
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault()
@@ -77,6 +78,7 @@ export function TraineeList({ initialTrainees }: Props) {
   }
 
   async function handleDelete(id: string) {
+    setConfirmingDeleteId(null)
     setDeleteErrors((prev) => ({ ...prev, [id]: '' }))
     const res = await fetch(`/api/trainees/${id}`, { method: 'DELETE' })
     if (res.status === 409) {
@@ -132,13 +134,25 @@ export function TraineeList({ initialTrainees }: Props) {
                   <>
                     <span className="flex-1 font-semibold">{trainee.name}</span>
                     <Button variant="ghost" onClick={() => startEdit(trainee)}>{t('edit')}</Button>
-                    <button
-                      aria-label={t('deleteLabel', { name: trainee.name })}
-                      onClick={() => handleDelete(trainee.id)}
-                      className="text-sm text-red-400 hover:text-red-300"
-                    >
-                      {t('delete')}
-                    </button>
+                    {confirmingDeleteId === trainee.id ? (
+                      <>
+                        <Button
+                          variant="danger"
+                          onClick={() => handleDelete(trainee.id)}
+                        >
+                          {t('confirm')}
+                        </Button>
+                        <Button variant="ghost" onClick={() => setConfirmingDeleteId(null)}>{t('cancel')}</Button>
+                      </>
+                    ) : (
+                      <button
+                        aria-label={t('deleteLabel', { name: trainee.name })}
+                        onClick={() => setConfirmingDeleteId(trainee.id)}
+                        className="text-sm text-red-400 hover:text-red-300"
+                      >
+                        {t('delete')}
+                      </button>
+                    )}
                   </>
                 )}
               </div>

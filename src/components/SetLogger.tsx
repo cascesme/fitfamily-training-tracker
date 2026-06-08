@@ -36,6 +36,7 @@ export function SetLogger({ setNumber, totalSets, targetReps, trackingType, prev
       <div className="flex gap-3">
         {trackingType === 'WEIGHT' && (
           <Input
+            name="weightKg"
             label={t('weightLabel')}
             type="number"
             step="0.5"
@@ -46,6 +47,7 @@ export function SetLogger({ setNumber, totalSets, targetReps, trackingType, prev
           />
         )}
         <Input
+          name="repsDone"
           label={t('repsLabel')}
           type="number"
           min="1"

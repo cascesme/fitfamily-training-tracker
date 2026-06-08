@@ -195,56 +195,61 @@ export function MediaManager({ exerciseId, initialMedia }: Props) {
         </SortableContext>
       </DndContext>
 
-      {atLimit ? (
-        <p className="text-sm text-[rgba(255,255,255,0.4)]">
-          {t('limitReached', { max: MAX_EXERCISE_MEDIA })}
-        </p>
-      ) : (
-        <div className="rounded-md border border-[rgba(255,255,255,0.08)] bg-[#1A1A1A] p-4">
-          <h3 className="mb-3 text-sm font-semibold">{t('addMedia')}</h3>
-          <div className="mb-3">
-            <label className="mb-1 block text-sm text-[rgba(255,255,255,0.6)]">{t('mediaType')}</label>
-            <select
-              name="mediaType"
-              value={mediaType}
-              onChange={(e) => setMediaType(e.target.value as MediaType)}
-              className="w-full rounded-md border border-[rgba(255,255,255,0.08)] bg-[#0A0A0A] px-3 py-2 text-white"
-            >
-              <option value="YOUTUBE">{t('youtube')}</option>
-              <option value="VIDEO">{t('video')}</option>
-              <option value="PHOTO">{t('photo')}</option>
-              <option value="PDF">{t('pdf')}</option>
-            </select>
+      <div className="rounded-md border border-[rgba(255,255,255,0.08)] bg-[#1A1A1A] p-4">
+        <h3 className="mb-3 text-sm font-semibold">{t('addMedia')}</h3>
+        {atLimit ? (
+          <div className="flex items-center gap-3">
+            <p className="flex-1 text-sm text-[rgba(255,255,255,0.4)]">
+              {t('limitReached', { max: MAX_EXERCISE_MEDIA })}
+            </p>
+            <Button type="button" disabled>{t('add')}</Button>
           </div>
-          {mediaType === 'YOUTUBE' ? (
-            <form onSubmit={handleAddYoutube} className="flex gap-2">
-              <Input
-                name="url"
-                placeholder="https://www.youtube.com/watch?v=..."
-                value={youtubeUrl}
-                onChange={(e) => setYoutubeUrl(e.target.value)}
-                required
-                className="flex-1"
+        ) : (
+          <>
+            <div className="mb-3">
+              <label className="mb-1 block text-sm text-[rgba(255,255,255,0.6)]">{t('mediaType')}</label>
+              <select
+                name="mediaType"
+                value={mediaType}
+                onChange={(e) => setMediaType(e.target.value as MediaType)}
+                className="w-full rounded-md border border-[rgba(255,255,255,0.08)] bg-[#0A0A0A] px-3 py-2 text-white"
+              >
+                <option value="YOUTUBE">{t('youtube')}</option>
+                <option value="VIDEO">{t('video')}</option>
+                <option value="PHOTO">{t('photo')}</option>
+                <option value="PDF">{t('pdf')}</option>
+              </select>
+            </div>
+            {mediaType === 'YOUTUBE' ? (
+              <form onSubmit={handleAddYoutube} className="flex gap-2">
+                <Input
+                  name="url"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  value={youtubeUrl}
+                  onChange={(e) => setYoutubeUrl(e.target.value)}
+                  required
+                  className="flex-1"
+                />
+                <Button type="submit" disabled={uploading}>{t('add')}</Button>
+              </form>
+            ) : (
+              <input
+                type="file"
+                accept={
+                  mediaType === 'VIDEO'
+                    ? 'video/*'
+                    : mediaType === 'PHOTO'
+                    ? 'image/*'
+                    : 'application/pdf'
+                }
+                onChange={handleFileUpload}
+                disabled={uploading}
+                className="text-sm text-white"
               />
-              <Button type="submit" disabled={uploading}>{t('add')}</Button>
-            </form>
-          ) : (
-            <input
-              type="file"
-              accept={
-                mediaType === 'VIDEO'
-                  ? 'video/*'
-                  : mediaType === 'PHOTO'
-                  ? 'image/*'
-                  : 'application/pdf'
-              }
-              onChange={handleFileUpload}
-              disabled={uploading}
-              className="text-sm text-white"
-            />
-          )}
-        </div>
-      )}
+            )}
+          </>
+        )}
+      </div>
 
       {error && <p className="text-sm text-red-400">{error}</p>}
     </div>
