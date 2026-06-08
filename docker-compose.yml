@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: fitfamily
+      POSTGRES_USER: fitfamily
+      POSTGRES_PASSWORD: fitfamily
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - internal
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://fitfamily:fitfamily@db:5432/fitfamily
+      MEDIA_PATH: /data/media
+    volumes:
+      - media_data:/data/media
+    depends_on:
+      - db
+    networks:
+      - internal
+
+volumes:
+  db_data:
+  media_data:
+
+networks:
+  internal:
