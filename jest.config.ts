@@ -17,6 +17,7 @@ const config: Config = {
       transform: { '^.+\\.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.json' }] },
       testEnvironment: 'node',
       testTimeout: 60000,
+      setupFilesAfterEnv: ['<rootDir>/tests/integration/helpers/jest-setup.ts'],
       moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
       },

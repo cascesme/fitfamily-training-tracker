@@ -15,7 +15,7 @@ export default defineConfig({
     { name: 'Mobile Safari', use: { ...devices['iPhone 13'] } },
   ],
   webServer: {
-    command: 'docker-compose -f docker-compose.test.yml up --wait',
+    command: 'docker compose -f docker-compose.test.yml up',
     url: 'http://localhost:3000',
     reuseExistingServer: !!process.env.CI,
     timeout: 120000,
