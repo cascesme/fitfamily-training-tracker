@@ -8,6 +8,10 @@ Stack: Next.js 15 (App Router) · TypeScript 5 · Tailwind CSS 4 · Prisma · Po
 
 Full spec: `docs/superpowers/specs/2026-06-08-fitfamily-training-tracker-design.md`
 
+Implementation plan: `docs/superpowers/plans/2026-06-08-fitfamily-training-tracker.md`
+
+**Execution approach:** Subagent-driven development (`superpowers:subagent-driven-development`). One subagent per task, review between tasks.
+
 ---
 
 ## Non-Negotiable Rules
