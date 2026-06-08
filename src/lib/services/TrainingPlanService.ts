@@ -1,0 +1,76 @@
+import type { ITrainingPlanRepository, CreatePlanInput, UpdatePlanInput, TrainingPlan } from '@/lib/domain/plan'
+import { NotFoundError, ValidationError } from '@/lib/errors'
+import { logger } from '@/lib/logger'
+
+interface PlanItemExerciseInput {
+  exerciseId: string
+  sets: number
+  reps: number
+  slot: number
+}
+
+export class TrainingPlanService {
+  constructor(private repo: ITrainingPlanRepository) {}
+
+  list(): Promise<TrainingPlan[]> {
+    return this.repo.findAll()
+  }
+
+  findById(id: string): Promise<TrainingPlan | null> {
+    return this.repo.findById(id)
+  }
+
+  findWithItems(id: string): Promise<TrainingPlan | null> {
+    return this.repo.findWithItems(id)
+  }
+
+  async create(data: CreatePlanInput): Promise<TrainingPlan> {
+    logger.info({ service: 'TrainingPlanService', operation: 'create' }, 'Creating plan')
+    const plan = await this.repo.create(data)
+    logger.info({ service: 'TrainingPlanService', operation: 'create', entityId: plan.id, outcome: 'created' }, 'Plan created')
+    return plan
+  }
+
+  async update(id: string, data: UpdatePlanInput): Promise<TrainingPlan> {
+    logger.info({ service: 'TrainingPlanService', operation: 'update', entityId: id }, 'Updating plan')
+    const existing = await this.repo.findById(id)
+    if (!existing) throw new NotFoundError(id)
+    const updated = await this.repo.update(id, data)
+    logger.info({ service: 'TrainingPlanService', operation: 'update', entityId: id, outcome: 'updated' }, 'Plan updated')
+    return updated
+  }
+
+  async delete(id: string): Promise<void> {
+    logger.info({ service: 'TrainingPlanService', operation: 'delete', entityId: id }, 'Deleting plan')
+    const existing = await this.repo.findById(id)
+    if (!existing) throw new NotFoundError(id)
+    await this.repo.delete(id)
+    logger.info({ service: 'TrainingPlanService', operation: 'delete', entityId: id, outcome: 'deleted' }, 'Plan deleted')
+  }
+
+  async addItem(
+    planId: string,
+    position: number,
+    exercises: PlanItemExerciseInput[],
+  ): Promise<void> {
+    logger.info({ service: 'TrainingPlanService', operation: 'addItem', entityId: planId }, 'Adding item to plan')
+    const hasSlot2 = exercises.some(e => e.slot === 2)
+    const hasSlot1 = exercises.some(e => e.slot === 1)
+    if (hasSlot2 && !hasSlot1) {
+      logger.info({ service: 'TrainingPlanService', operation: 'addItem', entityId: planId, outcome: 'blocked' }, 'Biseries slot 2 requires slot 1')
+      throw new ValidationError('biseries slot 2 requires slot 1 to exist in the same item')
+    }
+    await this.repo.addItem(planId, position, exercises)
+    logger.info({ service: 'TrainingPlanService', operation: 'addItem', entityId: planId, outcome: 'created' }, 'Plan item added')
+  }
+
+  async removeItem(itemId: string): Promise<void> {
+    logger.info({ service: 'TrainingPlanService', operation: 'removeItem', entityId: itemId }, 'Removing plan item')
+    await this.repo.removeItem(itemId)
+  }
+
+  async reorderItems(planId: string, positions: Array<{ id: string; position: number }>): Promise<void> {
+    logger.info({ service: 'TrainingPlanService', operation: 'reorderItems', entityId: planId }, 'Reordering plan items')
+    await this.repo.reorderItems(planId, positions)
+  }
+}
