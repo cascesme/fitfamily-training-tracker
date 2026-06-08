@@ -211,5 +211,27 @@
     "saving": "Saving…",
     "cancel": "Cancel",
     "createError": "Failed to create plan"
+  },
+  "planBuilder": {
+    "addItem": "Add Item",
+    "removeItem": "Remove",
+    "single": "Single",
+    "biseries": "Biseries",
+    "noItems": "No items yet. Add the first one.",
+    "exerciseLabel": "Exercise",
+    "slot1Label": "Slot 1",
+    "slot2Label": "Slot 2",
+    "exercisePlaceholder": "Search exercise…",
+    "exercise1Placeholder": "Exercise 1",
+    "exercise2Placeholder": "Exercise 2",
+    "sets": "Sets",
+    "reps": "Reps",
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "slot1Required": "Slot 1 exercise is required",
+    "slot2Required": "Slot 2 exercise is required for biseries",
+    "addItemError": "Failed to add item",
+    "deleteItemError": "Failed to remove item"
   }
 }
