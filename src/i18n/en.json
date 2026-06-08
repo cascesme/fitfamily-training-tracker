@@ -200,5 +200,16 @@
     "limitReached": "Maximum of {max} media items reached",
     "addError": "Failed to add media",
     "deleteError": "Failed to remove media"
+  },
+  "plans": {
+    "title": "Training Plans",
+    "empty": "No plans yet. Create your first one.",
+    "newPlan": "New Plan",
+    "name": "Name",
+    "description": "Description (optional)",
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "createError": "Failed to create plan"
   }
 }
