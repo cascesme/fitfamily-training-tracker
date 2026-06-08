@@ -3,11 +3,23 @@ import type {
   TrainingPlan as PrismaTrainingPlan,
   TrainingPlanItem as PrismaTrainingPlanItem,
   TrainingPlanItemExercise as PrismaTrainingPlanItemExercise,
+  Exercise as PrismaExercise,
+  ExerciseMedia,
 } from '@prisma/client'
 
 export type TrainingPlanItemExercise = PrismaTrainingPlanItemExercise
 export type TrainingPlanItem = PrismaTrainingPlanItem & { exercises?: TrainingPlanItemExercise[] }
 export type TrainingPlan = PrismaTrainingPlan & { items?: TrainingPlanItem[] }
+
+export type TrainingPlanItemExerciseWithDetails = PrismaTrainingPlanItemExercise & {
+  exercise: PrismaExercise & { media: ExerciseMedia[] }
+}
+export type TrainingPlanItemWithDetails = PrismaTrainingPlanItem & {
+  exercises: TrainingPlanItemExerciseWithDetails[]
+}
+export type TrainingPlanWithDetails = PrismaTrainingPlan & {
+  items: TrainingPlanItemWithDetails[]
+}
 
 export const CreatePlanSchema = z.object({
   name: z.string().min(1).max(100),
@@ -37,6 +49,7 @@ export interface ITrainingPlanRepository {
   findAll(): Promise<TrainingPlan[]>
   findById(id: string): Promise<TrainingPlan | null>
   findWithItems(id: string): Promise<TrainingPlan | null>
+  findForSession(id: string): Promise<TrainingPlanWithDetails | null>
   create(data: CreatePlanInput): Promise<TrainingPlan>
   update(id: string, data: UpdatePlanInput): Promise<TrainingPlan>
   delete(id: string): Promise<void>

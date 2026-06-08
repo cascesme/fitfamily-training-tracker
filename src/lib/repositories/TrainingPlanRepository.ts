@@ -6,6 +6,7 @@ import type {
   TrainingPlan,
   TrainingPlanItem,
   TrainingPlanItemExercise,
+  TrainingPlanWithDetails,
 } from '@/lib/domain/plan'
 
 export class TrainingPlanRepository implements ITrainingPlanRepository {
@@ -31,6 +32,27 @@ export class TrainingPlanRepository implements ITrainingPlanRepository {
         },
       },
     })
+  }
+
+  async findForSession(id: string): Promise<TrainingPlanWithDetails | null> {
+    return this.prisma.trainingPlan.findUnique({
+      where: { id },
+      include: {
+        items: {
+          orderBy: { position: 'asc' },
+          include: {
+            exercises: {
+              orderBy: { slot: 'asc' },
+              include: {
+                exercise: {
+                  include: { media: { orderBy: { position: 'asc' } } },
+                },
+              },
+            },
+          },
+        },
+      },
+    }) as Promise<TrainingPlanWithDetails | null>
   }
 
   create(data: CreatePlanInput): Promise<TrainingPlan> {

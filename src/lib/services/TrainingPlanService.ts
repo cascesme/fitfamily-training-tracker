@@ -1,4 +1,4 @@
-import type { ITrainingPlanRepository, CreatePlanInput, UpdatePlanInput, TrainingPlan, TrainingPlanItem } from '@/lib/domain/plan'
+import type { ITrainingPlanRepository, CreatePlanInput, UpdatePlanInput, TrainingPlan, TrainingPlanItem, TrainingPlanWithDetails } from '@/lib/domain/plan'
 import { NotFoundError, ValidationError } from '@/lib/errors'
 import { logger } from '@/lib/logger'
 
@@ -22,6 +22,11 @@ export class TrainingPlanService {
 
   findWithItems(id: string): Promise<TrainingPlan | null> {
     return this.repo.findWithItems(id)
+  }
+
+  async findForSession(id: string): Promise<TrainingPlanWithDetails | null> {
+    logger.info({ service: 'TrainingPlanService', operation: 'findForSession', entityId: id }, 'Fetching plan for session')
+    return this.repo.findForSession(id)
   }
 
   async create(data: CreatePlanInput): Promise<TrainingPlan> {
