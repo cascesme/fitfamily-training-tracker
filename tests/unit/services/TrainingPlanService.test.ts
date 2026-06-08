@@ -67,16 +67,18 @@ describe('TrainingPlanService', () => {
     })
   })
 
+  const mockPlanItem = { id: 'item1', planId: 'p1', position: 1 }
+
   describe('addItem', () => {
     it('adds single exercise item without slot validation', async () => {
-      mockRepo.addItem.mockResolvedValue(undefined as any)
+      mockRepo.addItem.mockResolvedValue(mockPlanItem)
       await service.addItem('p1', 1, [{ exerciseId: 'e1', sets: 3, reps: 10, slot: 1 }])
       expect(mockRepo.addItem).toHaveBeenCalledWith('p1', 1, [{ exerciseId: 'e1', sets: 3, reps: 10, slot: 1 }])
     })
 
     it('allows biseries when slot 1 exists', async () => {
       mockRepo.findItemSlot.mockResolvedValue({ id: 'ie1', itemId: 'item1', exerciseId: 'e1', sets: 3, reps: 10, slot: 1 })
-      mockRepo.addItem.mockResolvedValue(undefined as any)
+      mockRepo.addItem.mockResolvedValue(mockPlanItem)
       await service.addItem('p1', 1, [
         { exerciseId: 'e1', sets: 3, reps: 10, slot: 1 },
         { exerciseId: 'e2', sets: 3, reps: 10, slot: 2 },

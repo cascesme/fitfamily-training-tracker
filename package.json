@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "test:unit": "jest --selectProjects unit",
     "test:integration": "jest --selectProjects integration",
     "test:e2e": "playwright test",
@@ -33,6 +35,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
     "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4.3.0",
     "@testcontainers/postgresql": "^12.0.1",
@@ -41,6 +44,8 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/swagger-ui-react": "^5.18.0",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.7",
     "jest": "^30.4.2",
     "jest-environment-node": "^30.4.1",
     "tailwindcss": "^4",

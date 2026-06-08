@@ -15,6 +15,7 @@ export function ModeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const stored = localStorage.getItem('fitfamily-mode') as Mode | null
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (stored === 'trainer' || stored === 'trainee') setModeState(stored)
   }, [])
 
