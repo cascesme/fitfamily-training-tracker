@@ -10,14 +10,9 @@ const adapter = new PrismaPg({ connectionString })
 const prisma = new PrismaClient({ adapter })
 
 export async function cleanDatabase() {
-  await prisma.trainingSessionLog.deleteMany()
-  await prisma.trainingSession.deleteMany()
-  await prisma.trainingPlanItemExercise.deleteMany()
-  await prisma.trainingPlanItem.deleteMany()
-  await prisma.trainingPlan.deleteMany()
-  await prisma.exerciseMedia.deleteMany()
-  await prisma.exercise.deleteMany()
-  await prisma.trainee.deleteMany()
+  await prisma.$executeRawUnsafe(
+    `TRUNCATE "TrainingSessionLog", "TrainingSession", "TrainingPlanItemExercise", "TrainingPlanItem", "TrainingPlan", "ExerciseMedia", "Exercise", "Trainee" CASCADE`
+  )
 }
 
 export async function seedTrainee(data: { name: string }) {
