@@ -3,6 +3,8 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { motion, AnimatePresence } from 'framer-motion'
+import { fadeSlideUp } from '@/lib/animation'
 import { MediaViewer } from '@/components/MediaViewer'
 import { SetLogger } from '@/components/SetLogger'
 import { Button } from '@/components/ui/Button'
@@ -98,70 +100,55 @@ export function ExerciseSessionRunner({ exercise, traineeId }: Props) {
     setCurrentSet(nextSet)
   }
 
-  if (phase === 'setup') {
-    return (
-      <div className="flex flex-col gap-6">
-        <div>
-          <h1 className="font-display text-2xl font-bold">{exercise.name}</h1>
-          {exercise.description && (
-            <p className="mt-1 text-[rgba(255,255,255,0.6)]">{exercise.description}</p>
+  return (
+    <AnimatePresence mode="wait">
+      {phase === 'setup' && (
+        <motion.div
+          key="setup"
+          initial={fadeSlideUp.initial}
+          animate={fadeSlideUp.animate}
+          exit={fadeSlideUp.exit}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+          className="flex flex-col gap-6"
+        >
+          <div>
+            <h1 className="font-display text-2xl font-bold">{exercise.name}</h1>
+            {exercise.description && (
+              <p className="mt-1 text-[rgba(255,255,255,0.6)]">{exercise.description}</p>
+            )}
+          </div>
+
+          {exercise.media.length > 0 && (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setViewerOpen(true)}
+              className="hover:border-[#E85D26]"
+            >
+              {t('viewMedia')} ({exercise.media.length})
+            </Button>
           )}
-        </div>
 
-        {exercise.media.length > 0 && (
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => setViewerOpen(true)}
-            className="hover:border-[#E85D26]"
-          >
-            {t('viewMedia')} ({exercise.media.length})
-          </Button>
-        )}
+          {viewerOpen && (
+            <MediaViewer media={exercise.media} onClose={() => setViewerOpen(false)} />
+          )}
 
-        {viewerOpen && (
-          <MediaViewer media={exercise.media} onClose={() => setViewerOpen(false)} />
-        )}
-
-        <form onSubmit={handleStart} className="flex flex-col gap-4">
-          <h2 className="font-display text-lg font-semibold">{t('setTarget')}</h2>
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <label className="mb-1 block text-sm text-[rgba(255,255,255,0.6)]">{t('sets')}</label>
-              <Input
-                name="sets"
-                type="number"
-                min="1"
-                value={targetSets}
-                onChange={(e) => setTargetSets(Number(e.target.value))}
-                required
-              />
-            </div>
-            <div className="flex-1">
-              <label className="mb-1 block text-sm text-[rgba(255,255,255,0.6)]">{exercise.trackingType === 'TIME' ? t('duration') : t('reps')}</label>
-              {exercise.trackingType === 'TIME' ? (
-                <div className="flex items-center gap-2">
-                  <Input
-                    name="reps"
-                    type="number"
-                    min="1"
-                    value={durationValue}
-                    onChange={(e) => setDurationValue(Number(e.target.value))}
-                    className="w-20"
-                    required
-                  />
-                  {(['seconds', 'minutes', 'hours'] as const).map((unit) => (
-                    <button
-                      key={unit}
-                      type="button"
-                      onClick={() => setDurationUnit(unit)}
-                      className={`rounded-[6px] border px-2 py-1 text-sm font-medium transition-colors ${durationUnit === unit ? 'border-[#E85D26] text-white' : 'border-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.4)]'}`}
-                    >
-                      {unit === 'seconds' ? t('durationSeconds') : unit === 'minutes' ? t('durationMinutes') : t('durationHours')}
-                    </button>
-                  ))}
-                </div>
-              ) : (
+          <form onSubmit={handleStart} className="flex flex-col gap-4">
+            <h2 className="font-display text-lg font-semibold">{t('setTarget')}</h2>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="mb-1 block text-sm text-[rgba(255,255,255,0.6)]">{t('sets')}</label>
+                <Input
+                  name="sets"
+                  type="number"
+                  min="1"
+                  value={targetSets}
+                  onChange={(e) => setTargetSets(Number(e.target.value))}
+                  required
+                />
+              </div>
+              <div className="flex-1">
+                <label className="mb-1 block text-sm text-[rgba(255,255,255,0.6)]">{exercise.trackingType === 'TIME' ? t('duration') : t('reps')}</label>
                 <Input
                   name="reps"
                   type="number"
@@ -170,44 +157,51 @@ export function ExerciseSessionRunner({ exercise, traineeId }: Props) {
                   onChange={(e) => setTargetReps(Number(e.target.value))}
                   required
                 />
-              )}
+              </div>
             </div>
+            {startError && <p className="text-sm text-red-400">{startError}</p>}
+            <Button type="submit">{t('start')}</Button>
+          </form>
+        </motion.div>
+      )}
+
+      {phase === 'running' && (
+        <motion.div
+          key="running"
+          initial={fadeSlideUp.initial}
+          animate={fadeSlideUp.animate}
+          exit={fadeSlideUp.exit}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+          className="flex flex-col gap-6"
+        >
+          <div>
+            <h1 className="font-display text-2xl font-bold">{exercise.name}</h1>
           </div>
-          {startError && <p className="text-sm text-red-400">{startError}</p>}
-          <Button type="submit">{t('start')}</Button>
-        </form>
-      </div>
-    )
-  }
 
-  return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold">{exercise.name}</h1>
-      </div>
+          {exercise.media.length > 0 && (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setViewerOpen(true)}
+              className="hover:border-[#E85D26]"
+            >
+              {t('viewMedia')} ({exercise.media.length})
+            </Button>
+          )}
 
-      {exercise.media.length > 0 && (
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => setViewerOpen(true)}
-            className="hover:border-[#E85D26]"
-          >
-            {t('viewMedia')} ({exercise.media.length})
-          </Button>
-        )}
+          {viewerOpen && <MediaViewer media={exercise.media} onClose={() => setViewerOpen(false)} />}
 
-      {viewerOpen && <MediaViewer media={exercise.media} onClose={() => setViewerOpen(false)} />}
+          <SetLogger
+            setNumber={currentSet + 1}
+            totalSets={targetSets}
+            targetReps={targetReps}
+            trackingType={exercise.trackingType}
+            onMarkDone={handleMarkDone}
+          />
 
-      <SetLogger
-        setNumber={currentSet + 1}
-        totalSets={targetSets}
-        targetReps={targetReps}
-        trackingType={exercise.trackingType}
-        onMarkDone={handleMarkDone}
-      />
-
-      {logError && <p className="text-sm text-red-400">{logError}</p>}
-    </div>
+          {logError && <p className="text-sm text-red-400">{logError}</p>}
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
