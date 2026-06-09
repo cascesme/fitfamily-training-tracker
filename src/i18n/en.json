@@ -121,7 +121,12 @@
     "setsTarget": "Target: {sets} sets × {reps} reps",
     "totalSets": "Total sets: {count}",
     "duration": "Duration: {minutes} min",
-    "durationLabel": "Duration (s)"
+    "durationLabel": "Duration (s)",
+    "timeRemaining": "Time remaining",
+    "doneEarly": "Done Early",
+    "durationSeconds": "s",
+    "durationMinutes": "min",
+    "durationHours": "hr"
   },
   "media": {
     "playVideo": "Play video",
@@ -272,7 +277,10 @@
     "setLabel": "Set {current} of {total}",
     "logError": "Failed to log set. Please try again.",
     "duration": "Duration (s)",
-    "viewMedia": "View Media"
+    "viewMedia": "View Media",
+    "durationSeconds": "s",
+    "durationMinutes": "min",
+    "durationHours": "hr"
   },
   "finish": {
     "title": "Session Complete",

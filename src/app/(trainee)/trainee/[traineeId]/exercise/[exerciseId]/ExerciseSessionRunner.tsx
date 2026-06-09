@@ -24,6 +24,8 @@ export function ExerciseSessionRunner({ exercise, traineeId }: Props) {
   const [phase, setPhase] = useState<Phase>('setup')
   const [targetSets, setTargetSets] = useState(3)
   const [targetReps, setTargetReps] = useState(exercise.trackingType === 'TIME' ? DEFAULT_TIME_TARGET_SECONDS : 10)
+  const [durationValue, setDurationValue] = useState(DEFAULT_TIME_TARGET_SECONDS)
+  const [durationUnit, setDurationUnit] = useState<'seconds' | 'minutes' | 'hours'>('seconds')
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [currentSet, setCurrentSet] = useState(0)
   const [startError, setStartError] = useState<string | null>(null)
@@ -31,8 +33,17 @@ export function ExerciseSessionRunner({ exercise, traineeId }: Props) {
   const [viewerOpen, setViewerOpen] = useState(false)
   const logging = useRef(false)
 
+  function computeTargetReps(): number {
+    if (exercise.trackingType !== 'TIME') return targetReps
+    if (durationUnit === 'hours') return durationValue * 3600
+    if (durationUnit === 'minutes') return durationValue * 60
+    return durationValue
+  }
+
   async function handleStart(e: React.FormEvent) {
     e.preventDefault()
+    const computedReps = computeTargetReps()
+    setTargetReps(computedReps)
     setStartError(null)
     try {
       const res = await fetch('/api/sessions', {
@@ -128,14 +139,38 @@ export function ExerciseSessionRunner({ exercise, traineeId }: Props) {
             </div>
             <div className="flex-1">
               <label className="mb-1 block text-sm text-[rgba(255,255,255,0.6)]">{exercise.trackingType === 'TIME' ? t('duration') : t('reps')}</label>
-              <Input
-                name="reps"
-                type="number"
-                min="1"
-                value={targetReps}
-                onChange={(e) => setTargetReps(Number(e.target.value))}
-                required
-              />
+              {exercise.trackingType === 'TIME' ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    name="durationValue"
+                    type="number"
+                    min="1"
+                    value={durationValue}
+                    onChange={(e) => setDurationValue(Number(e.target.value))}
+                    className="w-20"
+                    required
+                  />
+                  {(['seconds', 'minutes', 'hours'] as const).map((unit) => (
+                    <button
+                      key={unit}
+                      type="button"
+                      onClick={() => setDurationUnit(unit)}
+                      className={`rounded-[6px] border px-2 py-1 text-sm font-medium transition-colors ${durationUnit === unit ? 'border-[#E85D26] text-white' : 'border-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.4)]'}`}
+                    >
+                      {unit === 'seconds' ? t('durationSeconds') : unit === 'minutes' ? t('durationMinutes') : t('durationHours')}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <Input
+                  name="reps"
+                  type="number"
+                  min="1"
+                  value={targetReps}
+                  onChange={(e) => setTargetReps(Number(e.target.value))}
+                  required
+                />
+              )}
             </div>
           </div>
           {startError && <p className="text-sm text-red-400">{startError}</p>}
