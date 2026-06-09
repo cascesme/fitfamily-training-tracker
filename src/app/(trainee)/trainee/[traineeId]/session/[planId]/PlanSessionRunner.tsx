@@ -1,11 +1,13 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 import { MediaViewer } from '@/components/MediaViewer'
 import { SetLogger } from '@/components/SetLogger'
+import { fadeSlideUp, springTransition } from '@/lib/animation'
 import type { TrainingPlanWithDetails } from '@/lib/domain/plan'
 
 interface Props {
@@ -15,7 +17,9 @@ interface Props {
 
 export function PlanSessionRunner({ plan, traineeId }: Props) {
   const t = useTranslations('sessionRunner')
+  const tSession = useTranslations('session')
   const router = useRouter()
+  const [phase, setPhase] = useState<'ready' | 'running'>('ready')
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [itemIndex, setItemIndex] = useState(0)
   const [setProgress, setSetProgress] = useState<Record<string, number>>({})
@@ -23,21 +27,24 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
   const [viewerOpenFor, setViewerOpenFor] = useState<string | null>(null)
   const logging = useRef(false)
 
-  useEffect(() => {
-    fetch('/api/sessions', {
+  const totalExercises = plan.items.reduce((sum, item) => sum + item.exercises.length, 0)
+  const totalSets = plan.items.reduce(
+    (sum, item) => item.exercises.reduce((s, ex) => s + ex.sets, sum),
+    0,
+  )
+
+  async function handleStart() {
+    const res = await fetch('/api/sessions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ traineeId, planId: plan.id }),
     })
-      .then((r) => r.json())
-      .then((s) => setSessionId(s.id))
-  }, [traineeId, plan.id])
+    const s = await res.json()
+    setSessionId(s.id)
+    setPhase('running')
+  }
 
   const currentItem = plan.items[itemIndex]
-
-  if (!sessionId) return <p>Loading…</p>
-
-  if (!currentItem) return null
 
   async function handleMarkDone(
     planItemExerciseId: string,
@@ -57,7 +64,7 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           exerciseId,
-          planItemId: currentItem.id,
+          planItemId: currentItem!.id,
           setNumber: currentSet,
           weightKg: data.weightKg ?? null,
           repsDone: data.repsDone ?? null,
@@ -78,7 +85,7 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
     const newProgress = { ...setProgress, [planItemExerciseId]: currentSet }
     setSetProgress(newProgress)
 
-    const allDone = currentItem.exercises.every((ex) => (newProgress[ex.id] ?? 0) >= ex.sets)
+    const allDone = currentItem!.exercises.every((ex) => (newProgress[ex.id] ?? 0) >= ex.sets)
     if (!allDone) return
 
     if (itemIndex + 1 >= plan.items.length) {
@@ -89,60 +96,132 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-xl font-bold">{plan.name}</h1>
-        <span className="text-sm text-[rgba(255,255,255,0.4)]">
-          {t('itemProgress', { current: itemIndex + 1, total: plan.items.length })}
-        </span>
-      </div>
+    <AnimatePresence mode="wait">
+      {phase === 'ready' && (
+        <motion.div
+          key="ready"
+          initial={fadeSlideUp.initial}
+          animate={fadeSlideUp.animate}
+          exit={fadeSlideUp.exit}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+          className="flex min-h-[calc(100dvh-4rem)] flex-col items-center justify-center gap-6 px-4"
+        >
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="absolute left-4 top-4 text-[rgba(255,255,255,0.6)] hover:text-white"
+            aria-label="Back"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M19 12H5M12 5l-7 7 7 7" />
+            </svg>
+          </button>
 
-      {currentItem.exercises.map((ex) => {
-        const currentSet = setProgress[ex.id] ?? 0
-        const setsLeft = ex.sets - currentSet
-
-        return (
-          <div key={ex.id} className="flex flex-col gap-4">
-            <div>
-              <h2 className="font-display text-2xl font-bold">{ex.exercise.name}</h2>
-              {ex.exercise.description && (
-                <p className="mt-1 text-sm text-[rgba(255,255,255,0.6)]">{ex.exercise.description}</p>
-              )}
+          <div className="flex w-full max-w-sm flex-col gap-6">
+            <div className="flex flex-col gap-2 text-center">
+              <h1 className="font-display text-2xl font-bold">{plan.name}</h1>
+              <p className="text-sm text-[rgba(255,255,255,0.6)]">
+                {tSession('ready.exerciseCount', { count: totalExercises, sets: totalSets })}
+              </p>
             </div>
 
-            {ex.exercise.media.length > 0 && (
+            <hr className="border-[rgba(255,255,255,0.08)]" />
+
+            <p className="text-center italic text-[rgba(255,255,255,0.4)]">
+              {tSession('ready.tagline')}
+            </p>
+
+            <motion.div whileTap={{ scale: 0.97 }} transition={springTransition}>
               <Button
                 type="button"
-                variant="secondary"
-                onClick={() => setViewerOpenFor(ex.id)}
-                className="hover:border-[#E85D26]"
+                variant="primary"
+                size="lg"
+                className="w-full"
+                onClick={handleStart}
               >
-                {t('viewMedia')} ({ex.exercise.media.length})
+                {tSession('ready.cta')}
               </Button>
-            )}
-
-            {viewerOpenFor === ex.id && (
-              <MediaViewer media={ex.exercise.media} onClose={() => setViewerOpenFor(null)} />
-            )}
-
-            {setsLeft > 0 && (
-              <SetLogger
-                setNumber={currentSet + 1}
-                totalSets={ex.sets}
-                targetReps={ex.reps}
-                trackingType={ex.exercise.trackingType}
-                onMarkDone={(data) => handleMarkDone(ex.id, ex.exerciseId, ex.sets, data)}
-              />
-            )}
-
-            {setsLeft === 0 && (
-              <p className="font-semibold text-[rgba(255,255,255,0.4)]">{t('allSetsDone')}</p>
-            )}
+            </motion.div>
           </div>
-        )
-      })}
+        </motion.div>
+      )}
 
-      {logError && <p className="text-sm text-red-400">{logError}</p>}
-    </div>
+      {phase === 'running' && currentItem && (
+        <motion.div
+          key="running"
+          initial={fadeSlideUp.initial}
+          animate={fadeSlideUp.animate}
+          exit={fadeSlideUp.exit}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+          className="flex flex-col gap-6"
+        >
+          <div className="flex items-center justify-between">
+            <h1 className="font-display text-xl font-bold">{plan.name}</h1>
+            <span className="text-sm text-[rgba(255,255,255,0.4)]">
+              {t('itemProgress', { current: itemIndex + 1, total: plan.items.length })}
+            </span>
+          </div>
+
+          {currentItem.exercises.map((ex) => {
+            const currentSet = setProgress[ex.id] ?? 0
+            const setsLeft = ex.sets - currentSet
+
+            return (
+              <div key={ex.id} className="flex flex-col gap-4">
+                <div>
+                  <h2 className="font-display text-2xl font-bold">{ex.exercise.name}</h2>
+                  {ex.exercise.description && (
+                    <p className="mt-1 text-sm text-[rgba(255,255,255,0.6)]">
+                      {ex.exercise.description}
+                    </p>
+                  )}
+                </div>
+
+                {ex.exercise.media.length > 0 && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setViewerOpenFor(ex.id)}
+                    className="hover:border-[#E85D26]"
+                  >
+                    {t('viewMedia')} ({ex.exercise.media.length})
+                  </Button>
+                )}
+
+                {viewerOpenFor === ex.id && (
+                  <MediaViewer media={ex.exercise.media} onClose={() => setViewerOpenFor(null)} />
+                )}
+
+                {setsLeft > 0 && (
+                  <SetLogger
+                    setNumber={currentSet + 1}
+                    totalSets={ex.sets}
+                    targetReps={ex.reps}
+                    trackingType={ex.exercise.trackingType}
+                    onMarkDone={(data) => handleMarkDone(ex.id, ex.exerciseId, ex.sets, data)}
+                  />
+                )}
+
+                {setsLeft === 0 && (
+                  <p className="font-semibold text-[rgba(255,255,255,0.4)]">{t('allSetsDone')}</p>
+                )}
+              </div>
+            )
+          })}
+
+          {logError && <p className="text-sm text-red-400">{logError}</p>}
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
