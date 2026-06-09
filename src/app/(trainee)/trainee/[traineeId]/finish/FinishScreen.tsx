@@ -3,12 +3,22 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 
 interface Props {
   traineeId: string
   sessionId: string
+}
+
+const containerVariants = {
+  animate: { transition: { staggerChildren: 0.08 } },
+}
+
+const itemVariants = {
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0, transition: { ease: 'easeOut' as const, duration: 0.4 } },
 }
 
 export function FinishScreen({ traineeId, sessionId }: Props) {
@@ -45,14 +55,35 @@ export function FinishScreen({ traineeId, sessionId }: Props) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-8 py-12 text-center">
-      <div>
+    <motion.div
+      className="flex flex-col items-center gap-6 py-12 text-center"
+      variants={containerVariants}
+      initial="initial"
+      animate="animate"
+    >
+      {/* 1. Checkmark icon */}
+      <motion.div variants={itemVariants}>
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="32" cy="32" r="30" stroke="#E85D26" strokeWidth="2" />
+          <path d="M20 32l9 9 15-18" stroke="#E85D26" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </motion.div>
+
+      {/* 2. Title + subtitle */}
+      <motion.div variants={itemVariants}>
         <h1 className="font-display text-4xl font-bold">{t('title')}</h1>
         <p className="mt-2 text-[rgba(255,255,255,0.6)]">{t('subtitle')}</p>
-      </div>
+      </motion.div>
 
+      {/* 3. Divider */}
+      <motion.div variants={itemVariants} className="w-full max-w-xs">
+        <hr className="border-[rgba(255,255,255,0.08)]" />
+      </motion.div>
+
+      {/* 4-5. Form (calories + button) */}
       <form onSubmit={handleSave} className="flex w-full max-w-xs flex-col gap-4">
-        <div>
+        {/* 4. Calories input */}
+        <motion.div variants={itemVariants}>
           <label className="mb-2 block text-sm text-[rgba(255,255,255,0.6)]">
             {t('caloriesLabel')}
           </label>
@@ -65,14 +96,17 @@ export function FinishScreen({ traineeId, sessionId }: Props) {
             onChange={(e) => setCalories(e.target.value)}
           />
           <p className="mt-1 text-xs text-[rgba(255,255,255,0.4)]">{t('caloriesHint')}</p>
-        </div>
+        </motion.div>
 
         {error && <p className="text-sm text-red-400">{error}</p>}
 
-        <Button type="submit" disabled={saving} className="w-full">
-          {saving ? t('saving') : t('saveFinish')}
-        </Button>
+        {/* 5. Button */}
+        <motion.div variants={itemVariants}>
+          <Button type="submit" disabled={saving} className="w-full">
+            {saving ? t('saving') : t('saveFinish')}
+          </Button>
+        </motion.div>
       </form>
-    </div>
+    </motion.div>
   )
 }
