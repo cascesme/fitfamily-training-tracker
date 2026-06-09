@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # FitFamily Training Tracker — Claude Code Guide
 
 ## Project Overview
@@ -14,6 +18,31 @@ Implementation plan: `docs/superpowers/plans/2026-06-08-fitfamily-training-track
 
 ---
 
+## Commands
+
+Node is managed via nvm (`~/.nvm/versions/node/v24.1.0/bin/`). In non-interactive shells, prefix commands with the full path or source nvm first.
+
+```bash
+npm run dev            # Next.js dev server (port 3000)
+npm run build          # Production build
+npm run lint           # ESLint
+npm run typecheck      # tsc --noEmit (no emit, type errors only)
+
+# Tests
+npm run test:unit                                          # All unit tests
+npm run test:integration                                   # All integration tests (spins up Postgres container)
+npm run test:e2e                                          # All E2E tests (starts docker-compose.test.yml)
+
+# Run a single test file
+npx jest --selectProjects unit -- tests/unit/path/to/file.test.ts
+npx jest --selectProjects integration -- tests/integration/path/to/file.test.ts
+npx playwright test tests/e2e/specific.spec.ts
+
+npm run prisma:migrate # Run Prisma migrations (dev)
+```
+
+---
+
 ## Non-Negotiable Rules
 
 ### Architecture
@@ -22,6 +51,8 @@ Implementation plan: `docs/superpowers/plans/2026-06-08-fitfamily-training-track
 - Repositories are the **only** files that import Prisma. Services never import Prisma directly.
 - Business rules enforced in services, not the DB.
 - Services depend on repository **interfaces**, not concrete implementations.
+- `src/lib/api/services.ts` is the DI composition root — all service singletons are instantiated there. Route files import from it; never construct services or repositories inline in routes.
+- `src/lib/api/handleError.ts` maps typed errors (`NotFoundError`, `DeleteBlockedError`, `ValidationError`, `MediaLimitError`) to HTTP status codes. Every route's catch block must call `handleError(error, path)` — no ad-hoc `NextResponse.json` in error paths.
 
 ### SOLID — Enforced Always
 
