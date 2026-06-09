@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { MediaStrip } from '@/components/MediaStrip'
+import { Button } from '@/components/ui/Button'
+import { MediaViewer } from '@/components/MediaViewer'
 import { SetLogger } from '@/components/SetLogger'
 import type { TrainingPlanWithDetails } from '@/lib/domain/plan'
 
@@ -19,6 +20,7 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
   const [itemIndex, setItemIndex] = useState(0)
   const [setProgress, setSetProgress] = useState<Record<string, number>>({})
   const [logError, setLogError] = useState<string | null>(null)
+  const [viewerOpenFor, setViewerOpenFor] = useState<string | null>(null)
   const logging = useRef(false)
 
   useEffect(() => {
@@ -109,7 +111,18 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
             </div>
 
             {ex.exercise.media.length > 0 && (
-              <MediaStrip media={ex.exercise.media} />
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setViewerOpenFor(ex.id)}
+                className="hover:border-[#E85D26]"
+              >
+                {t('viewMedia')} ({ex.exercise.media.length})
+              </Button>
+            )}
+
+            {viewerOpenFor === ex.id && (
+              <MediaViewer media={ex.exercise.media} onClose={() => setViewerOpenFor(null)} />
             )}
 
             {setsLeft > 0 && (

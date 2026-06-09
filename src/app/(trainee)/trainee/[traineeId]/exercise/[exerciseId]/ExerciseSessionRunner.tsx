@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { MediaStrip } from '@/components/MediaStrip'
+import { MediaViewer } from '@/components/MediaViewer'
 import { SetLogger } from '@/components/SetLogger'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -28,6 +28,7 @@ export function ExerciseSessionRunner({ exercise, traineeId }: Props) {
   const [currentSet, setCurrentSet] = useState(0)
   const [startError, setStartError] = useState<string | null>(null)
   const [logError, setLogError] = useState<string | null>(null)
+  const [viewerOpen, setViewerOpen] = useState(false)
   const logging = useRef(false)
 
   async function handleStart(e: React.FormEvent) {
@@ -96,7 +97,20 @@ export function ExerciseSessionRunner({ exercise, traineeId }: Props) {
           )}
         </div>
 
-        {exercise.media.length > 0 && <MediaStrip media={exercise.media} />}
+        {exercise.media.length > 0 && (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setViewerOpen(true)}
+            className="hover:border-[#E85D26]"
+          >
+            {t('viewMedia')} ({exercise.media.length})
+          </Button>
+        )}
+
+        {viewerOpen && (
+          <MediaViewer media={exercise.media} onClose={() => setViewerOpen(false)} />
+        )}
 
         <form onSubmit={handleStart} className="flex flex-col gap-4">
           <h2 className="font-display text-lg font-semibold">{t('setTarget')}</h2>
@@ -137,7 +151,18 @@ export function ExerciseSessionRunner({ exercise, traineeId }: Props) {
         <h1 className="font-display text-2xl font-bold">{exercise.name}</h1>
       </div>
 
-      {exercise.media.length > 0 && <MediaStrip media={exercise.media} />}
+      {exercise.media.length > 0 && (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setViewerOpen(true)}
+            className="hover:border-[#E85D26]"
+          >
+            {t('viewMedia')} ({exercise.media.length})
+          </Button>
+        )}
+
+      {viewerOpen && <MediaViewer media={exercise.media} onClose={() => setViewerOpen(false)} />}
 
       <SetLogger
         setNumber={currentSet + 1}

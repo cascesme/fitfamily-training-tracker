@@ -260,7 +260,8 @@
   "sessionRunner": {
     "itemProgress": "{current} of {total}",
     "allSetsDone": "Done",
-    "logError": "Failed to log set. Please try again."
+    "logError": "Failed to log set. Please try again.",
+    "viewMedia": "View Media"
   },
   "singleSession": {
     "setTarget": "Set your target",
@@ -270,7 +271,8 @@
     "startError": "Failed to start session",
     "setLabel": "Set {current} of {total}",
     "logError": "Failed to log set. Please try again.",
-    "duration": "Duration (s)"
+    "duration": "Duration (s)",
+    "viewMedia": "View Media"
   },
   "finish": {
     "title": "Session Complete",
