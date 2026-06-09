@@ -126,7 +126,12 @@
     "doneEarly": "Done Early",
     "durationSeconds": "s",
     "durationMinutes": "min",
-    "durationHours": "hr"
+    "durationHours": "hr",
+    "ready": {
+      "exerciseCount": "{count} exercises · {sets} sets",
+      "tagline": "Show up. Push hard.",
+      "cta": "LET'S GO"
+    }
   },
   "media": {
     "playVideo": "Play video",
@@ -283,8 +288,8 @@
     "durationHours": "hr"
   },
   "finish": {
-    "title": "Session Complete",
-    "subtitle": "Great work!",
+    "title": "Session Complete.",
+    "subtitle": "You showed up. That counts.",
     "caloriesLabel": "Calories burned (optional)",
     "caloriesPlaceholder": "e.g. 320",
     "caloriesHint": "Enter the value from your Apple Watch",
