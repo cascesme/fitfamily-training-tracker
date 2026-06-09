@@ -1,7 +1,11 @@
 import { test, expect } from '@playwright/test'
-import { seedTrainee, seedExercise, seedPlan } from './helpers/setup'
+import { seedTrainee, seedExercise, seedPlan, cleanDatabase } from './helpers/setup'
 
 test.describe('Trainee — Full plan session', () => {
+  test.beforeEach(async () => {
+    await cleanDatabase()
+  })
+
   test('runs full training plan and logs sets', async ({ page }) => {
     const trainee = await seedTrainee({ name: 'Test User' })
     const exercise = await seedExercise({ name: 'Bench Press', trackingType: 'WEIGHT' })

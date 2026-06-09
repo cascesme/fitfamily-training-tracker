@@ -9,6 +9,17 @@ const connectionString =
 const adapter = new PrismaPg({ connectionString })
 const prisma = new PrismaClient({ adapter })
 
+export async function cleanDatabase() {
+  await prisma.trainingSessionLog.deleteMany()
+  await prisma.trainingSession.deleteMany()
+  await prisma.trainingPlanItemExercise.deleteMany()
+  await prisma.trainingPlanItem.deleteMany()
+  await prisma.trainingPlan.deleteMany()
+  await prisma.exerciseMedia.deleteMany()
+  await prisma.exercise.deleteMany()
+  await prisma.trainee.deleteMany()
+}
+
 export async function seedTrainee(data: { name: string }) {
   return prisma.trainee.create({ data })
 }

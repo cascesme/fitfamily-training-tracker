@@ -1,7 +1,11 @@
 import { test, expect } from '@playwright/test'
-import { seedTrainee, seedExercise, seedPlan, seedSession } from './helpers/setup'
+import { seedTrainee, seedExercise, seedPlan, seedSession, cleanDatabase } from './helpers/setup'
 
 test.describe('Failure paths', () => {
+  test.beforeEach(async () => {
+    await cleanDatabase()
+  })
+
   test('cannot delete exercise that is in use', async ({ page }) => {
     const trainee = await seedTrainee({ name: 'Active User' })
     const exercise = await seedExercise({ name: 'In-Use Exercise', trackingType: 'WEIGHT' })

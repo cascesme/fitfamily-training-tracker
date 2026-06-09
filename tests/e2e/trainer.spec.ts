@@ -1,7 +1,11 @@
 import { test, expect } from '@playwright/test'
-import { seedExercise } from './helpers/setup'
+import { seedExercise, cleanDatabase } from './helpers/setup'
 
 test.describe('Trainer — Add media to exercise', () => {
+  test.beforeEach(async () => {
+    await cleanDatabase()
+  })
+
   test('adds YouTube media', async ({ page }) => {
     const exercise = await seedExercise({ name: 'YouTube Media Exercise', trackingType: 'WEIGHT' })
     await page.goto(`/trainer/exercises/${exercise.id}`)
