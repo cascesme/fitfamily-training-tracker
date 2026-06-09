@@ -1,1 +1,2 @@
 export const MAX_EXERCISE_MEDIA = 10
+export const DEFAULT_TIME_TARGET_SECONDS = 30

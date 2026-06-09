@@ -41,7 +41,7 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
     planItemExerciseId: string,
     exerciseId: string,
     sets: number,
-    data: { weightKg?: number; repsDone?: number },
+    data: { weightKg?: number; repsDone?: number; durationSecs?: number },
   ) {
     if (!sessionId) return
     if (logging.current) return
@@ -59,6 +59,7 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
           setNumber: currentSet,
           weightKg: data.weightKg ?? null,
           repsDone: data.repsDone ?? null,
+          durationSecs: data.durationSecs ?? undefined,
         }),
       })
       if (!res.ok) {

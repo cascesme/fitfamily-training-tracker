@@ -120,7 +120,8 @@
     "noHistory": "No previous data",
     "setsTarget": "Target: {sets} sets × {reps} reps",
     "totalSets": "Total sets: {count}",
-    "duration": "Duration: {minutes} min"
+    "duration": "Duration: {minutes} min",
+    "durationLabel": "Duration (s)"
   },
   "media": {
     "playVideo": "Play video",
@@ -261,7 +262,8 @@
     "start": "Start",
     "startError": "Failed to start session",
     "setLabel": "Set {current} of {total}",
-    "logError": "Failed to log set. Please try again."
+    "logError": "Failed to log set. Please try again.",
+    "duration": "Duration (s)"
   },
   "finish": {
     "title": "Session Complete",

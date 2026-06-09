@@ -8,6 +8,7 @@ import { SetLogger } from '@/components/SetLogger'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import type { Exercise, ExerciseMedia } from '@prisma/client'
+import { DEFAULT_TIME_TARGET_SECONDS } from '@/lib/domain/constants'
 
 interface Props {
   exercise: Exercise & { media: ExerciseMedia[] }
@@ -22,7 +23,7 @@ export function ExerciseSessionRunner({ exercise, traineeId }: Props) {
 
   const [phase, setPhase] = useState<Phase>('setup')
   const [targetSets, setTargetSets] = useState(3)
-  const [targetReps, setTargetReps] = useState(10)
+  const [targetReps, setTargetReps] = useState(exercise.trackingType === 'TIME' ? DEFAULT_TIME_TARGET_SECONDS : 10)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [currentSet, setCurrentSet] = useState(0)
   const [startError, setStartError] = useState<string | null>(null)
@@ -50,7 +51,7 @@ export function ExerciseSessionRunner({ exercise, traineeId }: Props) {
     }
   }
 
-  async function handleMarkDone(data: { weightKg?: number; repsDone?: number }) {
+  async function handleMarkDone(data: { weightKg?: number; repsDone?: number; durationSecs?: number }) {
     if (!sessionId) return
     if (logging.current) return
     logging.current = true
@@ -65,6 +66,7 @@ export function ExerciseSessionRunner({ exercise, traineeId }: Props) {
           setNumber: nextSet,
           weightKg: data.weightKg ?? undefined,
           repsDone: data.repsDone ?? undefined,
+          durationSecs: data.durationSecs ?? undefined,
         }),
       })
       if (!res.ok) {
@@ -111,7 +113,7 @@ export function ExerciseSessionRunner({ exercise, traineeId }: Props) {
               />
             </div>
             <div className="flex-1">
-              <label className="mb-1 block text-sm text-[rgba(255,255,255,0.6)]">{t('reps')}</label>
+              <label className="mb-1 block text-sm text-[rgba(255,255,255,0.6)]">{exercise.trackingType === 'TIME' ? t('duration') : t('reps')}</label>
               <Input
                 name="reps"
                 type="number"
