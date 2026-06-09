@@ -79,6 +79,9 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
+  const selectedEx1 = allExercises.find((e) => e.id === exerciseId1) ?? null
+  const selectedEx2 = allExercises.find((e) => e.id === exerciseId2) ?? null
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
@@ -180,7 +183,9 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
                 <Input name="sets1" type="number" min="1" value={sets1} onChange={(e) => setSets1(e.target.value)} required />
               </div>
               <div className="flex-1">
-                <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">{t('reps')}</label>
+                <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">
+                  {selectedEx1?.trackingType === 'TIME' ? t('duration') : t('reps')}
+                </label>
                 <Input name="reps1" type="number" min="1" value={reps1} onChange={(e) => setReps1(e.target.value)} required />
               </div>
             </div>
@@ -201,7 +206,9 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
                   <Input name="sets2" type="number" min="1" value={sets2} onChange={(e) => setSets2(e.target.value)} required />
                 </div>
                 <div className="flex-1">
-                  <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">{t('reps')}</label>
+                  <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">
+                    {selectedEx2?.trackingType === 'TIME' ? t('duration') : t('reps')}
+                  </label>
                   <Input name="reps2" type="number" min="1" value={reps2} onChange={(e) => setReps2(e.target.value)} required />
                 </div>
               </div>
