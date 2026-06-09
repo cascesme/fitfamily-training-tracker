@@ -26,6 +26,7 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
   const [logError, setLogError] = useState<string | null>(null)
   const [viewerOpenFor, setViewerOpenFor] = useState<string | null>(null)
   const logging = useRef(false)
+  const starting = useRef(false)
 
   const totalExercises = plan.items.reduce((sum, item) => sum + item.exercises.length, 0)
   const totalSets = plan.items.reduce(
@@ -34,14 +35,21 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
   )
 
   async function handleStart() {
-    const res = await fetch('/api/sessions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ traineeId, planId: plan.id }),
-    })
-    const s = await res.json()
-    setSessionId(s.id)
-    setPhase('running')
+    if (starting.current) return
+    starting.current = true
+    try {
+      const res = await fetch('/api/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ traineeId, planId: plan.id }),
+      })
+      if (!res.ok) return
+      const s = await res.json()
+      setSessionId(s.id)
+      setPhase('running')
+    } finally {
+      starting.current = false
+    }
   }
 
   const currentItem = plan.items[itemIndex]
