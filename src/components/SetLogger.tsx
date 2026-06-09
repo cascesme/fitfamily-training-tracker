@@ -1,8 +1,10 @@
 'use client'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { springTransition } from '@/lib/animation'
 
 interface SetLoggerProps {
   setNumber: number
@@ -33,7 +35,18 @@ export function SetLogger({ setNumber, totalSets, targetReps, trackingType, prev
   return (
     <div className="rounded-[8px] border border-[rgba(255,255,255,0.08)] bg-[#111111] p-4">
       <p className="mb-3 text-sm text-[rgba(255,255,255,0.6)]">
-        {t('currentSet', { current: setNumber, total: totalSets })}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.span
+            key={setNumber}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={springTransition}
+            style={{ display: 'inline-block' }}
+          >
+            {t('currentSet', { current: setNumber, total: totalSets })}
+          </motion.span>
+        </AnimatePresence>
       </p>
       <div className="flex gap-3">
         {trackingType === 'WEIGHT' && (
@@ -75,9 +88,11 @@ export function SetLogger({ setNumber, totalSets, targetReps, trackingType, prev
           {t('lastSession')}: {previousWeight} kg
         </p>
       )}
-      <Button variant="primary" size="lg" className="mt-4 w-full" onClick={handleDone} disabled={loading}>
-        {t('markDone')}
-      </Button>
+      <motion.div whileTap={{ scale: 0.95 }} transition={springTransition}>
+        <Button variant="primary" size="lg" className="mt-4 w-full" onClick={handleDone} disabled={loading}>
+          {t('markDone')}
+        </Button>
+      </motion.div>
     </div>
   )
 }
