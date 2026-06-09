@@ -29,3 +29,22 @@ test.describe('Mode switch', () => {
     await expect(page.getByRole('button', { name: 'Switch to Trainee' })).toBeVisible()
   })
 })
+
+test.describe('Logo navigation', () => {
+  test('logo click in trainer mode stays on trainer', async ({ page }) => {
+    await page.goto('/')
+    await page.click('text=Switch to Trainer')
+    await page.waitForURL('**/trainer')
+    await page.click('text=FitFamily')
+    await page.waitForURL('**/trainer')
+    await expect(page.getByRole('button', { name: /switch to trainee/i })).toBeVisible()
+  })
+
+  test('logo click in trainee mode stays on trainee home', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.getByRole('button', { name: /switch to trainer/i })).toBeVisible()
+    await page.click('text=FitFamily')
+    await expect(page).toHaveURL('/')
+    await expect(page.getByRole('button', { name: /switch to trainer/i })).toBeVisible()
+  })
+})
