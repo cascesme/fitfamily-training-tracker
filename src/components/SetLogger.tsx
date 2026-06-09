@@ -40,6 +40,7 @@ function CountdownTimer({
   t: ReturnType<typeof useTranslations<'session'>>
 }) {
   const [remaining, setRemaining] = useState(targetReps)
+  const [done, setDone] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const doneRef = useRef(false)
   const onMarkDoneRef = useRef(onMarkDone)
@@ -53,6 +54,7 @@ function CountdownTimer({
           clearInterval(intervalRef.current!)
           if (!doneRef.current) {
             doneRef.current = true
+            setDone(true)
             onMarkDoneRef.current({ durationSecs: targetReps })
           }
           return 0
@@ -70,6 +72,7 @@ function CountdownTimer({
   const handleDoneEarly = async () => {
     if (intervalRef.current) clearInterval(intervalRef.current)
     doneRef.current = true
+    setDone(true)
     await onMarkDone({ durationSecs: targetReps - remaining })
   }
 
@@ -88,7 +91,7 @@ function CountdownTimer({
         size="lg"
         className="w-full"
         onClick={handleDoneEarly}
-        disabled={loading || doneRef.current}
+        disabled={loading || done}
       >
         {t('doneEarly')}
       </Button>
