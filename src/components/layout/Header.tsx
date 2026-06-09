@@ -19,7 +19,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-[rgba(255,255,255,0.08)] bg-[#0A0A0A]/95 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-        <Link href="/" className="font-display text-lg font-bold tracking-tight">
+        <Link href={mode === 'trainer' ? '/trainer' : '/'} className="font-display text-lg font-bold tracking-tight">
           FitFamily
         </Link>
         <Button
