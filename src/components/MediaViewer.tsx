@@ -103,7 +103,7 @@ export function MediaViewer({ media, startIndex = 0, onClose }: MediaViewerProps
 function MediaContent({ item, t }: { item: ExerciseMedia; t: ReturnType<typeof useTranslations> }) {
   if (item.type === 'PHOTO') {
     return (
-      <div className="relative h-full w-full">
+      <div className="relative h-full w-full pointer-events-none">
         <Image
           src={`/api/media/${item.filePath}`}
           alt=""

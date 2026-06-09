@@ -142,7 +142,7 @@ export function ExerciseSessionRunner({ exercise, traineeId }: Props) {
               {exercise.trackingType === 'TIME' ? (
                 <div className="flex items-center gap-2">
                   <Input
-                    name="durationValue"
+                    name="reps"
                     type="number"
                     min="1"
                     value={durationValue}

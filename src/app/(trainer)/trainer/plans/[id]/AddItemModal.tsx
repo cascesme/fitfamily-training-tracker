@@ -178,11 +178,11 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
               onChange={setExerciseId1}
             />
             <div className="flex gap-3">
-              <div className="flex-1">
+              <div className="min-w-0 flex-1">
                 <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">{t('sets')}</label>
                 <Input name="sets1" type="number" min="1" value={sets1} onChange={(e) => setSets1(e.target.value)} required />
               </div>
-              <div className="flex-1">
+              <div className="min-w-0 flex-1">
                 <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">
                   {selectedEx1?.trackingType === 'TIME' ? t('duration') : t('reps')}
                 </label>
@@ -201,11 +201,11 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
                 onChange={setExerciseId2}
               />
               <div className="flex gap-3">
-                <div className="flex-1">
+                <div className="min-w-0 flex-1">
                   <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">{t('sets')}</label>
                   <Input name="sets2" type="number" min="1" value={sets2} onChange={(e) => setSets2(e.target.value)} required />
                 </div>
-                <div className="flex-1">
+                <div className="min-w-0 flex-1">
                   <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">
                     {selectedEx2?.trackingType === 'TIME' ? t('duration') : t('reps')}
                   </label>
