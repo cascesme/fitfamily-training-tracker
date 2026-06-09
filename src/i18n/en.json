@@ -128,7 +128,14 @@
     "viewPhoto": "View photo",
     "downloadPdf": "Download PDF",
     "watchYoutube": "Watch on YouTube",
-    "dragToReorder": "Drag to reorder"
+    "dragToReorder": "Drag to reorder",
+    "viewMedia": "View Media",
+    "closeViewer": "Close",
+    "prevMedia": "Previous",
+    "nextMedia": "Next",
+    "mediaCount": "{current} of {total}",
+    "tapToDownload": "Tap to download",
+    "goToMedia": "Go to media {index}"
   },
   "progress": {
     "title": "Progress",
