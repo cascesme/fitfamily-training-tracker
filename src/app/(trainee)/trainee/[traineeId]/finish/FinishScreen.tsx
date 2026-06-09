@@ -4,16 +4,13 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
+import { staggerContainer } from '@/lib/animation'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 
 interface Props {
   traineeId: string
   sessionId: string
-}
-
-const containerVariants = {
-  animate: { transition: { staggerChildren: 0.08 } },
 }
 
 const itemVariants = {
@@ -57,7 +54,7 @@ export function FinishScreen({ traineeId, sessionId }: Props) {
   return (
     <motion.div
       className="flex flex-col items-center gap-6 py-12 text-center"
-      variants={containerVariants}
+      variants={staggerContainer}
       initial="initial"
       animate="animate"
     >
