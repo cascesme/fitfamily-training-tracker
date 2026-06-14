@@ -13,7 +13,7 @@ interface SetLoggerProps {
 
 export function SetLogger({ trackingType, ...rest }: SetLoggerProps) {
   if (trackingType === 'TIME') {
-    return <TimeSetLogger trackingType={trackingType} {...rest} />
+    return <TimeSetLogger key={rest.setNumber} trackingType={trackingType} {...rest} />
   }
   return <WeightSetLogger trackingType={trackingType} {...rest} />
 }
