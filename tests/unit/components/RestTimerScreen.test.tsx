@@ -6,6 +6,12 @@ jest.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
 }))
 
+jest.mock('@/lib/audio', () => ({
+  playTick: jest.fn(),
+  playTimeUp: jest.fn(),
+  playSetComplete: jest.fn(),
+}))
+
 Object.defineProperty(globalThis, 'navigator', {
   value: { vibrate: jest.fn() },
   writable: true,
