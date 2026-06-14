@@ -318,6 +318,7 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
                       )}
                       {setsLeft > 0 && (
                         <SetLogger
+                          key={currentSet}
                           setNumber={currentSet + 1}
                           totalSets={ex.sets}
                           targetReps={ex.reps}
