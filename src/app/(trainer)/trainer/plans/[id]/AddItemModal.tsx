@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -75,6 +75,10 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
   const [exerciseId2, setExerciseId2] = useState('')
   const [sets2, setSets2] = useState('3')
   const [reps2, setReps2] = useState('10')
+
+  useEffect(() => {
+    if (type === 'biseries') setSets2(sets1)
+  }, [type])
 
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -180,7 +184,10 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
             <div className="flex gap-3">
               <div className="min-w-0 flex-1">
                 <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">{t('sets')}</label>
-                <Input name="sets1" type="number" min="1" value={sets1} onChange={(e) => setSets1(e.target.value)} required />
+                <Input name="sets1" type="number" min="1" value={sets1} onChange={(e) => {
+                  setSets1(e.target.value)
+                  if (type === 'biseries') setSets2(e.target.value)
+                }} required />
               </div>
               <div className="min-w-0 flex-1">
                 <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">
