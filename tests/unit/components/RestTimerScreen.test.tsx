@@ -45,9 +45,9 @@ describe('RestTimerScreen', () => {
   it('fires onComplete after countdown ends', () => {
     const onComplete = jest.fn()
     render(<RestTimerScreen onComplete={onComplete} />)
-    fireEvent.change(screen.getByLabelText('rest duration seconds'), { target: { value: '2' } })
+    fireEvent.change(screen.getByLabelText('rest duration seconds'), { target: { value: '5' } })
     fireEvent.click(screen.getByRole('button', { name: 'startRest' }))
-    act(() => { jest.advanceTimersByTime(2000) })
+    act(() => { jest.advanceTimersByTime(5000) })
     act(() => { jest.advanceTimersByTime(1000) }) // flush setTimeout(800)
     expect(onComplete).toHaveBeenCalledTimes(1)
   })

@@ -21,31 +21,39 @@ export function RestTimerScreen({ onComplete }: RestTimerScreenProps) {
   const [timerState, setTimerState] = useState<TimerState>('idle')
   const [timeLeft, setTimeLeft] = useState(DEFAULT_DURATION)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const onCompleteRef = useRef(onComplete)
   onCompleteRef.current = onComplete
 
   const progress = duration > 0 ? timeLeft / duration : 0
   const strokeDashoffset = CIRCUMFERENCE * (1 - progress)
 
+  // Effect 1: tick
   useEffect(() => {
     if (timerState !== 'running') return
     intervalRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        const next = prev - 1
-        if (next <= 0) {
-          clearInterval(intervalRef.current!)
-          setTimerState('done')
-          navigator.vibrate?.(200)
-          setTimeout(() => onCompleteRef.current(), 800)
-          return 0
-        }
-        return next
-      })
+      setTimeLeft((prev) => Math.max(prev - 1, 0))
     }, 1000)
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current)
     }
   }, [timerState])
+
+  // Effect 2: completion watcher
+  useEffect(() => {
+    if (timerState !== 'running' || timeLeft > 0) return
+    clearInterval(intervalRef.current!)
+    setTimerState('done')
+    navigator.vibrate?.(200)
+    timeoutRef.current = setTimeout(() => onCompleteRef.current(), 800)
+  }, [timeLeft, timerState])
+
+  // Effect 3: timeout cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    }
+  }, [])
 
   const handleStart = () => {
     setTimeLeft(duration)
@@ -66,7 +74,7 @@ export function RestTimerScreen({ onComplete }: RestTimerScreenProps) {
             aria-label="rest duration seconds"
             onChange={(e) => {
               const v = parseInt(e.target.value)
-              if (!isNaN(v) && v > 0) {
+              if (!isNaN(v) && v >= 5) {
                 setDuration(v)
                 setTimeLeft(v)
               }
