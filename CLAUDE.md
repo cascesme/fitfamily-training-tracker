@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Family fitness tracking PWA. Self-hosted on NAS via Docker. No auth. Two modes: Trainer (manage content) and Trainee (run sessions).
 
-Stack: Next.js 15 (App Router) · TypeScript 5 · Tailwind CSS 4 · Prisma · PostgreSQL 17 · next-intl · Zod · Jest + Testcontainers · Playwright · Docker Compose.
+Stack: Next.js 15 (App Router) · TypeScript 5 · Tailwind CSS 4 · Prisma · PostgreSQL 17 · next-intl · Zod · Framer Motion 12 · Jest + Testcontainers · Playwright · Docker Compose.
 
 Full spec: `docs/superpowers/specs/2026-06-08-fitfamily-training-tracker-design.md`
 

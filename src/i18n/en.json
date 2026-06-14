@@ -127,6 +127,9 @@
     "durationSeconds": "s",
     "durationMinutes": "min",
     "durationHours": "hr",
+    "tapToStart": "Tap to start",
+    "countdownComplete": "Time's up!",
+    "tapDone": "Done",
     "ready": {
       "exerciseCount": "{count} exercises · {sets} sets",
       "tagline": "Show up. Push hard.",
