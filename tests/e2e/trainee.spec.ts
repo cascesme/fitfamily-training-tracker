@@ -60,7 +60,7 @@ test.describe('Trainee — Full plan session', () => {
   })
 
   test('runs biseries plan — interleaved sets with rest timer', async ({ page }) => {
-    const trainee = await seedTrainee({ name: 'Super User' })
+    await seedTrainee({ name: 'Super User' })
     const exerciseA = await seedExercise({ name: 'Bench Press', trackingType: 'WEIGHT' })
     const exerciseB = await seedExercise({ name: 'Barbell Row', trackingType: 'WEIGHT' })
     await seedBiseriePlan({

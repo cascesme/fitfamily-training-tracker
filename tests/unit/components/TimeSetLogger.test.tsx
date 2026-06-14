@@ -19,10 +19,11 @@ jest.mock('@/lib/audio', () => ({
 }))
 
 jest.mock('framer-motion', () => {
-  const R = require('react')
+  const R = jest.requireActual<typeof import('react')>('react')
+  const MOTION_PROPS = new Set(['animate', 'transition', 'whileTap', 'initial', 'exit'])
   const stripped = (tag: string) =>
     R.forwardRef((props: Record<string, unknown>, ref: unknown) => {
-      const { animate: _a, transition: _t, whileTap: _w, initial: _i, exit: _e, ...rest } = props
+      const rest = Object.fromEntries(Object.entries(props).filter(([k]) => !MOTION_PROPS.has(k)))
       return R.createElement(tag, { ...rest, ref })
     })
   return {
