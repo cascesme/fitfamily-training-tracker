@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { seedTrainee, seedExercise, seedPlan, cleanDatabase } from './helpers/setup'
+import { seedTrainee, seedExercise, seedPlan, seedBiseriePlan, cleanDatabase } from './helpers/setup'
 
 test.describe('Trainee — Full plan session', () => {
   test.beforeEach(async () => {
@@ -57,5 +57,54 @@ test.describe('Trainee — Full plan session', () => {
 
     await page.click('text=Save & Finish')
     await expect(page).toHaveURL(`/trainee/${trainee.id}`)
+  })
+
+  test('runs biseries plan — interleaved sets with rest timer', async ({ page }) => {
+    const trainee = await seedTrainee({ name: 'Super User' })
+    const exerciseA = await seedExercise({ name: 'Bench Press', trackingType: 'WEIGHT' })
+    const exerciseB = await seedExercise({ name: 'Barbell Row', trackingType: 'WEIGHT' })
+    await seedBiseriePlan({
+      name: 'Superset Day',
+      exerciseAId: exerciseA.id,
+      exerciseBId: exerciseB.id,
+      sets: 2,
+      repsA: 10,
+      repsB: 10,
+    })
+
+    await page.goto('/')
+    await expect(page.locator('text=Super User')).toBeVisible()
+    await page.click('text=Super User')
+    await page.click('text=Superset Day')
+    await page.click("text=LET'S GO")
+
+    // Both exercises visible on one biseries screen
+    await expect(page.locator('text=BISERIES')).toBeVisible()
+    await expect(page.locator('text=Bench Press')).toBeVisible()
+    await expect(page.locator('text=Barbell Row')).toBeVisible()
+    await expect(page.locator('text=Set 1 of 2')).toBeVisible()
+
+    // Fill both exercises and mark set 1 done
+    await page.fill('[aria-label="Bench Press weight kg"]', '80')
+    await page.fill('[aria-label="Bench Press reps done"]', '10')
+    await page.fill('[aria-label="Barbell Row weight kg"]', '60')
+    await page.fill('[aria-label="Barbell Row reps done"]', '10')
+    await page.click('text=Mark Set Done')
+
+    // Rest timer appears after set 1
+    await expect(page.getByRole('heading', { name: 'REST' })).toBeVisible()
+    await page.click('text=Skip → Next Set')
+
+    // Set 2 shown
+    await expect(page.locator('text=Set 2 of 2')).toBeVisible()
+    await page.fill('[aria-label="Bench Press weight kg"]', '80')
+    await page.fill('[aria-label="Bench Press reps done"]', '10')
+    await page.fill('[aria-label="Barbell Row weight kg"]', '60')
+    await page.fill('[aria-label="Barbell Row reps done"]', '10')
+    await page.click('text=Mark Set Done')
+
+    // No rest timer after final set — goes directly to finish
+    await expect(page.getByRole('heading', { name: 'REST' })).not.toBeVisible()
+    await expect(page.locator('text=Session Complete')).toBeVisible()
   })
 })

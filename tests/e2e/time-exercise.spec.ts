@@ -66,23 +66,23 @@ test.describe('TIME exercise — single session runner', () => {
     await page.fill('input[placeholder*="Search"]', 'Running')
     await page.click('text=Running')
     await page.fill('input[name="sets"]', '1')
-    await page.fill('input[name="reps"]', '45')
+    await page.fill('input[name="reps"]', '10')
     await page.click('text=Start')
-    await page.locator('input[name="durationSecs"]').fill('45')
-    await page.click('text=Mark Done')
+    await page.getByRole('button', { name: 'Tap to start' }).click()
+    await page.getByRole('button', { name: 'Done' }).click()
     await page.waitForURL(/\/finish/)
   })
 })
 
 test.describe('TIME exercise — plan session runner', () => {
-  test('plan session runner shows Duration field for TIME exercise', async ({ page }) => {
+  test('plan session runner shows countdown for TIME exercise', async ({ page }) => {
     const trainee = await seedTrainee({ name: 'Alex' })
     const ex = await seedExercise({ name: 'Running', trackingType: 'TIME' })
     await seedPlan({ name: 'Cardio Plan', items: [{ exerciseId: ex.id, sets: 2, reps: 30 }] })
     await page.goto(`/trainee/${trainee.id}`)
     await page.click('text=Cardio Plan')
     await page.click("text=LET'S GO")
-    await expect(page.locator('label', { hasText: 'Duration (s)' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Tap to start' })).toBeVisible()
     await expect(page.locator('label', { hasText: 'Reps' })).not.toBeVisible()
   })
 })
