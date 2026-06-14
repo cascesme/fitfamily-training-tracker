@@ -75,7 +75,7 @@ export function TimeSetLogger({
 
   const handleDone = async () => {
     if (intervalRef.current) clearInterval(intervalRef.current)
-    const elapsed = targetReps - timeLeftRef.current
+    const elapsed = Math.max(1, targetReps - timeLeftRef.current)
     setLoading(true)
     await onMarkDone({ durationSecs: elapsed })
     setLoading(false)
