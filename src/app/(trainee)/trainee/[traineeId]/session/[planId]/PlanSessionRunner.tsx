@@ -11,6 +11,7 @@ import { BiSeriesSetLogger } from '@/components/BiSeriesSetLogger'
 import { RestTimerScreen } from '@/components/RestTimerScreen'
 import type { SetLogData } from '@/components/BiSeriesSetLogger'
 import { fadeSlideUp, springTransition } from '@/lib/animation'
+import { playSetComplete } from '@/lib/audio'
 import type { TrainingPlanWithDetails } from '@/lib/domain/plan'
 
 interface Props {
@@ -97,6 +98,7 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
 
     const newProgress = { ...setProgress, [planItemExerciseId]: currentSet }
     setSetProgress(newProgress)
+    playSetComplete()
 
     const allDone = currentItem!.exercises.every((ex) => (newProgress[ex.id] ?? 0) >= ex.sets)
     if (!allDone) return
@@ -157,6 +159,7 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
 
     const biSeriesTotalSets = currentItem!.exercises[0].sets
     setBiSeriesSet((prev) => ({ ...prev, [currentItem!.id]: setNumber }))
+    playSetComplete()
 
     if (setNumber < biSeriesTotalSets) {
       setShowRestTimer(true)

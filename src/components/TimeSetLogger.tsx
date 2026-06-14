@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 import { springTransition } from '@/lib/animation'
+import { playTick, playTimeUp } from '@/lib/audio'
 
 const RING_RADIUS = 45
 const RING_CX = 60
@@ -57,8 +58,10 @@ export function TimeSetLogger({
           clearInterval(intervalRef.current!)
           setCountdownState('done')
           navigator.vibrate?.(200)
+          playTimeUp()
           return 0
         }
+        if (next <= CRITICAL_THRESHOLD) playTick()
         return next
       })
     }, 1000)

@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/Button'
+import { playTick, playTimeUp } from '@/lib/audio'
 
 const RING_RADIUS = 45
 const RING_CX = 60
@@ -34,7 +35,11 @@ export function RestTimerScreen({ onComplete }: RestTimerScreenProps) {
   useEffect(() => {
     if (timerState !== 'running') return
     intervalRef.current = setInterval(() => {
-      setTimeLeft((prev) => Math.max(prev - 1, 0))
+      setTimeLeft((prev) => {
+        const next = Math.max(prev - 1, 0)
+        if (next > 0 && next <= 10) playTick()
+        return next
+      })
     }, 1000)
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current)
@@ -46,6 +51,7 @@ export function RestTimerScreen({ onComplete }: RestTimerScreenProps) {
     if (timerState !== 'running' || timeLeft > 0) return
     clearInterval(intervalRef.current!)
     navigator.vibrate?.(200)
+    playTimeUp()
     const completeTimer = setTimeout(() => {
       setTimerState('done')
       timeoutRef.current = setTimeout(() => onCompleteRef.current(), 800)
