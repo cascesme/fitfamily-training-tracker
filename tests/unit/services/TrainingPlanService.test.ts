@@ -76,14 +76,23 @@ describe('TrainingPlanService', () => {
       expect(mockRepo.addItem).toHaveBeenCalledWith('p1', 1, [{ exerciseId: 'e1', sets: 3, reps: 10, slot: 1 }])
     })
 
-    it('allows biseries when slot 1 exists', async () => {
-      mockRepo.findItemSlot.mockResolvedValue({ id: 'ie1', itemId: 'item1', exerciseId: 'e1', sets: 3, reps: 10, slot: 1 })
+    it('allows biseries when slot 1 and slot 2 both present with equal sets', async () => {
       mockRepo.addItem.mockResolvedValue(mockPlanItem)
       await service.addItem('p1', 1, [
         { exerciseId: 'e1', sets: 3, reps: 10, slot: 1 },
         { exerciseId: 'e2', sets: 3, reps: 10, slot: 2 },
       ])
       expect(mockRepo.addItem).toHaveBeenCalled()
+    })
+
+    it('throws ValidationError when two exercises share the same slot', async () => {
+      await expect(
+        service.addItem('p1', 1, [
+          { exerciseId: 'e1', sets: 3, reps: 10, slot: 1 },
+          { exerciseId: 'e2', sets: 3, reps: 10, slot: 1 },
+        ])
+      ).rejects.toThrow(ValidationError)
+      expect(mockRepo.addItem).not.toHaveBeenCalled()
     })
 
     it('throws ValidationError when biseries exercises have unequal set counts', async () => {
