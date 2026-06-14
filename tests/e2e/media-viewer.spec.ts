@@ -80,6 +80,7 @@ test.describe('Media viewer — plan session', () => {
     await seedPlan({ name: 'Plan A', items: [{ exerciseId: ex.id, sets: 1, reps: 8 }] })
     await page.goto(`/trainee/${trainee.id}`)
     await page.click('text=Plan A')
+    await page.click("text=LET'S GO")
     await expect(page.getByRole('button', { name: /View Media/ })).toBeVisible()
   })
 
@@ -89,6 +90,7 @@ test.describe('Media viewer — plan session', () => {
     await seedPlan({ name: 'Plan A', items: [{ exerciseId: ex.id, sets: 1, reps: 8 }] })
     await page.goto(`/trainee/${trainee.id}`)
     await page.click('text=Plan A')
+    await page.click("text=LET'S GO")
     await page.getByRole('button', { name: /View Media/ }).click()
     await expect(page.locator('.fixed.inset-0')).toBeVisible()
     await expect(page.getByText('1 of 2')).toBeVisible()

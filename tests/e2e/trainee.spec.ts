@@ -18,6 +18,7 @@ test.describe('Trainee — Full plan session', () => {
     await expect(page.locator('text=Test User')).toBeVisible()
     await page.click('text=Test User')
     await page.click('text=Push Day')
+    await page.click("text=LET'S GO")
 
     await expect(page.locator('text=Bench Press')).toBeVisible()
     await expect(page.locator('text=Set 1 of 2')).toBeVisible()

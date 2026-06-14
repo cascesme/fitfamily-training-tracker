@@ -81,6 +81,7 @@ test.describe('TIME exercise — plan session runner', () => {
     await seedPlan({ name: 'Cardio Plan', items: [{ exerciseId: ex.id, sets: 2, reps: 30 }] })
     await page.goto(`/trainee/${trainee.id}`)
     await page.click('text=Cardio Plan')
+    await page.click("text=LET'S GO")
     await expect(page.locator('label', { hasText: 'Duration (s)' })).toBeVisible()
     await expect(page.locator('label', { hasText: 'Reps' })).not.toBeVisible()
   })
