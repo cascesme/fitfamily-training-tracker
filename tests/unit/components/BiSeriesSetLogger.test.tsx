@@ -107,6 +107,30 @@ describe('BiSeriesSetLogger', () => {
     expect(screen.getByLabelText('Bench Press duration seconds')).toBeInTheDocument()
   })
 
+  it('calls onMarkDone with durationSecs for TIME tracking type', async () => {
+    const onMarkDone = jest.fn().mockResolvedValue(undefined)
+    const timeExA: BiSeriesExercise = { ...exerciseA, trackingType: 'TIME' }
+    render(
+      <BiSeriesSetLogger
+        setNumber={1}
+        totalSets={3}
+        exerciseA={timeExA}
+        exerciseB={exerciseB}
+        onMarkDone={onMarkDone}
+      />,
+    )
+    fireEvent.change(screen.getByLabelText('Bench Press duration seconds'), { target: { value: '45' } })
+    fireEvent.change(screen.getByLabelText('Barbell Row weight kg'), { target: { value: '60' } })
+    fireEvent.change(screen.getByLabelText('Barbell Row reps done'), { target: { value: '10' } })
+    fireEvent.click(screen.getByRole('button', { name: 'markSetDone' }))
+    await waitFor(() => {
+      expect(onMarkDone).toHaveBeenCalledWith(
+        { durationSecs: 45 },
+        { weightKg: 60, repsDone: 10 },
+      )
+    })
+  })
+
   it('NONE tracking type: button enabled with only reps pre-filled', () => {
     const noneExA: BiSeriesExercise = { ...exerciseA, trackingType: 'NONE' }
     const noneExB: BiSeriesExercise = { ...exerciseB, trackingType: 'NONE' }

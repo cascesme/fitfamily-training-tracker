@@ -53,13 +53,12 @@ function ExerciseCard({
   exercise,
   state,
   onChange,
-  t,
 }: {
   exercise: BiSeriesExercise
   state: ExerciseInputState
   onChange: (updater: (s: ExerciseInputState) => ExerciseInputState) => void
-  t: (key: string, params?: Record<string, string | number | Date>) => string
 }) {
+  const t = useTranslations('session')
   return (
     <div className="border-l-2 border-[#E85D26] bg-[#111111] p-4">
       <h2 className="font-display text-lg font-bold">{exercise.name}</h2>
@@ -126,8 +125,11 @@ export function BiSeriesSetLogger({
 
   const handleDone = async () => {
     setLoading(true)
-    await onMarkDone(toLogData(stateA, exerciseA.trackingType), toLogData(stateB, exerciseB.trackingType))
-    setLoading(false)
+    try {
+      await onMarkDone(toLogData(stateA, exerciseA.trackingType), toLogData(stateB, exerciseB.trackingType))
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -142,9 +144,9 @@ export function BiSeriesSetLogger({
       </div>
 
       <div className="overflow-hidden rounded-[8px] border border-[rgba(255,255,255,0.08)]">
-        <ExerciseCard exercise={exerciseA} state={stateA} onChange={setStateA} t={t} />
+        <ExerciseCard exercise={exerciseA} state={stateA} onChange={setStateA} />
         <div className="h-px bg-[rgba(255,255,255,0.08)]" />
-        <ExerciseCard exercise={exerciseB} state={stateB} onChange={setStateB} t={t} />
+        <ExerciseCard exercise={exerciseB} state={stateB} onChange={setStateB} />
       </div>
 
       <Button
