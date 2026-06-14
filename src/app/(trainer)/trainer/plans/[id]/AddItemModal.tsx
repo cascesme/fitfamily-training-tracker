@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -75,11 +75,6 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
   const [exerciseId2, setExerciseId2] = useState('')
   const [sets2, setSets2] = useState('3')
   const [reps2, setReps2] = useState('10')
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- sets1 omitted intentionally: syncs once on mode switch; onChange handles live sync
-  useEffect(() => {
-    if (type === 'biseries') setSets2(sets1)
-  }, [type])
 
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -161,7 +156,7 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
             </button>
             <button
               type="button"
-              onClick={() => setType('biseries')}
+              onClick={() => { setSets2(sets1); setType('biseries') }}
               className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
                 type === 'biseries'
                   ? 'bg-[#E85D26] text-white'

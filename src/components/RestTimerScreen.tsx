@@ -23,7 +23,9 @@ export function RestTimerScreen({ onComplete }: RestTimerScreenProps) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const onCompleteRef = useRef(onComplete)
-  onCompleteRef.current = onComplete
+  useEffect(() => {
+    onCompleteRef.current = onComplete
+  })
 
   const progress = duration > 0 ? timeLeft / duration : 0
   const strokeDashoffset = CIRCUMFERENCE * (1 - progress)
@@ -43,9 +45,12 @@ export function RestTimerScreen({ onComplete }: RestTimerScreenProps) {
   useEffect(() => {
     if (timerState !== 'running' || timeLeft > 0) return
     clearInterval(intervalRef.current!)
-    setTimerState('done')
     navigator.vibrate?.(200)
-    timeoutRef.current = setTimeout(() => onCompleteRef.current(), 800)
+    const completeTimer = setTimeout(() => {
+      setTimerState('done')
+      timeoutRef.current = setTimeout(() => onCompleteRef.current(), 800)
+    }, 0)
+    return () => clearTimeout(completeTimer)
   }, [timeLeft, timerState])
 
   // Effect 3: timeout cleanup on unmount
