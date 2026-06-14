@@ -86,6 +86,16 @@ describe('TrainingPlanService', () => {
       expect(mockRepo.addItem).toHaveBeenCalled()
     })
 
+    it('throws ValidationError when biseries exercises have unequal set counts', async () => {
+      await expect(
+        service.addItem('p1', 1, [
+          { exerciseId: 'e1', sets: 3, reps: 10, slot: 1 },
+          { exerciseId: 'e2', sets: 4, reps: 10, slot: 2 },
+        ])
+      ).rejects.toThrow(ValidationError)
+      expect(mockRepo.addItem).not.toHaveBeenCalled()
+    })
+
     it('throws ValidationError when slot 2 provided without slot 1 in item', async () => {
       await expect(
         service.addItem('p1', 1, [{ exerciseId: 'e2', sets: 3, reps: 10, slot: 2 }])
