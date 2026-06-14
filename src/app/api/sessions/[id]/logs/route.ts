@@ -35,7 +35,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const body = await request.json()
     const parsed = LogSetSchema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
-    const log = await sessionService.logSet(id, parsed.data)
+    const { weightKg, repsDone, durationSecs, ...rest } = parsed.data
+    const log = await sessionService.logSet(id, {
+      ...rest,
+      ...(weightKg != null && { weightKg }),
+      ...(repsDone != null && { repsDone }),
+      ...(durationSecs != null && { durationSecs }),
+    })
     return NextResponse.json(log, { status: 201 })
   } catch (error) {
     return handleError(error, `/api/sessions/${id}/logs`)

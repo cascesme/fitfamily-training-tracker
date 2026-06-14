@@ -17,9 +17,9 @@ export const LogSetSchema = z.object({
   exerciseId: z.string().min(1),
   planItemId: z.string().min(1).optional(),
   setNumber: z.number().int().positive(),
-  weightKg: z.number().positive().optional(),
-  durationSecs: z.number().int().positive().optional(),
-  repsDone: z.number().int().positive().optional(),
+  weightKg: z.number().positive().nullable().optional(),
+  durationSecs: z.number().int().positive().nullable().optional(),
+  repsDone: z.number().int().positive().nullable().optional(),
 })
 export type LogSetInput = z.infer<typeof LogSetSchema>
 
