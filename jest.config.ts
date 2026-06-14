@@ -14,7 +14,7 @@ const config: Config = {
     {
       displayName: 'unit-components',
       testMatch: ['<rootDir>/tests/unit/**/*.test.tsx'],
-      transform: { '^.+\\.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.json' }] },
+      transform: { '^.+\\.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.test.json' }] },
       testEnvironment: 'jest-environment-jsdom',
       setupFilesAfterEnv: ['<rootDir>/tests/unit/helpers/jest-dom-setup.ts'],
       moduleNameMapper: {
