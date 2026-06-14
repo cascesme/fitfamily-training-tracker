@@ -155,10 +155,10 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
       logging.current = false
     }
 
-    const totalSets = currentItem!.exercises[0].sets
+    const biSeriesTotalSets = currentItem!.exercises[0].sets
     setBiSeriesSet((prev) => ({ ...prev, [currentItem!.id]: setNumber }))
 
-    if (setNumber < totalSets) {
+    if (setNumber < biSeriesTotalSets) {
       setShowRestTimer(true)
       return
     }
