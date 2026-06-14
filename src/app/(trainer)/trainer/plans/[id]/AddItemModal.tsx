@@ -76,6 +76,7 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
   const [sets2, setSets2] = useState('3')
   const [reps2, setReps2] = useState('10')
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- sets1 omitted intentionally: syncs once on mode switch; onChange handles live sync
   useEffect(() => {
     if (type === 'biseries') setSets2(sets1)
   }, [type])
