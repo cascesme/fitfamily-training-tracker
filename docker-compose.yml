@@ -5,29 +5,30 @@ services:
       POSTGRES_DB: fitfamily
       POSTGRES_USER: fitfamily
       POSTGRES_PASSWORD: fitfamily
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fitfamily -d fitfamily"]
+      interval: 5s
+      timeout: 5s
+      retries: 10  
     volumes:
-      - db_data:/var/lib/postgresql/data
-    networks:
-      - internal
+      - ./db:/var/lib/postgresql/data
 
-  app:
-    build: .
-    ports:
-      - "3000:3000"
+  fit-family-app:
+    image: ghcr.io/cascesme/fitfamily-training-tracker:1.0.0
     environment:
       DATABASE_URL: postgresql://fitfamily:fitfamily@db:5432/fitfamily
       MEDIA_PATH: /data/media
       NODE_ENV: production
+      HOSTNAME: "0.0.0.0"
     volumes:
-      - media_data:/data/media
+      - ./media:/data/media
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
-      - internal
-
-volumes:
-  db_data:
-  media_data:
+      - npm
+      - default
 
 networks:
-  internal:
+  npm:
+    external: true    
