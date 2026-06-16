@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 import { MediaViewer } from '@/components/MediaViewer'
+import { PlanReviewOverlay } from '@/components/PlanReviewOverlay'
 import { SetLogger } from '@/components/SetLogger'
 import { BiSeriesSetLogger } from '@/components/BiSeriesSetLogger'
 import { RestTimerScreen } from '@/components/RestTimerScreen'
@@ -31,6 +32,7 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
   const [viewerOpenFor, setViewerOpenFor] = useState<string | null>(null)
   const [biSeriesSet, setBiSeriesSet] = useState<Record<string, number>>({})
   const [showRestTimer, setShowRestTimer] = useState(false)
+  const [reviewOpen, setReviewOpen] = useState(false)
   const logging = useRef(false)
   const starting = useRef(false)
 
@@ -174,7 +176,7 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
     setItemIndex((prev) => prev + 1)
   }
 
-  return (
+  const sessionContent = (
     <AnimatePresence mode="wait">
       {phase === 'ready' && (
         <motion.div
@@ -205,6 +207,16 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
               <path d="M19 12H5M12 5l-7 7 7 7" />
             </svg>
           </button>
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setReviewOpen(true)}
+            className="absolute right-4 top-4"
+          >
+            {t('reviewButton')}
+          </Button>
 
           <div className="flex w-full max-w-sm flex-col gap-6">
             <div className="flex flex-col gap-2 text-center">
@@ -259,9 +271,19 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
                 <>
                   <div className="flex items-center justify-between">
                     <h1 className="font-display text-xl font-bold">{plan.name}</h1>
-                    <span className="text-sm text-[rgba(255,255,255,0.4)]">
-                      {t('itemProgress', { current: itemIndex + 1, total: plan.items.length })}
-                    </span>
+                    <div className="flex items-center gap-3">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setReviewOpen(true)}
+                      >
+                        {t('reviewButton')}
+                      </Button>
+                      <span className="text-sm text-[rgba(255,255,255,0.4)]">
+                        {t('itemProgress', { current: itemIndex + 1, total: plan.items.length })}
+                      </span>
+                    </div>
                   </div>
                   <BiSeriesSetLogger
                     setNumber={currentSet + 1}
@@ -289,9 +311,19 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
               <>
                 <div className="flex items-center justify-between">
                   <h1 className="font-display text-xl font-bold">{plan.name}</h1>
-                  <span className="text-sm text-[rgba(255,255,255,0.4)]">
-                    {t('itemProgress', { current: itemIndex + 1, total: plan.items.length })}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setReviewOpen(true)}
+                    >
+                      {t('reviewButton')}
+                    </Button>
+                    <span className="text-sm text-[rgba(255,255,255,0.4)]">
+                      {t('itemProgress', { current: itemIndex + 1, total: plan.items.length })}
+                    </span>
+                  </div>
                 </div>
                 {currentItem.exercises.map((ex) => {
                   const currentSet = setProgress[ex.id] ?? 0
@@ -342,5 +374,12 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
         </motion.div>
       )}
     </AnimatePresence>
+  )
+
+  return (
+    <>
+      {sessionContent}
+      {reviewOpen && <PlanReviewOverlay plan={plan} onClose={() => setReviewOpen(false)} />}
+    </>
   )
 }
