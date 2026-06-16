@@ -282,7 +282,13 @@
     "itemProgress": "{current} of {total}",
     "allSetsDone": "Done",
     "logError": "Failed to log set. Please try again.",
-    "viewMedia": "View Media"
+    "viewMedia": "View Media",
+    "reviewButton": "Review plan"
+  },
+  "planReview": {
+    "exerciseCount": "{count} exercises",
+    "biseries": "Biseries",
+    "close": "Close"
   },
   "singleSession": {
     "setTarget": "Set your target",
