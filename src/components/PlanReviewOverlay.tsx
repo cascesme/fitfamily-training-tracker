@@ -27,7 +27,7 @@ export function PlanReviewOverlay({ plan, onClose }: Props) {
               {t('exerciseCount', { count: totalExercises })}
             </p>
           </div>
-          <Button type="button" variant="ghost" size="sm" onClick={onClose}>
+          <Button type="button" variant="ghost" size="sm" aria-label={t('close')} onClick={onClose}>
             {t('close')}
           </Button>
         </div>

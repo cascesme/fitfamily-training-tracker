@@ -135,7 +135,7 @@ describe('PlanReviewOverlay', () => {
   it('calls onClose when the close button is clicked', () => {
     const onClose = jest.fn()
     render(<PlanReviewOverlay plan={buildPlan()} onClose={onClose} />)
-    screen.getByRole('button', { name: 'close' }).click()
+    screen.getByRole('button', { name: /close/i }).click()
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 })
