@@ -107,4 +107,36 @@ test.describe('Trainee — Full plan session', () => {
     await expect(page.getByRole('heading', { name: 'REST' })).not.toBeVisible()
     await expect(page.locator('text=Session Complete')).toBeVisible()
   })
+
+  test('opens plan review before and during a session without losing progress', async ({ page }) => {
+    await seedTrainee({ name: 'Review User' })
+    const exercise = await seedExercise({ name: 'Bench Press', trackingType: 'WEIGHT', mediaCount: 1 })
+    await seedPlan({
+      name: 'Push Day',
+      items: [{ exerciseId: exercise.id, sets: 2, reps: 8 }],
+    })
+
+    await page.goto('/')
+    await page.click('text=Review User')
+    await page.click('text=Push Day')
+
+    // Review accessible before starting — shows exercise and its media
+    await page.getByRole('button', { name: 'Review plan' }).click({ force: true })
+    await expect(page.getByRole('heading', { name: 'Bench Press' }).first()).toBeVisible()
+    await expect(page.locator('img').first()).toBeVisible()
+    await page.getByRole('button', { name: 'Close' }).click()
+
+    // Start session, log the first set
+    await page.click("text=LET'S GO")
+    await page.fill('[name=weightKg]', '60')
+    await page.fill('[name=repsDone]', '8')
+    await page.click('text=Mark Done')
+    await expect(page.locator('text=Set 2 of 2')).toBeVisible()
+
+    // Review mid-session does not disturb in-progress state
+    await page.getByRole('button', { name: 'Review plan' }).click({ force: true })
+    await expect(page.getByRole('heading', { name: 'Bench Press' }).first()).toBeVisible()
+    await page.getByRole('button', { name: 'Close' }).click()
+    await expect(page.locator('text=Set 2 of 2')).toBeVisible()
+  })
 })
