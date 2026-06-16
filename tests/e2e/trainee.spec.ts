@@ -121,8 +121,8 @@ test.describe('Trainee — Full plan session', () => {
     await page.click('text=Push Day')
 
     // Review accessible before starting — shows exercise and its media
-    await page.getByRole('button', { name: 'Review plan' }).click({ force: true })
-    await expect(page.getByRole('heading', { name: 'Bench Press' }).first()).toBeVisible()
+    await page.getByRole('button', { name: 'Review plan' }).click()
+    await expect(page.getByRole('heading', { name: 'Bench Press' })).toBeVisible()
     await expect(page.locator('img').first()).toBeVisible()
     await page.getByRole('button', { name: 'Close' }).click()
 
@@ -134,8 +134,8 @@ test.describe('Trainee — Full plan session', () => {
     await expect(page.locator('text=Set 2 of 2')).toBeVisible()
 
     // Review mid-session does not disturb in-progress state
-    await page.getByRole('button', { name: 'Review plan' }).click({ force: true })
-    await expect(page.getByRole('heading', { name: 'Bench Press' }).first()).toBeVisible()
+    await page.getByRole('button', { name: 'Review plan' }).click()
+    await expect(page.getByRole('heading', { name: 'Bench Press' })).toBeVisible()
     await page.getByRole('button', { name: 'Close' }).click()
     await expect(page.locator('text=Set 2 of 2')).toBeVisible()
   })

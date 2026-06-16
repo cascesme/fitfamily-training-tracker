@@ -32,6 +32,8 @@ npm run typecheck      # tsc --noEmit (no emit, type errors only)
 npm run test:unit                                          # All unit tests
 npm run test:integration                                   # All integration tests (spins up Postgres container)
 npm run test:e2e                                          # All E2E tests (starts docker-compose.test.yml)
+# Before running E2E tests, rebuild the docker-compose image to pick up code changes:
+docker compose -f docker-compose.test.yml build           # Rebuilds training-assistant-app image
 
 # Run a single test file
 npx jest --selectProjects unit -- tests/unit/path/to/file.test.ts

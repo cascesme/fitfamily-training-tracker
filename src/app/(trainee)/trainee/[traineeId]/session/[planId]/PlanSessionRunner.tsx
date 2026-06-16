@@ -185,7 +185,7 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
           animate={fadeSlideUp.animate}
           exit={fadeSlideUp.exit}
           transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="flex min-h-[calc(100dvh-4rem)] flex-col items-center justify-center gap-6 px-4"
+          className="relative flex min-h-[calc(100dvh-4rem)] flex-col items-center justify-center gap-6 px-4"
         >
           <button
             type="button"
