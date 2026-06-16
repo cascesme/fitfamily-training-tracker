@@ -1,0 +1,68 @@
+'use client'
+
+import { useTranslations } from 'next-intl'
+import { Card } from '@/components/ui/Card'
+import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
+import { MediaStrip } from '@/components/MediaStrip'
+import type { TrainingPlanWithDetails, TrainingPlanItemExerciseWithDetails } from '@/lib/domain/plan'
+
+interface Props {
+  plan: TrainingPlanWithDetails
+  onClose: () => void
+}
+
+export function PlanReviewOverlay({ plan, onClose }: Props) {
+  const t = useTranslations('planReview')
+  const totalExercises = plan.items.reduce((sum, item) => sum + item.exercises.length, 0)
+  const sortedItems = [...plan.items].sort((a, b) => a.position - b.position)
+
+  return (
+    <div className="fixed inset-0 z-[100] overflow-y-auto bg-[#0A0A0A] px-4 py-6">
+      <div className="mx-auto flex max-w-md flex-col gap-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="font-display text-xl font-bold">{plan.name}</h1>
+            <p className="text-sm text-[rgba(255,255,255,0.6)]">
+              {t('exerciseCount', { count: totalExercises })}
+            </p>
+          </div>
+          <Button type="button" variant="ghost" size="sm" onClick={onClose}>
+            {t('close')}
+          </Button>
+        </div>
+
+        {sortedItems.map((item) => {
+          const isBiseries = item.exercises.length === 2
+          const slot1 = item.exercises.find((e) => e.slot === 1)
+          const slot2 = isBiseries ? item.exercises.find((e) => e.slot === 2) : undefined
+
+          return (
+            <Card key={item.id} className="flex flex-col gap-4">
+              {isBiseries && <Badge variant="accent">{t('biseries')}</Badge>}
+              {slot1 && <ReviewExerciseRow item={slot1} />}
+              {slot2 && <ReviewExerciseRow item={slot2} />}
+            </Card>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function ReviewExerciseRow({ item }: { item: TrainingPlanItemExerciseWithDetails }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <h2 className="font-display font-semibold">{item.exercise.name}</h2>
+        <Badge>
+          {item.sets} × {item.reps}
+        </Badge>
+      </div>
+      {item.exercise.description && (
+        <p className="text-sm text-[rgba(255,255,255,0.6)]">{item.exercise.description}</p>
+      )}
+      <MediaStrip media={item.exercise.media} />
+    </div>
+  )
+}
