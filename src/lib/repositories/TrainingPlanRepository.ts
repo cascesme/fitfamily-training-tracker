@@ -71,11 +71,15 @@ export class TrainingPlanRepository implements ITrainingPlanRepository {
     planId: string,
     position: number,
     exercises: Array<{ exerciseId: string; sets: number; reps: number; order: number }>,
+    tabataConfig?: { workTimeSecs: number; restTimeSecs: number },
   ): Promise<TrainingPlanItem> {
     return this.prisma.trainingPlanItem.create({
       data: {
         planId,
         position,
+        isTabata: tabataConfig != null,
+        workTimeSecs: tabataConfig?.workTimeSecs ?? null,
+        restTimeSecs: tabataConfig?.restTimeSecs ?? null,
         exercises: { create: exercises },
       },
       include: { exercises: true },
