@@ -8,9 +8,9 @@ import { Button } from '@/components/ui/Button'
 import { MediaViewer } from '@/components/MediaViewer'
 import { PlanReviewOverlay } from '@/components/PlanReviewOverlay'
 import { SetLogger } from '@/components/SetLogger'
-import { BiSeriesSetLogger } from '@/components/BiSeriesSetLogger'
+import { SeriesSetLogger } from '@/components/SeriesSetLogger'
 import { RestTimerScreen } from '@/components/RestTimerScreen'
-import type { SetLogData } from '@/components/BiSeriesSetLogger'
+import type { SetLogData } from '@/components/SeriesSetLogger'
 import { fadeSlideUp, springTransition } from '@/lib/animation'
 import { playSetComplete } from '@/lib/audio'
 import type { TrainingPlanWithDetails } from '@/lib/domain/plan'
@@ -30,7 +30,7 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
   const [setProgress, setSetProgress] = useState<Record<string, number>>({})
   const [logError, setLogError] = useState<string | null>(null)
   const [viewerOpenFor, setViewerOpenFor] = useState<string | null>(null)
-  const [biSeriesSet, setBiSeriesSet] = useState<Record<string, number>>({})
+  const [seriesRoundProgress, setSeriesRoundProgress] = useState<Record<string, number>>({})
   const [showRestTimer, setShowRestTimer] = useState(false)
   const [reviewOpen, setReviewOpen] = useState(false)
   const logging = useRef(false)
@@ -112,43 +112,32 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
     setItemIndex((prev) => prev + 1)
   }
 
-  async function handleBiSeriesSetDone(dataA: SetLogData, dataB: SetLogData) {
+  async function handleSeriesSetDone(data: SetLogData[]) {
     if (!sessionId || logging.current) return
     logging.current = true
     setLogError(null)
 
-    const slotA = currentItem!.exercises.find((e) => e.slot === 1)!
-    const slotB = currentItem!.exercises.find((e) => e.slot === 2)!
-    const setNumber = (biSeriesSet[currentItem!.id] ?? 0) + 1
+    const sorted = currentItem!.exercises.slice().sort((a, b) => a.order - b.order)
+    const setNumber = (seriesRoundProgress[currentItem!.id] ?? 0) + 1
 
     try {
-      const [resA, resB] = await Promise.all([
-        fetch(`/api/sessions/${sessionId}/logs`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            exerciseId: slotA.exerciseId,
-            planItemId: currentItem!.id,
-            setNumber,
-            weightKg: dataA.weightKg ?? null,
-            repsDone: dataA.repsDone ?? null,
-            durationSecs: dataA.durationSecs ?? undefined,
+      const responses = await Promise.all(
+        sorted.map((ex, i) =>
+          fetch(`/api/sessions/${sessionId}/logs`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              exerciseId: ex.exerciseId,
+              planItemId: currentItem!.id,
+              setNumber,
+              weightKg: data[i].weightKg ?? null,
+              repsDone: data[i].repsDone ?? null,
+              durationSecs: data[i].durationSecs ?? undefined,
+            }),
           }),
-        }),
-        fetch(`/api/sessions/${sessionId}/logs`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            exerciseId: slotB.exerciseId,
-            planItemId: currentItem!.id,
-            setNumber,
-            weightKg: dataB.weightKg ?? null,
-            repsDone: dataB.repsDone ?? null,
-            durationSecs: dataB.durationSecs ?? undefined,
-          }),
-        }),
-      ])
-      if (!resA.ok || !resB.ok) {
+        ),
+      )
+      if (responses.some((res) => !res.ok)) {
         setLogError(t('logError'))
         return
       }
@@ -159,11 +148,11 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
       logging.current = false
     }
 
-    const biSeriesTotalSets = currentItem!.exercises[0].sets
-    setBiSeriesSet((prev) => ({ ...prev, [currentItem!.id]: setNumber }))
+    const seriesTotalSets = sorted[0].sets
+    setSeriesRoundProgress((prev) => ({ ...prev, [currentItem!.id]: setNumber }))
     playSetComplete()
 
-    if (setNumber < biSeriesTotalSets) {
+    if (setNumber < seriesTotalSets) {
       setShowRestTimer(true)
       return
     }
@@ -257,50 +246,33 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
           className="flex flex-col gap-6"
         >
           {(() => {
-            const isBiseries = currentItem.exercises.length === 2
+            const isSeries = currentItem.exercises.length > 1
 
             if (showRestTimer) {
               return <RestTimerScreen onComplete={() => setShowRestTimer(false)} />
             }
 
-            if (isBiseries) {
-              const slotA = currentItem.exercises.find((e) => e.slot === 1)!
-              const slotB = currentItem.exercises.find((e) => e.slot === 2)!
-              const currentSet = biSeriesSet[currentItem.id] ?? 0
+            if (isSeries) {
+              const sorted = currentItem.exercises.slice().sort((a, b) => a.order - b.order)
+              const currentSet = seriesRoundProgress[currentItem.id] ?? 0
               return (
                 <>
                   <div className="flex items-center justify-between">
                     <h1 className="font-display text-xl font-bold">{plan.name}</h1>
-                    <div className="flex items-center gap-3">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setReviewOpen(true)}
-                      >
-                        {t('reviewButton')}
-                      </Button>
-                      <span className="text-sm text-[rgba(255,255,255,0.4)]">
-                        {t('itemProgress', { current: itemIndex + 1, total: plan.items.length })}
-                      </span>
-                    </div>
+                    <span className="text-sm text-[rgba(255,255,255,0.4)]">
+                      {t('itemProgress', { current: itemIndex + 1, total: plan.items.length })}
+                    </span>
                   </div>
-                  <BiSeriesSetLogger
+                  <SeriesSetLogger
                     setNumber={currentSet + 1}
-                    totalSets={slotA.sets}
-                    exerciseA={{
-                      id: slotA.id,
-                      name: slotA.exercise.name,
-                      targetReps: slotA.reps,
-                      trackingType: slotA.exercise.trackingType,
-                    }}
-                    exerciseB={{
-                      id: slotB.id,
-                      name: slotB.exercise.name,
-                      targetReps: slotB.reps,
-                      trackingType: slotB.exercise.trackingType,
-                    }}
-                    onMarkDone={handleBiSeriesSetDone}
+                    totalSets={sorted[0].sets}
+                    exercises={sorted.map((ex) => ({
+                      id: ex.id,
+                      name: ex.exercise.name,
+                      targetReps: ex.reps,
+                      trackingType: ex.exercise.trackingType,
+                    }))}
+                    onMarkDone={handleSeriesSetDone}
                   />
                   {logError && <p className="text-sm text-red-400">{logError}</p>}
                 </>
