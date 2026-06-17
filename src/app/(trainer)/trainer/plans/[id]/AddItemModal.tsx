@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { MAX_SERIES_EXERCISES } from '@/lib/domain/constants'
 import type { Exercise } from '@prisma/client'
 
 interface Props {
@@ -64,54 +65,60 @@ function ExercisePicker({ placeholder, exercises, value, onChange }: ExercisePic
   )
 }
 
+interface Row {
+  exerciseId: string
+  sets: string
+  reps: string
+}
+
+const EMPTY_ROW: Row = { exerciseId: '', sets: '3', reps: '10' }
+
 export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, onClose }: Props) {
   const t = useTranslations('planBuilder')
-  const [type, setType] = useState<'single' | 'biseries'>('single')
-
-  const [exerciseId1, setExerciseId1] = useState('')
-  const [sets1, setSets1] = useState('3')
-  const [reps1, setReps1] = useState('10')
-
-  const [exerciseId2, setExerciseId2] = useState('')
-  const [sets2, setSets2] = useState('3')
-  const [reps2, setReps2] = useState('10')
-
+  const [rows, setRows] = useState<Row[]>([{ ...EMPTY_ROW }])
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
-  const selectedEx1 = allExercises.find((e) => e.id === exerciseId1) ?? null
-  const selectedEx2 = allExercises.find((e) => e.id === exerciseId2) ?? null
+  function addRow() {
+    if (rows.length >= MAX_SERIES_EXERCISES) return
+    setRows((prev) => [...prev, { ...EMPTY_ROW, sets: prev[0].sets }])
+  }
+
+  function removeRow(index: number) {
+    setRows((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  function updateRow(index: number, patch: Partial<Row>) {
+    setRows((prev) =>
+      prev.map((r, i) => {
+        if (i === index) return { ...r, ...patch }
+        if (index === 0 && patch.sets !== undefined) return { ...r, sets: patch.sets }
+        return r
+      }),
+    )
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
 
-    if (!exerciseId1) {
-      setError(t('slot1Required'))
-      return
-    }
-    if (type === 'biseries' && !exerciseId2) {
-      setError(t('slot2Required'))
+    const missingIndex = rows.findIndex((r) => !r.exerciseId)
+    if (missingIndex !== -1) {
+      setError(t('exerciseRequired', { n: missingIndex + 1 }))
       return
     }
 
     setSaving(true)
     try {
-      const body =
-        type === 'single'
-          ? {
-              position: nextPosition,
-              exercises: [
-                { exerciseId: exerciseId1, sets: Number(sets1), reps: Number(reps1), slot: 1 },
-              ],
-            }
-          : {
-              position: nextPosition,
-              exercises: [
-                { exerciseId: exerciseId1, sets: Number(sets1), reps: Number(reps1), slot: 1 },
-                { exerciseId: exerciseId2, sets: Number(sets2), reps: Number(reps2), slot: 2 },
-              ],
-            }
+      const body = {
+        position: nextPosition,
+        exercises: rows.map((r, i) => ({
+          exerciseId: r.exerciseId,
+          sets: Number(r.sets),
+          reps: Number(r.reps),
+          order: i + 1,
+        })),
+      }
 
       const res = await fetch(`/api/plans/${planId}/items`, {
         method: 'POST',
@@ -119,11 +126,6 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
         body: JSON.stringify(body),
       })
 
-      if (res.status === 422) {
-        const data = await res.json().catch(() => ({}))
-        setError(data.error ?? t('slot1Required'))
-        return
-      }
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
         setError(data.error ?? t('addItemError'))
@@ -142,80 +144,58 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
       <div className="w-full max-w-lg rounded-lg border border-[rgba(255,255,255,0.08)] bg-[#111111] p-6">
         <h2 className="mb-4 font-display text-xl font-semibold">{t('addItem')}</h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => setType('single')}
-              className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
-                type === 'single'
-                  ? 'bg-[#E85D26] text-white'
-                  : 'border border-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.6)]'
-              }`}
-            >
-              {t('single')}
-            </button>
-            <button
-              type="button"
-              onClick={() => { setSets2(sets1); setType('biseries') }}
-              className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
-                type === 'biseries'
-                  ? 'bg-[#E85D26] text-white'
-                  : 'border border-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.6)]'
-              }`}
-            >
-              {t('biseries')}
-            </button>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <p className="text-sm text-[rgba(255,255,255,0.6)]">
-              {type === 'biseries' ? t('slot1Label') : t('exerciseLabel')}
-            </p>
-            <ExercisePicker
-              placeholder={type === 'biseries' ? t('exercise1Placeholder') : t('exercisePlaceholder')}
-              exercises={allExercises}
-              value={exerciseId1}
-              onChange={setExerciseId1}
-            />
-            <div className="flex gap-3">
-              <div className="min-w-0 flex-1">
-                <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">{t('sets')}</label>
-                <Input name="sets1" type="number" min="1" value={sets1} onChange={(e) => {
-                  setSets1(e.target.value)
-                  if (type === 'biseries') setSets2(e.target.value)
-                }} required />
-              </div>
-              <div className="min-w-0 flex-1">
-                <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">
-                  {selectedEx1?.trackingType === 'TIME' ? t('duration') : t('reps')}
-                </label>
-                <Input name="reps1" type="number" min="1" value={reps1} onChange={(e) => setReps1(e.target.value)} required />
-              </div>
-            </div>
-          </div>
-
-          {type === 'biseries' && (
-            <div className="flex flex-col gap-3 border-t border-[rgba(255,255,255,0.08)] pt-4">
-              <p className="text-sm text-[rgba(255,255,255,0.6)]">{t('slot2Label')}</p>
-              <ExercisePicker
-                placeholder={t('exercise2Placeholder')}
-                exercises={allExercises}
-                value={exerciseId2}
-                onChange={setExerciseId2}
-              />
-              <div className="flex gap-3">
-                <div className="min-w-0 flex-1">
-                  <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">{t('sets')}</label>
-                  <Input name="sets2" type="number" min="1" value={sets2} onChange={(e) => setSets2(e.target.value)} required />
+          {rows.map((row, i) => {
+            const selectedEx = allExercises.find((e) => e.id === row.exerciseId) ?? null
+            return (
+              <div key={i} className={i > 0 ? 'flex flex-col gap-3 border-t border-[rgba(255,255,255,0.08)] pt-4' : 'flex flex-col gap-3'}>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-[rgba(255,255,255,0.6)]">{t('exerciseNLabel', { n: i + 1 })}</p>
+                  {i > 0 && (
+                    <button type="button" onClick={() => removeRow(i)} className="text-sm text-red-400 hover:text-red-300">
+                      {t('removeItem')}
+                    </button>
+                  )}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">
-                    {selectedEx2?.trackingType === 'TIME' ? t('duration') : t('reps')}
-                  </label>
-                  <Input name="reps2" type="number" min="1" value={reps2} onChange={(e) => setReps2(e.target.value)} required />
+                <ExercisePicker
+                  placeholder={t('exerciseNPlaceholder', { n: i + 1 })}
+                  exercises={allExercises}
+                  value={row.exerciseId}
+                  onChange={(id) => updateRow(i, { exerciseId: id })}
+                />
+                <div className="flex gap-3">
+                  <div className="min-w-0 flex-1">
+                    <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">{t('sets')}</label>
+                    <Input
+                      name={`sets${i + 1}`}
+                      type="number"
+                      min="1"
+                      value={row.sets}
+                      onChange={(e) => updateRow(i, { sets: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">
+                      {selectedEx?.trackingType === 'TIME' ? t('duration') : t('reps')}
+                    </label>
+                    <Input
+                      name={`reps${i + 1}`}
+                      type="number"
+                      min="1"
+                      value={row.reps}
+                      onChange={(e) => updateRow(i, { reps: e.target.value })}
+                      required
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            )
+          })}
+
+          {rows.length < MAX_SERIES_EXERCISES && (
+            <Button type="button" variant="ghost" onClick={addRow}>
+              {t('addExercise')}
+            </Button>
           )}
 
           {error && <p className="text-sm text-red-400">{error}</p>}
