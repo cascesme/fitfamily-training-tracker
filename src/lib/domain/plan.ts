@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { MAX_SERIES_EXERCISES } from '@/lib/domain/constants'
 import type {
   TrainingPlan as PrismaTrainingPlan,
   TrainingPlanItem as PrismaTrainingPlanItem,
@@ -35,8 +36,8 @@ export const AddPlanItemSchema = z.object({
     exerciseId: z.string().min(1),
     sets: z.number().int().positive(),
     reps: z.number().int().positive(),
-    slot: z.number().int().min(1).max(2),
-  })).min(1).max(2),
+    order: z.number().int().min(1).max(MAX_SERIES_EXERCISES),
+  })).min(1).max(MAX_SERIES_EXERCISES),
 })
 export type AddPlanItemInput = z.infer<typeof AddPlanItemSchema>
 
@@ -53,8 +54,8 @@ export interface ITrainingPlanRepository {
   create(data: CreatePlanInput): Promise<TrainingPlan>
   update(id: string, data: UpdatePlanInput): Promise<TrainingPlan>
   delete(id: string): Promise<void>
-  addItem(planId: string, position: number, exercises: Array<{ exerciseId: string; sets: number; reps: number; slot: number }>): Promise<TrainingPlanItem>
+  addItem(planId: string, position: number, exercises: Array<{ exerciseId: string; sets: number; reps: number; order: number }>): Promise<TrainingPlanItem>
   removeItem(itemId: string): Promise<void>
   reorderItems(planId: string, positions: Array<{ id: string; position: number }>): Promise<void>
-  findItemSlot(itemId: string, slot: number): Promise<TrainingPlanItemExercise | null>
+  findItemAtOrder(itemId: string, order: number): Promise<TrainingPlanItemExercise | null>
 }

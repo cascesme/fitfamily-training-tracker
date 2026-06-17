@@ -38,20 +38,36 @@ describe('AddPlanItemSchema', () => {
   it('accepts single exercise item', () => {
     const result = AddPlanItemSchema.safeParse({
       position: 1,
-      exercises: [{ exerciseId: 'ex1', sets: 3, reps: 10, slot: 1 }],
+      exercises: [{ exerciseId: 'ex1', sets: 3, reps: 10, order: 1 }],
     })
     expect(result.success).toBe(true)
   })
 
-  it('accepts biseries item with two exercises', () => {
+  it('accepts series item with two exercises', () => {
     const result = AddPlanItemSchema.safeParse({
       position: 2,
       exercises: [
-        { exerciseId: 'ex1', sets: 3, reps: 10, slot: 1 },
-        { exerciseId: 'ex2', sets: 3, reps: 10, slot: 2 },
+        { exerciseId: 'ex1', sets: 3, reps: 10, order: 1 },
+        { exerciseId: 'ex2', sets: 3, reps: 10, order: 2 },
       ],
     })
     expect(result.success).toBe(true)
+  })
+
+  it('accepts series item with five exercises', () => {
+    const result = AddPlanItemSchema.safeParse({
+      position: 3,
+      exercises: [1, 2, 3, 4, 5].map((order) => ({ exerciseId: `ex${order}`, sets: 3, reps: 10, order })),
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects series item with six exercises', () => {
+    const result = AddPlanItemSchema.safeParse({
+      position: 1,
+      exercises: [1, 2, 3, 4, 5, 6].map((order) => ({ exerciseId: `ex${order}`, sets: 3, reps: 10, order })),
+    })
+    expect(result.success).toBe(false)
   })
 
   it('rejects empty exercises array', () => {
@@ -59,10 +75,10 @@ describe('AddPlanItemSchema', () => {
     expect(result.success).toBe(false)
   })
 
-  it('rejects slot value above 2', () => {
+  it('rejects order value above MAX_SERIES_EXERCISES', () => {
     const result = AddPlanItemSchema.safeParse({
       position: 1,
-      exercises: [{ exerciseId: 'ex1', sets: 3, reps: 10, slot: 3 }],
+      exercises: [{ exerciseId: 'ex1', sets: 3, reps: 10, order: 6 }],
     })
     expect(result.success).toBe(false)
   })
@@ -70,7 +86,7 @@ describe('AddPlanItemSchema', () => {
   it('rejects negative position', () => {
     const result = AddPlanItemSchema.safeParse({
       position: -1,
-      exercises: [{ exerciseId: 'ex1', sets: 3, reps: 10, slot: 1 }],
+      exercises: [{ exerciseId: 'ex1', sets: 3, reps: 10, order: 1 }],
     })
     expect(result.success).toBe(false)
   })
@@ -78,7 +94,7 @@ describe('AddPlanItemSchema', () => {
   it('rejects zero sets', () => {
     const result = AddPlanItemSchema.safeParse({
       position: 1,
-      exercises: [{ exerciseId: 'ex1', sets: 0, reps: 10, slot: 1 }],
+      exercises: [{ exerciseId: 'ex1', sets: 0, reps: 10, order: 1 }],
     })
     expect(result.success).toBe(false)
   })
