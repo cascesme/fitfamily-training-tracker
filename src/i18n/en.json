@@ -273,6 +273,15 @@
     "allSetsDone": "Done",
     "logError": "Failed to log set. Please try again.",
     "viewMedia": "View Media",
+    "navPrev": "Previous exercise",
+    "navNext": "Next exercise",
+    "completedLabel": "Completed",
+    "lockedLabel": "Locked",
+    "lockedHint": "Finish the current exercise to unlock",
+    "loggedSetLabel": "Set {number}",
+    "loggedSetWeight": "{weight} kg × {reps} reps",
+    "loggedSetDuration": "{seconds}s",
+    "loggedSetReps": "{reps} reps",
     "reviewButton": "Review plan"
   },
   "planReview": {

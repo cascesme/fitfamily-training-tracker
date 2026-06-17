@@ -141,7 +141,7 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
 
   return (
     <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-      <div className="w-full max-w-lg rounded-lg border border-[rgba(255,255,255,0.08)] bg-[#111111] p-6">
+      <div className="w-full max-w-lg overflow-y-auto rounded-lg border border-[rgba(255,255,255,0.08)] bg-[#111111] p-6 max-h-[90vh]">
         <h2 className="mb-4 font-display text-xl font-semibold">{t('addItem')}</h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {rows.map((row, i) => {

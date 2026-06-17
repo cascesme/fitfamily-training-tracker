@@ -1,4 +1,4 @@
 export const MAX_EXERCISE_MEDIA = 10
-export const MAX_SERIES_EXERCISES = 5
+export const MAX_SERIES_EXERCISES = 7
 export const DEFAULT_TIME_TARGET_SECONDS = 30
 export const SWIPE_THRESHOLD_PX = 50

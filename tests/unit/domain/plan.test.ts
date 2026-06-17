@@ -62,10 +62,10 @@ describe('AddPlanItemSchema', () => {
     expect(result.success).toBe(true)
   })
 
-  it('rejects series item with six exercises', () => {
+  it('rejects series item with eight exercises', () => {
     const result = AddPlanItemSchema.safeParse({
       position: 1,
-      exercises: [1, 2, 3, 4, 5, 6].map((order) => ({ exerciseId: `ex${order}`, sets: 3, reps: 10, order })),
+      exercises: [1, 2, 3, 4, 5, 6, 7, 8].map((order) => ({ exerciseId: `ex${order}`, sets: 3, reps: 10, order })),
     })
     expect(result.success).toBe(false)
   })
@@ -78,7 +78,7 @@ describe('AddPlanItemSchema', () => {
   it('rejects order value above MAX_SERIES_EXERCISES', () => {
     const result = AddPlanItemSchema.safeParse({
       position: 1,
-      exercises: [{ exerciseId: 'ex1', sets: 3, reps: 10, order: 6 }],
+      exercises: [{ exerciseId: 'ex1', sets: 3, reps: 10, order: 8 }],
     })
     expect(result.success).toBe(false)
   })

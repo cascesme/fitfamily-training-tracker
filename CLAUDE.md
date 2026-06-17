@@ -195,7 +195,7 @@ Constants in `src/lib/domain/constants.ts`. Example: `MAX_EXERCISE_MEDIA = 10`, 
 - `Exercise` delete blocked if any `TrainingSessionLog` references it.
 - `Trainee` delete blocked if any `TrainingSession` references them.
 - `ExerciseMedia` count per exercise ≤ 10.
-- `TrainingPlanItem` series exercises must have contiguous `order` starting at 1, up to `MAX_SERIES_EXERCISES` (5), with equal `sets` across all exercises in the series.
+- `TrainingPlanItem` series exercises must have contiguous `order` starting at 1, up to `MAX_SERIES_EXERCISES` (7), with equal `sets` across all exercises in the series.
 
 ---
 

@@ -41,6 +41,9 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
     (sum, item) => item.exercises.reduce((s, ex) => s + ex.sets, sum),
     0,
   )
+  const completedItemIds = new Set(
+    plan.items.filter((_, idx) => idx < itemIndex).map((item) => item.id),
+  )
 
   async function handleStart() {
     if (starting.current) return
@@ -361,7 +364,13 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
   return (
     <>
       {sessionContent}
-      {reviewOpen && <PlanReviewOverlay plan={plan} onClose={() => setReviewOpen(false)} />}
+      {reviewOpen && (
+        <PlanReviewOverlay
+          plan={plan}
+          onClose={() => setReviewOpen(false)}
+          completedItemIds={phase === 'running' ? completedItemIds : undefined}
+        />
+      )}
     </>
   )
 }
