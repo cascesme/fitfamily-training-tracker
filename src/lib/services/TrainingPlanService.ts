@@ -6,7 +6,7 @@ interface PlanItemExerciseInput {
   exerciseId: string
   sets: number
   reps: number
-  slot: number
+  order: number
 }
 
 export class TrainingPlanService {
@@ -58,29 +58,28 @@ export class TrainingPlanService {
     exercises: PlanItemExerciseInput[],
   ): Promise<TrainingPlanItem> {
     logger.info({ service: 'TrainingPlanService', operation: 'addItem', entityId: planId }, 'Adding item to plan')
-    const hasSlot2 = exercises.some(e => e.slot === 2)
-    const hasSlot1 = exercises.some(e => e.slot === 1)
-    if (hasSlot2 && !hasSlot1) {
-      logger.info({ service: 'TrainingPlanService', operation: 'addItem', entityId: planId, outcome: 'blocked' }, 'Biseries slot 2 requires slot 1')
-      throw new ValidationError('biseries slot 2 requires slot 1 to exist in the same item')
+
+    const orders = exercises.map((e) => e.order).sort((a, b) => a - b)
+    const isContiguous = orders.every((o, i) => o === i + 1)
+    if (!isContiguous) {
+      logger.warn(
+        { service: 'TrainingPlanService', operation: 'addItem', entityId: planId, outcome: 'blocked', rule: 'series-order-contiguous' },
+        'Series rejected — order values must be contiguous starting at 1',
+      )
+      throw new ValidationError('series exercises must have contiguous order starting at 1')
     }
-    if (exercises.length === 2) {
-      const slots = exercises.map((e) => e.slot).sort((a, b) => a - b)
-      if (slots[0] !== 1 || slots[1] !== 2) {
+
+    if (exercises.length > 1) {
+      const allEqualSets = exercises.every((e) => e.sets === exercises[0].sets)
+      if (!allEqualSets) {
         logger.warn(
-          { service: 'TrainingPlanService', operation: 'addItem', entityId: planId, outcome: 'blocked', rule: 'biseries-slot-pair' },
-          'Biseries rejected — exercises must occupy slots 1 and 2',
+          { service: 'TrainingPlanService', operation: 'addItem', entityId: planId, outcome: 'blocked', rule: 'series-equal-sets' },
+          'Series rejected — unequal set counts',
         )
-        throw new ValidationError('biseries exercises must occupy slots 1 and 2')
-      }
-      if (exercises[0].sets !== exercises[1].sets) {
-        logger.warn(
-          { service: 'TrainingPlanService', operation: 'addItem', entityId: planId, outcome: 'blocked', rule: 'biseries-equal-sets' },
-          'Biseries rejected — unequal set counts',
-        )
-        throw new ValidationError('biseries exercises must have equal set counts')
+        throw new ValidationError('series exercises must have equal set counts')
       }
     }
+
     const item = await this.repo.addItem(planId, position, exercises)
     logger.info({ service: 'TrainingPlanService', operation: 'addItem', entityId: item.id, outcome: 'created' }, 'Plan item added')
     return item

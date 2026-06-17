@@ -13,7 +13,7 @@ const mockRepo: jest.Mocked<ITrainingPlanRepository> = {
   addItem: jest.fn(),
   removeItem: jest.fn(),
   reorderItems: jest.fn(),
-  findItemSlot: jest.fn(),
+  findItemAtOrder: jest.fn(),
 }
 
 beforeEach(() => { jest.clearAllMocks() })
@@ -70,44 +70,73 @@ describe('TrainingPlanService', () => {
   const mockPlanItem = { id: 'item1', planId: 'p1', position: 1 }
 
   describe('addItem', () => {
-    it('adds single exercise item without slot validation', async () => {
+    it('adds single exercise item without order validation', async () => {
       mockRepo.addItem.mockResolvedValue(mockPlanItem)
-      await service.addItem('p1', 1, [{ exerciseId: 'e1', sets: 3, reps: 10, slot: 1 }])
-      expect(mockRepo.addItem).toHaveBeenCalledWith('p1', 1, [{ exerciseId: 'e1', sets: 3, reps: 10, slot: 1 }])
+      await service.addItem('p1', 1, [{ exerciseId: 'e1', sets: 3, reps: 10, order: 1 }])
+      expect(mockRepo.addItem).toHaveBeenCalledWith('p1', 1, [{ exerciseId: 'e1', sets: 3, reps: 10, order: 1 }])
     })
 
-    it('allows biseries when slot 1 and slot 2 both present with equal sets', async () => {
+    it('allows series when order 1 and order 2 both present with equal sets', async () => {
       mockRepo.addItem.mockResolvedValue(mockPlanItem)
       await service.addItem('p1', 1, [
-        { exerciseId: 'e1', sets: 3, reps: 10, slot: 1 },
-        { exerciseId: 'e2', sets: 3, reps: 10, slot: 2 },
+        { exerciseId: 'e1', sets: 3, reps: 10, order: 1 },
+        { exerciseId: 'e2', sets: 3, reps: 10, order: 2 },
       ])
       expect(mockRepo.addItem).toHaveBeenCalled()
     })
 
-    it('throws ValidationError when two exercises share the same slot', async () => {
+    it('allows series with five exercises at equal sets and contiguous order', async () => {
+      mockRepo.addItem.mockResolvedValue(mockPlanItem)
+      await service.addItem('p1', 1, [1, 2, 3, 4, 5].map((order) => ({
+        exerciseId: `e${order}`, sets: 3, reps: 10, order,
+      })))
+      expect(mockRepo.addItem).toHaveBeenCalled()
+    })
+
+    it('throws ValidationError when two exercises share the same order', async () => {
       await expect(
         service.addItem('p1', 1, [
-          { exerciseId: 'e1', sets: 3, reps: 10, slot: 1 },
-          { exerciseId: 'e2', sets: 3, reps: 10, slot: 1 },
+          { exerciseId: 'e1', sets: 3, reps: 10, order: 1 },
+          { exerciseId: 'e2', sets: 3, reps: 10, order: 1 },
         ])
       ).rejects.toThrow(ValidationError)
       expect(mockRepo.addItem).not.toHaveBeenCalled()
     })
 
-    it('throws ValidationError when biseries exercises have unequal set counts', async () => {
+    it('throws ValidationError when order values are not contiguous from 1', async () => {
       await expect(
         service.addItem('p1', 1, [
-          { exerciseId: 'e1', sets: 3, reps: 10, slot: 1 },
-          { exerciseId: 'e2', sets: 4, reps: 10, slot: 2 },
+          { exerciseId: 'e1', sets: 3, reps: 10, order: 1 },
+          { exerciseId: 'e2', sets: 3, reps: 10, order: 3 },
         ])
       ).rejects.toThrow(ValidationError)
       expect(mockRepo.addItem).not.toHaveBeenCalled()
     })
 
-    it('throws ValidationError when slot 2 provided without slot 1 in item', async () => {
+    it('throws ValidationError when series exercises have unequal set counts', async () => {
       await expect(
-        service.addItem('p1', 1, [{ exerciseId: 'e2', sets: 3, reps: 10, slot: 2 }])
+        service.addItem('p1', 1, [
+          { exerciseId: 'e1', sets: 3, reps: 10, order: 1 },
+          { exerciseId: 'e2', sets: 4, reps: 10, order: 2 },
+        ])
+      ).rejects.toThrow(ValidationError)
+      expect(mockRepo.addItem).not.toHaveBeenCalled()
+    })
+
+    it('throws ValidationError when unequal sets appear among three or more exercises', async () => {
+      await expect(
+        service.addItem('p1', 1, [
+          { exerciseId: 'e1', sets: 3, reps: 10, order: 1 },
+          { exerciseId: 'e2', sets: 3, reps: 10, order: 2 },
+          { exerciseId: 'e3', sets: 4, reps: 10, order: 3 },
+        ])
+      ).rejects.toThrow(ValidationError)
+      expect(mockRepo.addItem).not.toHaveBeenCalled()
+    })
+
+    it('throws ValidationError when order 2 provided without order 1 in item', async () => {
+      await expect(
+        service.addItem('p1', 1, [{ exerciseId: 'e2', sets: 3, reps: 10, order: 2 }])
       ).rejects.toThrow(ValidationError)
       expect(mockRepo.addItem).not.toHaveBeenCalled()
     })
