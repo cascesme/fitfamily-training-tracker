@@ -1255,7 +1255,7 @@ import { TabataRunner } from '@/components/TabataRunner'
 import type { TabataExercise } from '@/components/TabataRunner'
 ```
 
-In the `phase === 'running' && currentItem` render block, add a new branch **before** the `isSeries` check:
+In the `phase === 'running' && currentItem` render block, the existing code uses an IIFE `{(() => { ... })()}`. Inside that IIFE, add a new branch **before** the existing `if (showRestTimer)` check:
 
 ```typescript
 const isTabata = currentItem.isTabata ?? false
