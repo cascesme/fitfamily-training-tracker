@@ -244,7 +244,7 @@
   },
   "planBuilder": {
     "addItem": "Add Item",
-    "removeItem": "✕",
+    "removeItem": "Remove",
     "single": "Single",
     "series": "Series ×{count}",
     "noItems": "No items yet. Add the first one.",
