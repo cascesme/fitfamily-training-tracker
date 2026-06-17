@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   title: 'FitFamily',
   description: 'Family fitness tracking',
   manifest: '/manifest.json',
+  icons: {
+    apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
+  },
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
