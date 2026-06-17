@@ -10,7 +10,7 @@ export type SetLogData = {
   durationSecs?: number | null
 }
 
-export interface BiSeriesExercise {
+export interface SeriesExercise {
   id: string
   name: string
   targetReps: number
@@ -41,12 +41,11 @@ function toLogData(state: ExerciseInputState, trackingType: 'WEIGHT' | 'TIME' | 
   }
 }
 
-interface BiSeriesSetLoggerProps {
+interface SeriesSetLoggerProps {
   setNumber: number
   totalSets: number
-  exerciseA: BiSeriesExercise
-  exerciseB: BiSeriesExercise
-  onMarkDone: (dataA: SetLogData, dataB: SetLogData) => Promise<void>
+  exercises: SeriesExercise[]
+  onMarkDone: (data: SetLogData[]) => Promise<void>
 }
 
 function ExerciseCard({
@@ -54,7 +53,7 @@ function ExerciseCard({
   state,
   onChange,
 }: {
-  exercise: BiSeriesExercise
+  exercise: SeriesExercise
   state: ExerciseInputState
   onChange: (updater: (s: ExerciseInputState) => ExerciseInputState) => void
 }) {
@@ -109,24 +108,17 @@ function ExerciseCard({
   )
 }
 
-export function BiSeriesSetLogger({
-  setNumber,
-  totalSets,
-  exerciseA,
-  exerciseB,
-  onMarkDone,
-}: BiSeriesSetLoggerProps) {
+export function SeriesSetLogger({ setNumber, totalSets, exercises, onMarkDone }: SeriesSetLoggerProps) {
   const t = useTranslations('session')
-  const [stateA, setStateA] = useState<ExerciseInputState>(() => initialState(exerciseA.targetReps))
-  const [stateB, setStateB] = useState<ExerciseInputState>(() => initialState(exerciseB.targetReps))
+  const [state, setState] = useState<ExerciseInputState[]>(() => exercises.map((e) => initialState(e.targetReps)))
   const [loading, setLoading] = useState(false)
 
-  const canSubmit = isValid(stateA, exerciseA.trackingType) && isValid(stateB, exerciseB.trackingType)
+  const canSubmit = state.every((s, i) => isValid(s, exercises[i].trackingType))
 
   const handleDone = async () => {
     setLoading(true)
     try {
-      await onMarkDone(toLogData(stateA, exerciseA.trackingType), toLogData(stateB, exerciseB.trackingType))
+      await onMarkDone(state.map((s, i) => toLogData(s, exercises[i].trackingType)))
     } finally {
       setLoading(false)
     }
@@ -136,7 +128,7 @@ export function BiSeriesSetLogger({
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
         <span className="rounded bg-[#E85D26] px-2 py-0.5 text-xs font-bold uppercase text-white">
-          {t('biSeriesBadge')}
+          {t('seriesBadge')}
         </span>
         <span className="font-display text-xl font-bold">
           {t('currentSet', { current: setNumber, total: totalSets })}
@@ -144,9 +136,16 @@ export function BiSeriesSetLogger({
       </div>
 
       <div className="overflow-hidden rounded-[8px] border border-[rgba(255,255,255,0.08)]">
-        <ExerciseCard exercise={exerciseA} state={stateA} onChange={setStateA} />
-        <div className="h-px bg-[rgba(255,255,255,0.08)]" />
-        <ExerciseCard exercise={exerciseB} state={stateB} onChange={setStateB} />
+        {exercises.map((ex, i) => (
+          <div key={ex.id}>
+            {i > 0 && <div className="h-px bg-[rgba(255,255,255,0.08)]" />}
+            <ExerciseCard
+              exercise={ex}
+              state={state[i]}
+              onChange={(updater) => setState((prev) => prev.map((s, j) => (j === i ? updater(s) : s)))}
+            />
+          </div>
+        ))}
       </div>
 
       <Button

@@ -130,7 +130,7 @@
     "tapToStart": "Tap to start",
     "countdownComplete": "Time's up!",
     "tapDone": "Done",
-    "biSeriesBadge": "BISERIES",
+    "seriesBadge": "SERIES",
     "markSetDone": "Mark Set Done",
     "targetReps": "Target: {reps} reps",
     "targetDuration": "Target: {secs}s",
