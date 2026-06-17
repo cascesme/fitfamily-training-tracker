@@ -10,9 +10,10 @@ import type { TrainingPlanWithDetails, TrainingPlanItemExerciseWithDetails } fro
 interface Props {
   plan: TrainingPlanWithDetails
   onClose: () => void
+  completedItemIds?: Set<string>
 }
 
-export function PlanReviewOverlay({ plan, onClose }: Props) {
+export function PlanReviewOverlay({ plan, onClose, completedItemIds = new Set() }: Props) {
   const t = useTranslations('planReview')
   const totalExercises = plan.items.reduce((sum, item) => sum + item.exercises.length, 0)
   const sortedItems = [...plan.items].sort((a, b) => a.position - b.position)
@@ -35,10 +36,28 @@ export function PlanReviewOverlay({ plan, onClose }: Props) {
         {sortedItems.map((item) => {
           const exercises = [...item.exercises].sort((a, b) => a.order - b.order)
           const isSeries = exercises.length > 1
+          const isDone = completedItemIds.has(item.id)
 
           return (
-            <Card key={item.id} className="flex flex-col gap-4">
+            <Card key={item.id} className="relative flex flex-col gap-4">
               {isSeries && <Badge variant="accent">{t('series', { count: exercises.length })}</Badge>}
+              {isDone && (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="rgba(255,255,255,0.8)"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="absolute right-3 top-3"
+                  aria-label="Completed"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              )}
               {exercises.map((ex) => (
                 <ReviewExerciseRow key={ex.id} item={ex} />
               ))}
