@@ -83,9 +83,10 @@ test.describe('Trainer — Exercise management', () => {
     await expect(page.locator('text=https://www.youtube.com/watch?v=dQw4w9WgXcQ')).toBeVisible()
   })
 
-  test('creates training plan with biseries', async ({ page }) => {
+  test('creates training plan with series', async ({ page }) => {
     await seedExercise({ name: 'Squat', trackingType: 'WEIGHT' })
     await seedExercise({ name: 'Lunge', trackingType: 'WEIGHT' })
+    await seedExercise({ name: 'Leg Press', trackingType: 'WEIGHT' })
 
     await page.goto('/trainer/plans')
     await page.click('text=New Plan')
@@ -94,19 +95,26 @@ test.describe('Trainer — Exercise management', () => {
     await page.click('text=Leg Day')
 
     await page.click('text=Add Item')
-    await page.click('text=Biseries')
     await page.fill('[placeholder="Exercise 1"]', 'Squat')
     await page.click('text=Squat')
     await page.fill('[name=sets1]', '3')
     await page.fill('[name=reps1]', '10')
+
+    await page.click('text=+ Add Exercise')
     await page.fill('[placeholder="Exercise 2"]', 'Lunge')
     await page.click('text=Lunge')
-    await page.fill('[name=sets2]', '3')
     await page.fill('[name=reps2]', '12')
+
+    await page.click('text=+ Add Exercise')
+    await page.fill('[placeholder="Exercise 3"]', 'Leg Press')
+    await page.click('text=Leg Press')
+    await page.fill('[name=reps3]', '15')
+
     await page.getByRole('dialog').getByRole('button', { name: 'Add Item' }).click()
 
     await expect(page.locator('text=Squat')).toBeVisible()
     await expect(page.locator('text=Lunge')).toBeVisible()
-    await expect(page.locator('text=BISERIES')).toBeVisible()
+    await expect(page.locator('text=Leg Press')).toBeVisible()
+    await expect(page.locator('text=Series ×3')).toBeVisible()
   })
 })

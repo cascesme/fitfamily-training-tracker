@@ -61,36 +61,26 @@ export async function seedPlan(data: {
   return plan
 }
 
-export async function seedBiseriePlan(data: {
+export async function seedSeriesPlan(data: {
   name: string
-  exerciseAId: string
-  exerciseBId: string
+  exercises: Array<{ exerciseId: string; reps: number }>
   sets: number
-  repsA: number
-  repsB: number
 }) {
   const plan = await prisma.trainingPlan.create({ data: { name: data.name } })
   const item = await prisma.trainingPlanItem.create({
     data: { planId: plan.id, position: 1 },
   })
-  await prisma.trainingPlanItemExercise.create({
-    data: {
-      itemId: item.id,
-      exerciseId: data.exerciseAId,
-      sets: data.sets,
-      reps: data.repsA,
-      order: 1,
-    },
-  })
-  await prisma.trainingPlanItemExercise.create({
-    data: {
-      itemId: item.id,
-      exerciseId: data.exerciseBId,
-      sets: data.sets,
-      reps: data.repsB,
-      order: 2,
-    },
-  })
+  for (let i = 0; i < data.exercises.length; i++) {
+    await prisma.trainingPlanItemExercise.create({
+      data: {
+        itemId: item.id,
+        exerciseId: data.exercises[i].exerciseId,
+        sets: data.sets,
+        reps: data.exercises[i].reps,
+        order: i + 1,
+      },
+    })
+  }
   return plan
 }
 

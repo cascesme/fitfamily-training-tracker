@@ -44,18 +44,33 @@ test.describe('Failure paths', () => {
     await expect(page.locator('button:has-text("Add")')).toBeDisabled()
   })
 
-  test('biseries item requires slot 1 before slot 2', async ({ page }) => {
+  test('series item requires exercise 1 before exercise 2', async ({ page }) => {
     const plan = await seedPlan({ name: 'Test Plan', items: [] })
     await seedExercise({ name: 'Exercise A', trackingType: 'WEIGHT' })
 
     await page.goto(`/trainer/plans/${plan.id}`)
     await page.click('text=Add Item')
-    await page.click('text=Biseries')
+    await page.click('text=+ Add Exercise')
     await page.fill('[placeholder="Exercise 2"]', 'Exercise A')
     await page.click('text=Exercise A')
     await page.getByRole('dialog').getByRole('button', { name: 'Add Item' }).click()
 
-    await expect(page.locator('text=Slot 1 exercise is required')).toBeVisible()
+    await expect(page.locator('text=Exercise 1 is required')).toBeVisible()
+  })
+
+  test('cannot add a 6th exercise to a series', async ({ page }) => {
+    const plan = await seedPlan({ name: 'Test Plan', items: [] })
+    for (let i = 1; i <= 5; i++) {
+      await seedExercise({ name: `Exercise ${i}`, trackingType: 'WEIGHT' })
+    }
+
+    await page.goto(`/trainer/plans/${plan.id}`)
+    await page.click('text=Add Item')
+    for (let i = 0; i < 4; i++) {
+      await page.click('text=+ Add Exercise')
+    }
+
+    await expect(page.locator('text=+ Add Exercise')).not.toBeVisible()
   })
 
   test('PWA manifest and service worker present', async ({ page }) => {
