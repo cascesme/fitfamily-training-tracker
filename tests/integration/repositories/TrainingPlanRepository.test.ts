@@ -57,28 +57,41 @@ describe('TrainingPlanRepository', () => {
 
   it('addItem creates item with single exercise', async () => {
     const plan = await repo.create({ name: 'P' })
-    await repo.addItem(plan.id, 1, [{ exerciseId, sets: 3, reps: 10, slot: 1 }])
+    await repo.addItem(plan.id, 1, [{ exerciseId, sets: 3, reps: 10, order: 1 }])
     const full = await repo.findWithItems(plan.id)
     expect(full?.items).toHaveLength(1)
     expect(full?.items![0].exercises).toHaveLength(1)
-    expect(full?.items![0].exercises![0].slot).toBe(1)
+    expect(full?.items![0].exercises![0].order).toBe(1)
   })
 
-  it('addItem creates biseries item with two exercises', async () => {
+  it('addItem creates series item with two exercises', async () => {
     const ex2 = await db.prisma.exercise.create({ data: { name: 'Lunge', trackingType: 'WEIGHT' } })
     const plan = await repo.create({ name: 'P' })
     await repo.addItem(plan.id, 1, [
-      { exerciseId, sets: 3, reps: 10, slot: 1 },
-      { exerciseId: ex2.id, sets: 3, reps: 12, slot: 2 },
+      { exerciseId, sets: 3, reps: 10, order: 1 },
+      { exerciseId: ex2.id, sets: 3, reps: 12, order: 2 },
     ])
     const full = await repo.findWithItems(plan.id)
     expect(full?.items![0].exercises).toHaveLength(2)
   })
 
+  it('addItem creates series item with five exercises', async () => {
+    const others = await Promise.all(
+      [2, 3, 4, 5].map((n) => db.prisma.exercise.create({ data: { name: `Ex${n}`, trackingType: 'WEIGHT' } })),
+    )
+    const plan = await repo.create({ name: 'P' })
+    await repo.addItem(plan.id, 1, [
+      { exerciseId, sets: 3, reps: 10, order: 1 },
+      ...others.map((ex, i) => ({ exerciseId: ex.id, sets: 3, reps: 10, order: i + 2 })),
+    ])
+    const full = await repo.findWithItems(plan.id)
+    expect(full?.items![0].exercises).toHaveLength(5)
+  })
+
   it('findWithItems returns nested structure ordered by position', async () => {
     const plan = await repo.create({ name: 'P' })
-    await repo.addItem(plan.id, 2, [{ exerciseId, sets: 2, reps: 8, slot: 1 }])
-    await repo.addItem(plan.id, 1, [{ exerciseId, sets: 3, reps: 10, slot: 1 }])
+    await repo.addItem(plan.id, 2, [{ exerciseId, sets: 2, reps: 8, order: 1 }])
+    await repo.addItem(plan.id, 1, [{ exerciseId, sets: 3, reps: 10, order: 1 }])
     const full = await repo.findWithItems(plan.id)
     expect(full?.items![0].position).toBe(1)
     expect(full?.items![1].position).toBe(2)
@@ -86,7 +99,7 @@ describe('TrainingPlanRepository', () => {
 
   it('removeItem deletes item and its exercises', async () => {
     const plan = await repo.create({ name: 'P' })
-    await repo.addItem(plan.id, 1, [{ exerciseId, sets: 3, reps: 10, slot: 1 }])
+    await repo.addItem(plan.id, 1, [{ exerciseId, sets: 3, reps: 10, order: 1 }])
     const full = await repo.findWithItems(plan.id)
     const itemId = full!.items![0].id
     await repo.removeItem(itemId)
@@ -96,8 +109,8 @@ describe('TrainingPlanRepository', () => {
 
   it('reorderItems updates positions', async () => {
     const plan = await repo.create({ name: 'P' })
-    await repo.addItem(plan.id, 1, [{ exerciseId, sets: 2, reps: 5, slot: 1 }])
-    await repo.addItem(plan.id, 2, [{ exerciseId, sets: 2, reps: 5, slot: 1 }])
+    await repo.addItem(plan.id, 1, [{ exerciseId, sets: 2, reps: 5, order: 1 }])
+    await repo.addItem(plan.id, 2, [{ exerciseId, sets: 2, reps: 5, order: 1 }])
     const full = await repo.findWithItems(plan.id)
     const [item1, item2] = full!.items!
     await repo.reorderItems(plan.id, [
@@ -108,22 +121,22 @@ describe('TrainingPlanRepository', () => {
     expect(reordered!.items![0].id).toBe(item2.id)
   })
 
-  it('findItemSlot returns exercise for matching slot', async () => {
+  it('findItemAtOrder returns exercise for matching order', async () => {
     const plan = await repo.create({ name: 'P' })
-    await repo.addItem(plan.id, 1, [{ exerciseId, sets: 3, reps: 10, slot: 1 }])
+    await repo.addItem(plan.id, 1, [{ exerciseId, sets: 3, reps: 10, order: 1 }])
     const full = await repo.findWithItems(plan.id)
     const itemId = full!.items![0].id
-    const result = await repo.findItemSlot(itemId, 1)
+    const result = await repo.findItemAtOrder(itemId, 1)
     expect(result).not.toBeNull()
-    expect(result?.slot).toBe(1)
+    expect(result?.order).toBe(1)
   })
 
-  it('findItemSlot returns null for missing slot', async () => {
+  it('findItemAtOrder returns null for missing order', async () => {
     const plan = await repo.create({ name: 'P' })
-    await repo.addItem(plan.id, 1, [{ exerciseId, sets: 3, reps: 10, slot: 1 }])
+    await repo.addItem(plan.id, 1, [{ exerciseId, sets: 3, reps: 10, order: 1 }])
     const full = await repo.findWithItems(plan.id)
     const itemId = full!.items![0].id
-    const result = await repo.findItemSlot(itemId, 2)
+    const result = await repo.findItemAtOrder(itemId, 2)
     expect(result).toBeNull()
   })
 })

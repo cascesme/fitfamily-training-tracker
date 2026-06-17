@@ -27,7 +27,7 @@ export class TrainingPlanRepository implements ITrainingPlanRepository {
         items: {
           orderBy: { position: 'asc' },
           include: {
-            exercises: { orderBy: { slot: 'asc' } },
+            exercises: { orderBy: { order: 'asc' } },
           },
         },
       },
@@ -42,7 +42,7 @@ export class TrainingPlanRepository implements ITrainingPlanRepository {
           orderBy: { position: 'asc' },
           include: {
             exercises: {
-              orderBy: { slot: 'asc' },
+              orderBy: { order: 'asc' },
               include: {
                 exercise: {
                   include: { media: { orderBy: { position: 'asc' } } },
@@ -70,7 +70,7 @@ export class TrainingPlanRepository implements ITrainingPlanRepository {
   async addItem(
     planId: string,
     position: number,
-    exercises: Array<{ exerciseId: string; sets: number; reps: number; slot: number }>,
+    exercises: Array<{ exerciseId: string; sets: number; reps: number; order: number }>,
   ): Promise<TrainingPlanItem> {
     return this.prisma.trainingPlanItem.create({
       data: {
@@ -101,9 +101,9 @@ export class TrainingPlanRepository implements ITrainingPlanRepository {
     ])
   }
 
-  findItemSlot(itemId: string, slot: number): Promise<TrainingPlanItemExercise | null> {
+  findItemAtOrder(itemId: string, order: number): Promise<TrainingPlanItemExercise | null> {
     return this.prisma.trainingPlanItemExercise.findUnique({
-      where: { itemId_slot: { itemId, slot } },
+      where: { itemId_order: { itemId, order } },
     })
   }
 }

@@ -81,9 +81,9 @@ model TrainingPlanItemExercise {
   exercise   Exercise         @relation(fields: [exerciseId], references: [id])
   sets       Int
   reps       Int
-  slot       Int
+  order      Int
 
-  @@unique([itemId, slot])
+  @@unique([itemId, order])
 }
 
 model TrainingSession {
