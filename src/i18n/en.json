@@ -281,7 +281,8 @@
     "loggedSetLabel": "Set {number}",
     "loggedSetWeight": "{weight} kg × {reps} reps",
     "loggedSetDuration": "{seconds}s",
-    "loggedSetReps": "{reps} reps"
+    "loggedSetReps": "{reps} reps",
+    "reviewButton": "Review plan"
   },
   "planReview": {
     "exerciseCount": "{count} exercises",
