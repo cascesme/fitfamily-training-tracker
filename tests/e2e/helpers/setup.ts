@@ -54,7 +54,7 @@ export async function seedPlan(data: {
         exerciseId: data.items[i].exerciseId,
         sets: data.items[i].sets,
         reps: data.items[i].reps,
-        slot: 1,
+        order: 1,
       },
     })
   }
@@ -79,7 +79,7 @@ export async function seedBiseriePlan(data: {
       exerciseId: data.exerciseAId,
       sets: data.sets,
       reps: data.repsA,
-      slot: 1,
+      order: 1,
     },
   })
   await prisma.trainingPlanItemExercise.create({
@@ -88,7 +88,7 @@ export async function seedBiseriePlan(data: {
       exerciseId: data.exerciseBId,
       sets: data.sets,
       reps: data.repsB,
-      slot: 2,
+      order: 2,
     },
   })
   return plan

@@ -29,7 +29,7 @@ interface PlanItemExercise {
   exerciseId: string
   sets: number
   reps: number
-  slot: number
+  order: number
 }
 
 interface PlanItem {
@@ -64,10 +64,8 @@ function SortablePlanItem({
   const style = { transform: CSS.Transform.toString(transform), transition }
   const t = useTranslations('planBuilder')
 
-  const exercises = item.exercises ?? []
-  const isBiseries = exercises.length === 2
-  const slot1 = exercises.find((e) => e.slot === 1)
-  const slot2 = exercises.find((e) => e.slot === 2)
+  const exercises = (item.exercises ?? []).slice().sort((a, b) => a.order - b.order)
+  const isSeries = exercises.length > 1
 
   function lookupName(exerciseId: string): string {
     return allExercises.find((e) => e.id === exerciseId)?.name ?? exerciseId
@@ -79,41 +77,24 @@ function SortablePlanItem({
       style={style}
       className="flex items-start gap-3 rounded-md border border-[rgba(255,255,255,0.08)] bg-[#1A1A1A] p-4"
     >
-      <span
-        {...attributes}
-        {...listeners}
-        className="mt-1 cursor-grab select-none text-[rgba(255,255,255,0.4)]"
-      >
+      <span {...attributes} {...listeners} className="mt-1 cursor-grab select-none text-[rgba(255,255,255,0.4)]">
         ⠿
       </span>
       <div className="flex flex-1 flex-col gap-1">
         <div className="flex items-center gap-2">
           <span className="text-xs text-[rgba(255,255,255,0.4)]">#{item.position}</span>
-          <Badge variant={isBiseries ? 'accent' : 'default'}>
-            {isBiseries ? t('biseries') : t('single')}
+          <Badge variant={isSeries ? 'accent' : 'default'}>
+            {isSeries ? t('series', { count: exercises.length }) : t('single')}
           </Badge>
         </div>
-        {slot1 && (
-          <p className="text-sm">
-            <span className="font-semibold">{lookupName(slot1.exerciseId)}</span>
-            <span className="ml-2 text-[rgba(255,255,255,0.6)]">
-              {slot1.sets} × {slot1.reps}
-            </span>
+        {exercises.map((ex) => (
+          <p key={ex.id} className="text-sm">
+            <span className="font-semibold">{lookupName(ex.exerciseId)}</span>
+            <span className="ml-2 text-[rgba(255,255,255,0.6)]">{ex.sets} × {ex.reps}</span>
           </p>
-        )}
-        {slot2 && (
-          <p className="text-sm">
-            <span className="font-semibold">{lookupName(slot2.exerciseId)}</span>
-            <span className="ml-2 text-[rgba(255,255,255,0.6)]">
-              {slot2.sets} × {slot2.reps}
-            </span>
-          </p>
-        )}
+        ))}
       </div>
-      <button
-        onClick={() => onDelete(item.id)}
-        className="text-sm text-red-400 hover:text-red-300"
-      >
+      <button onClick={() => onDelete(item.id)} className="text-sm text-red-400 hover:text-red-300">
         {t('removeItem')}
       </button>
     </div>

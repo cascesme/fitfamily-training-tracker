@@ -32,7 +32,7 @@ function buildPlan(): TrainingPlanWithDetails {
             exerciseId: 'e1',
             sets: 3,
             reps: 10,
-            slot: 1,
+            order: 1,
             exercise: {
               id: 'e1',
               name: 'Bench Press',
@@ -67,7 +67,7 @@ function buildPlan(): TrainingPlanWithDetails {
             exerciseId: 'e2',
             sets: 4,
             reps: 8,
-            slot: 1,
+            order: 1,
             exercise: {
               id: 'e2',
               name: 'Incline Press',
@@ -84,7 +84,7 @@ function buildPlan(): TrainingPlanWithDetails {
             exerciseId: 'e3',
             sets: 4,
             reps: 8,
-            slot: 2,
+            order: 2,
             exercise: {
               id: 'e3',
               name: 'Cable Fly',

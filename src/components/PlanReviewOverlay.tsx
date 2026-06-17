@@ -33,15 +33,15 @@ export function PlanReviewOverlay({ plan, onClose }: Props) {
         </div>
 
         {sortedItems.map((item) => {
-          const isBiseries = item.exercises.length === 2
-          const slot1 = item.exercises.find((e) => e.slot === 1)
-          const slot2 = isBiseries ? item.exercises.find((e) => e.slot === 2) : undefined
+          const exercises = [...item.exercises].sort((a, b) => a.order - b.order)
+          const isSeries = exercises.length > 1
 
           return (
             <Card key={item.id} className="flex flex-col gap-4">
-              {isBiseries && <Badge variant="accent">{t('biseries')}</Badge>}
-              {slot1 && <ReviewExerciseRow item={slot1} />}
-              {slot2 && <ReviewExerciseRow item={slot2} />}
+              {isSeries && <Badge variant="accent">{t('biseries')}</Badge>}
+              {exercises.map((ex) => (
+                <ReviewExerciseRow key={ex.id} item={ex} />
+              ))}
             </Card>
           )
         })}

@@ -75,14 +75,8 @@
     "empty": "No plans yet. Create your first one.",
     "itemsTitle": "Exercises",
     "addItem": "Add Exercise",
-    "addBiseries": "Add Biseries",
-    "itemSingle": "Single",
-    "itemBiseries": "Biseries",
     "sets": "Sets",
-    "reps": "Reps",
-    "slot1": "Exercise A",
-    "slot2": "Exercise B",
-    "biseriesMissingSlot1": "Biseries requires a slot 1 exercise."
+    "reps": "Reps"
   },
   "trainee": {
     "title": "Trainees",
