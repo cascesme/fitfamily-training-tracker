@@ -58,15 +58,15 @@ test.describe('Failure paths', () => {
     await expect(page.locator('text=Exercise 1 is required')).toBeVisible()
   })
 
-  test('cannot add a 6th exercise to a series', async ({ page }) => {
+  test('cannot add an 8th exercise to a series', async ({ page }) => {
     const plan = await seedPlan({ name: 'Test Plan', items: [] })
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 7; i++) {
       await seedExercise({ name: `Exercise ${i}`, trackingType: 'WEIGHT' })
     }
 
     await page.goto(`/trainer/plans/${plan.id}`)
     await page.click('text=Add Item')
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 6; i++) {
       await page.click('text=+ Add Exercise')
     }
 
