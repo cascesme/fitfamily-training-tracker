@@ -259,9 +259,19 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
                 <>
                   <div className="flex items-center justify-between">
                     <h1 className="font-display text-xl font-bold">{plan.name}</h1>
-                    <span className="text-sm text-[rgba(255,255,255,0.4)]">
-                      {t('itemProgress', { current: itemIndex + 1, total: plan.items.length })}
-                    </span>
+                    <div className="flex items-center gap-3">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setReviewOpen(true)}
+                      >
+                        {t('reviewButton')}
+                      </Button>
+                      <span className="text-sm text-[rgba(255,255,255,0.4)]">
+                        {t('itemProgress', { current: itemIndex + 1, total: plan.items.length })}
+                      </span>
+                    </div>
                   </div>
                   <SeriesSetLogger
                     setNumber={currentSet + 1}

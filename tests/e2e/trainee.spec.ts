@@ -141,4 +141,51 @@ test.describe('Trainee — Full plan session', () => {
     await page.getByRole('button', { name: 'Close' }).click()
     await expect(page.locator('text=Set 2 of 2')).toBeVisible()
   })
+
+  test('opens plan review mid-series session without losing progress', async ({ page }) => {
+    await seedTrainee({ name: 'Series Review User' })
+    const exerciseA = await seedExercise({ name: 'Squat', trackingType: 'WEIGHT' })
+    const exerciseB = await seedExercise({ name: 'Deadlift', trackingType: 'WEIGHT' })
+    await seedSeriesPlan({
+      name: 'Series Review Day',
+      exercises: [
+        { exerciseId: exerciseA.id, reps: 8 },
+        { exerciseId: exerciseB.id, reps: 6 },
+      ],
+      sets: 3,
+    })
+
+    await page.goto('/')
+    await page.click('text=Series Review User')
+    await page.click('text=Series Review Day')
+
+    // Start session
+    await page.click("text=LET'S GO")
+
+    // Verify series UI is active
+    await expect(page.locator('text=SERIES')).toBeVisible()
+    await expect(page.locator('text=Set 1 of 3')).toBeVisible()
+
+    // Fill in and complete first set for all exercises
+    await page.fill('[aria-label="Squat weight kg"]', '100')
+    await page.fill('[aria-label="Squat reps done"]', '8')
+    await page.fill('[aria-label="Deadlift weight kg"]', '120')
+    await page.fill('[aria-label="Deadlift reps done"]', '6')
+    await page.click('text=Mark Set Done')
+
+    // Rest timer appears — skip it to move to set 2
+    await expect(page.getByRole('heading', { name: 'REST' })).toBeVisible()
+    await page.click('text=Skip → Next Set')
+
+    // Now on set 2, open Review plan button (restored in series branch)
+    await expect(page.locator('text=Set 2 of 3')).toBeVisible()
+    await page.getByRole('button', { name: 'Review plan' }).click()
+
+    // Overlay must be visible
+    await expect(page.getByRole('heading', { name: 'Series Review Day' }).first()).toBeVisible()
+    await page.getByRole('button', { name: 'Close' }).click()
+
+    // Session state is preserved after closing overlay
+    await expect(page.locator('text=Set 2 of 3')).toBeVisible()
+  })
 })

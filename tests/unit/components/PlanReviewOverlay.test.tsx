@@ -115,16 +115,16 @@ describe('PlanReviewOverlay', () => {
     expect(screen.getAllByText('4 × 8')).toHaveLength(2)
   })
 
-  it('groups a biseries pair under one Biseries badge', () => {
+  it('groups a series under one Series badge', () => {
     render(<PlanReviewOverlay plan={buildPlan()} onClose={jest.fn()} />)
-    expect(screen.getByText('biseries')).toBeInTheDocument()
+    expect(screen.getByText('series')).toBeInTheDocument()
   })
 
-  it('does not show a Biseries badge for a single-exercise item', () => {
+  it('does not show a Series badge for a single-exercise item', () => {
     const plan = buildPlan()
     plan.items = [plan.items[0]]
     render(<PlanReviewOverlay plan={plan} onClose={jest.fn()} />)
-    expect(screen.queryByText('biseries')).not.toBeInTheDocument()
+    expect(screen.queryByText('series')).not.toBeInTheDocument()
   })
 
   it('renders media for an exercise that has it', () => {

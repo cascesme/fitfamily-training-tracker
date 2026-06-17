@@ -38,7 +38,7 @@ export function PlanReviewOverlay({ plan, onClose }: Props) {
 
           return (
             <Card key={item.id} className="flex flex-col gap-4">
-              {isSeries && <Badge variant="accent">{t('biseries')}</Badge>}
+              {isSeries && <Badge variant="accent">{t('series', { count: exercises.length })}</Badge>}
               {exercises.map((ex) => (
                 <ReviewExerciseRow key={ex.id} item={ex} />
               ))}

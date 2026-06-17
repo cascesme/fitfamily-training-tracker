@@ -242,10 +242,8 @@
     "single": "Single",
     "series": "Series ×{count}",
     "noItems": "No items yet. Add the first one.",
-    "exerciseLabel": "Exercise",
     "exerciseNLabel": "Exercise {n}",
     "exerciseNPlaceholder": "Exercise {n}",
-    "exercisePlaceholder": "Search exercise…",
     "sets": "Sets",
     "reps": "Reps",
     "duration": "Duration (s)",
@@ -279,7 +277,7 @@
   },
   "planReview": {
     "exerciseCount": "{count} exercises",
-    "biseries": "Biseries",
+    "series": "Series ×{count}",
     "close": "Close"
   },
   "singleSession": {
