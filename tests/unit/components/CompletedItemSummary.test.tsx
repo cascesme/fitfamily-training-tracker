@@ -28,8 +28,9 @@ describe('CompletedItemSummary', () => {
       />,
     )
     expect(screen.getByText('Bench Press')).toBeInTheDocument()
-    expect(screen.getByText(/loggedSetLabel/)).toBeInTheDocument()
-    expect(screen.getByText(/80 kg × 10 reps|loggedSetWeight/)).toBeInTheDocument()
+    const labels = screen.getAllByText(/loggedSetLabel/)
+    expect(labels).toHaveLength(2)
+    expect(screen.getAllByText(/loggedSetWeight/).length).toBeGreaterThanOrEqual(1)
   })
 
   it('renders both exercises for a biseries pair', () => {

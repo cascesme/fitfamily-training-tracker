@@ -24,12 +24,6 @@ interface CompletedItemSummaryProps {
   exercises: CompletedExerciseEntry[]
 }
 
-function formatSetValue(set: LoggedSet, trackingType: CompletedExerciseEntry['trackingType']): string {
-  if (trackingType === 'TIME') return `${set.durationSecs ?? 0}s`
-  if (trackingType === 'WEIGHT') return `${set.weightKg ?? 0} kg × ${set.repsDone ?? 0} reps`
-  return `${set.repsDone ?? 0} reps`
-}
-
 export function CompletedItemSummary({ exercises }: CompletedItemSummaryProps) {
   const t = useTranslations('sessionRunner')
   const [viewerOpenFor, setViewerOpenFor] = useState<string | null>(null)
@@ -54,13 +48,15 @@ export function CompletedItemSummary({ exercises }: CompletedItemSummaryProps) {
             </Button>
           )}
           <div className="mt-3">
-            <p className="text-xs font-semibold uppercase text-[rgba(255,255,255,0.4)]">
-              {t('loggedSetLabel', { number: ex.loggedSets.length })}
-            </p>
             <ul className="mt-1 flex flex-col gap-1">
               {ex.loggedSets.map((set) => (
                 <li key={set.setNumber} className="text-sm text-[rgba(255,255,255,0.6)]">
-                  {formatSetValue(set, ex.trackingType)}
+                  {t('loggedSetLabel', { number: set.setNumber })}:{' '}
+                  {ex.trackingType === 'TIME'
+                    ? t('loggedSetDuration', { seconds: set.durationSecs ?? 0 })
+                    : ex.trackingType === 'WEIGHT'
+                      ? t('loggedSetWeight', { weight: set.weightKg ?? 0, reps: set.repsDone ?? 0 })
+                      : t('loggedSetReps', { reps: set.repsDone ?? 0 })}
                 </li>
               ))}
             </ul>
