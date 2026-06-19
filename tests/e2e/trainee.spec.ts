@@ -126,6 +126,15 @@ test.describe('Trainee — Full plan session', () => {
     await page.click('text=Quick Tabata')
     await page.click("text=LET'S GO")
 
+    // Preview screen — assert content before timer starts
+    await expect(page.getByText('TABATA', { exact: true })).toBeVisible()
+    await expect(page.locator('text=Jump Squats')).toBeVisible()
+    await expect(page.locator('text=Mountain Climbers')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Start Tabata' })).toBeVisible()
+
+    // Start the tabata
+    await page.click('text=Start Tabata')
+
     // First exercise work phase
     await expect(page.locator('text=Jump Squats')).toBeVisible()
     await expect(page.getByText('TABATA', { exact: true })).toBeVisible()
