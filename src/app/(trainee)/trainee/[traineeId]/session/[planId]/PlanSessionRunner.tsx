@@ -36,6 +36,7 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
   const [seriesRoundProgress, setSeriesRoundProgress] = useState<Record<string, number>>({})
   const [showRestTimer, setShowRestTimer] = useState(false)
   const [reviewOpen, setReviewOpen] = useState(false)
+  const [alternativeActive, setAlternativeActive] = useState<Record<string, boolean>>({})
   const logging = useRef(false)
   const starting = useRef(false)
 
@@ -381,39 +382,53 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
                   </div>
                 </div>
                 {currentItem.exercises.map((ex) => {
+                  const useAlt = !!alternativeActive[ex.id] && ex.alternativeExercise !== null
+                  const activeExercise = useAlt ? ex.alternativeExercise! : ex.exercise
+                  const activeExerciseId = useAlt ? ex.alternativeExercise!.id : ex.exerciseId
+                  const activeSets = useAlt ? (ex.alternativeSets ?? ex.sets) : ex.sets
+                  const activeReps = useAlt ? (ex.alternativeReps ?? ex.reps) : ex.reps
                   const currentSet = setProgress[ex.id] ?? 0
-                  const setsLeft = ex.sets - currentSet
+                  const setsLeft = activeSets - currentSet
                   return (
                     <div key={ex.id} className="flex flex-col gap-4">
                       <div>
-                        <h2 className="font-display text-2xl font-bold">{ex.exercise.name}</h2>
-                        {ex.exercise.description && (
+                        <h2 className="font-display text-2xl font-bold">{activeExercise.name}</h2>
+                        {activeExercise.description && (
                           <p className="mt-1 text-sm text-[rgba(255,255,255,0.6)]">
-                            {ex.exercise.description}
+                            {activeExercise.description}
                           </p>
                         )}
                       </div>
-                      {ex.exercise.media.length > 0 && (
+                      {ex.alternativeExercise !== null && currentSet === 0 && (
+                        <button
+                          type="button"
+                          className="self-start text-xs text-[rgba(255,255,255,0.5)] underline hover:text-[rgba(255,255,255,0.8)]"
+                          onClick={() => setAlternativeActive((prev) => ({ ...prev, [ex.id]: !prev[ex.id] }))}
+                        >
+                          {useAlt ? ex.exercise.name : t('switchToAlternative')}
+                        </button>
+                      )}
+                      {activeExercise.media.length > 0 && (
                         <Button
                           type="button"
                           variant="secondary"
                           onClick={() => setViewerOpenFor(ex.id)}
                           className="hover:border-[#E85D26]"
                         >
-                          {t('viewMedia')} ({ex.exercise.media.length})
+                          {t('viewMedia')} ({activeExercise.media.length})
                         </Button>
                       )}
                       {viewerOpenFor === ex.id && (
-                        <MediaViewer media={ex.exercise.media} onClose={() => setViewerOpenFor(null)} />
+                        <MediaViewer media={activeExercise.media} onClose={() => setViewerOpenFor(null)} />
                       )}
                       {setsLeft > 0 && (
                         <SetLogger
                           key={currentSet}
                           setNumber={currentSet + 1}
-                          totalSets={ex.sets}
-                          targetReps={ex.reps}
-                          trackingType={ex.exercise.trackingType}
-                          onMarkDone={(data) => handleMarkDone(ex.id, ex.exerciseId, ex.sets, data)}
+                          totalSets={activeSets}
+                          targetReps={activeReps}
+                          trackingType={activeExercise.trackingType}
+                          onMarkDone={(data) => handleMarkDone(ex.id, activeExerciseId, activeSets, data)}
                         />
                       )}
                       {setsLeft === 0 && (
