@@ -35,7 +35,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const body = await request.json()
     const parsed = AddPlanItemSchema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
-    const item = await trainingPlanService.addItem(id, parsed.data.position, parsed.data.exercises)
+    const tabataConfig = parsed.data.isTabata
+      ? { workTimeSecs: parsed.data.workTimeSecs!, restTimeSecs: parsed.data.restTimeSecs! }
+      : undefined
+    const item = await trainingPlanService.addItem(id, parsed.data.position, parsed.data.exercises, tabataConfig)
     return NextResponse.json(item, { status: 201 })
   } catch (error) {
     return handleError(error, `/api/plans/${id}/items`)

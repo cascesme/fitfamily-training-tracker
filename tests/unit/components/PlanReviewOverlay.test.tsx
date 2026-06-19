@@ -25,6 +25,9 @@ function buildPlan(): TrainingPlanWithDetails {
         id: 'item1',
         planId: 'plan1',
         position: 1,
+        isTabata: false,
+        workTimeSecs: null,
+        restTimeSecs: null,
         exercises: [
           {
             id: 'tpe1',
@@ -60,6 +63,9 @@ function buildPlan(): TrainingPlanWithDetails {
         id: 'item2',
         planId: 'plan1',
         position: 2,
+        isTabata: false,
+        workTimeSecs: null,
+        restTimeSecs: null,
         exercises: [
           {
             id: 'tpe2',

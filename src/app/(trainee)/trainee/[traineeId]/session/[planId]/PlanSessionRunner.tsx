@@ -10,9 +10,12 @@ import { PlanReviewOverlay } from '@/components/PlanReviewOverlay'
 import { SetLogger } from '@/components/SetLogger'
 import { SeriesSetLogger } from '@/components/SeriesSetLogger'
 import { RestTimerScreen } from '@/components/RestTimerScreen'
+import { TabataRunner } from '@/components/TabataRunner'
 import type { SetLogData } from '@/components/SeriesSetLogger'
+import type { TabataExercise } from '@/components/TabataRunner'
 import { fadeSlideUp, springTransition } from '@/lib/animation'
 import { playSetComplete } from '@/lib/audio'
+import { logger } from '@/lib/logger'
 import type { TrainingPlanWithDetails } from '@/lib/domain/plan'
 
 interface Props {
@@ -168,6 +171,26 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
     setItemIndex((prev) => prev + 1)
   }
 
+  async function handleTabataDone(exerciseId: string, round: number, durationSecs: number) {
+    if (!sessionId) return
+    setLogError(null)
+    try {
+      const res = await fetch(`/api/sessions/${sessionId}/logs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          exerciseId,
+          planItemId: currentItem!.id,
+          setNumber: round,
+          durationSecs,
+        }),
+      })
+      if (!res.ok) setLogError(t('logError'))
+    } catch {
+      setLogError(t('logError'))
+    }
+  }
+
   const sessionContent = (
     <AnimatePresence mode="wait">
       {phase === 'ready' && (
@@ -249,6 +272,53 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
           className="flex flex-col gap-6"
         >
           {(() => {
+            const isTabata = currentItem.isTabata ?? false
+
+            if (isTabata) {
+              if (!currentItem.workTimeSecs || !currentItem.restTimeSecs) {
+                logger.error({ service: 'PlanSessionRunner', operation: 'render', entityId: currentItem.id, outcome: 'error' }, 'Tabata item missing workTimeSecs or restTimeSecs')
+                return null
+              }
+              const sorted = currentItem.exercises.slice().sort((a, b) => a.order - b.order)
+              const tabataExercises: TabataExercise[] = sorted.map((ex) => ({
+                id: ex.id,
+                exerciseId: ex.exerciseId,
+                name: ex.exercise.name,
+                media: ex.exercise.media,
+              }))
+              return (
+                <>
+                  <div className="flex items-center justify-between">
+                    <h1 className="font-display text-xl font-bold">{plan.name}</h1>
+                    <div className="flex items-center gap-3">
+                      <Button type="button" variant="ghost" size="sm" onClick={() => setReviewOpen(true)}>
+                        {t('reviewButton')}
+                      </Button>
+                      <span className="text-sm text-[rgba(255,255,255,0.4)]">
+                        {t('itemProgress', { current: itemIndex + 1, total: plan.items.length })}
+                      </span>
+                    </div>
+                  </div>
+                  <TabataRunner
+                    exercises={tabataExercises}
+                    totalRounds={sorted[0].sets}
+                    workTimeSecs={currentItem.workTimeSecs!}
+                    restTimeSecs={currentItem.restTimeSecs!}
+                    onExerciseDone={handleTabataDone}
+                    onComplete={() => {
+                      playSetComplete()
+                      if (itemIndex + 1 >= plan.items.length) {
+                        router.push(`/trainee/${traineeId}/finish?sessionId=${sessionId}&planId=${plan.id}`)
+                      } else {
+                        setItemIndex((prev) => prev + 1)
+                      }
+                    }}
+                  />
+                  {logError && <p className="text-sm text-red-400">{logError}</p>}
+                </>
+              )
+            }
+
             const isSeries = currentItem.exercises.length > 1
 
             if (showRestTimer) {

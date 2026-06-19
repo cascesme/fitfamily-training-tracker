@@ -32,12 +32,33 @@ export type UpdatePlanInput = z.infer<typeof UpdatePlanSchema>
 
 export const AddPlanItemSchema = z.object({
   position: z.number().int().positive(),
+  isTabata: z.boolean().optional().default(false),
+  workTimeSecs: z.number().int().positive().optional(),
+  restTimeSecs: z.number().int().positive().optional(),
   exercises: z.array(z.object({
     exerciseId: z.string().min(1),
     sets: z.number().int().positive(),
-    reps: z.number().int().positive(),
+    reps: z.number().int().nonnegative(),
     order: z.number().int().min(1).max(MAX_SERIES_EXERCISES),
   })).min(1).max(MAX_SERIES_EXERCISES),
+}).superRefine((val, ctx) => {
+  if (!val.isTabata) {
+    val.exercises.forEach((ex, i) => {
+      if (ex.reps === 0) {
+        ctx.addIssue({ code: 'custom', path: ['exercises', i, 'reps'], message: 'reps must be positive for non-tabata exercises' })
+      }
+    })
+    return
+  }
+  if (val.exercises.length < 2) {
+    ctx.addIssue({ code: 'custom', path: ['exercises'], message: 'tabata requires at least 2 exercises' })
+  }
+  if (!val.workTimeSecs) {
+    ctx.addIssue({ code: 'custom', path: ['workTimeSecs'], message: 'workTimeSecs required for tabata' })
+  }
+  if (!val.restTimeSecs) {
+    ctx.addIssue({ code: 'custom', path: ['restTimeSecs'], message: 'restTimeSecs required for tabata' })
+  }
 })
 export type AddPlanItemInput = z.infer<typeof AddPlanItemSchema>
 
@@ -54,7 +75,12 @@ export interface ITrainingPlanRepository {
   create(data: CreatePlanInput): Promise<TrainingPlan>
   update(id: string, data: UpdatePlanInput): Promise<TrainingPlan>
   delete(id: string): Promise<void>
-  addItem(planId: string, position: number, exercises: Array<{ exerciseId: string; sets: number; reps: number; order: number }>): Promise<TrainingPlanItem>
+  addItem(
+    planId: string,
+    position: number,
+    exercises: Array<{ exerciseId: string; sets: number; reps: number; order: number }>,
+    tabataConfig?: { workTimeSecs: number; restTimeSecs: number },
+  ): Promise<TrainingPlanItem>
   removeItem(itemId: string): Promise<void>
   reorderItems(planId: string, positions: Array<{ id: string; position: number }>): Promise<void>
   findItemAtOrder(itemId: string, order: number): Promise<TrainingPlanItemExercise | null>

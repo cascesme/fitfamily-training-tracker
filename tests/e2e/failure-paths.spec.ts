@@ -73,6 +73,44 @@ test.describe('Failure paths', () => {
     await expect(page.locator('text=+ Add Exercise')).not.toBeVisible()
   })
 
+  test('tabata toggle with 1 exercise — API returns 400', async ({ page }) => {
+    const plan = await seedPlan({ name: 'Tabata Test Plan', items: [] })
+    await seedExercise({ name: 'Solo Exercise', trackingType: 'NONE' })
+
+    await page.goto(`/trainer/plans/${plan.id}`)
+    await page.click('text=Add Item')
+    await page.fill('[placeholder="Exercise 1"]', 'Solo Exercise')
+    await page.click('text=Solo Exercise')
+
+    // Tabata toggle not visible with 1 exercise — force test via direct API call
+    const res = await page.request.post(`/api/plans/${plan.id}/items`, {
+      data: {
+        position: 1,
+        isTabata: true,
+        workTimeSecs: 20,
+        restTimeSecs: 10,
+        exercises: [{ exerciseId: 'some-id', sets: 3, reps: 0, order: 1 }],
+      },
+    })
+    expect(res.status()).toBe(400)
+  })
+
+  test('tabata missing workTimeSecs — API returns 400', async ({ page }) => {
+    const plan = await seedPlan({ name: 'Tabata Test Plan 2', items: [] })
+    const res = await page.request.post(`/api/plans/${plan.id}/items`, {
+      data: {
+        position: 1,
+        isTabata: true,
+        restTimeSecs: 10,
+        exercises: [
+          { exerciseId: 'id1', sets: 3, reps: 0, order: 1 },
+          { exerciseId: 'id2', sets: 3, reps: 0, order: 2 },
+        ],
+      },
+    })
+    expect(res.status()).toBe(400)
+  })
+
   test('PWA manifest and service worker present', async ({ page }) => {
     await page.goto('/')
 

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { seedTrainee, seedExercise, seedPlan, seedSeriesPlan, cleanDatabase } from './helpers/setup'
+import { seedTrainee, seedExercise, seedPlan, seedSeriesPlan, seedTabataPlan, cleanDatabase } from './helpers/setup'
 
 test.describe('Trainee — Full plan session', () => {
   test.beforeEach(async () => {
@@ -108,6 +108,47 @@ test.describe('Trainee — Full plan session', () => {
 
     await expect(page.getByRole('heading', { name: 'REST' })).not.toBeVisible()
     await expect(page.locator('text=Session Complete')).toBeVisible()
+  })
+
+  test('trainee runs tabata plan — timers fire and session completes', async ({ page }) => {
+    const trainee = await seedTrainee({ name: 'Tabata Athlete' })
+    const exA = await seedExercise({ name: 'Jump Squats', trackingType: 'NONE' })
+    const exB = await seedExercise({ name: 'Mountain Climbers', trackingType: 'NONE' })
+    const plan = await seedTabataPlan({
+      name: 'Quick Tabata',
+      exercises: [{ exerciseId: exA.id }, { exerciseId: exB.id }],
+      sets: 1,
+      workTimeSecs: 3,
+      restTimeSecs: 2,
+    })
+
+    await page.goto(`/trainee/${trainee.id}`)
+    await page.click('text=Quick Tabata')
+    await page.click("text=LET'S GO")
+
+    // First exercise work phase
+    await expect(page.locator('text=Jump Squats')).toBeVisible()
+    await expect(page.getByText('TABATA', { exact: true })).toBeVisible()
+    await expect(page.locator('text=Round 1 of 1')).toBeVisible()
+
+    // Wait for work timer to expire (3s + buffer)
+    await page.waitForTimeout(4000)
+
+    // Rest phase
+    await expect(page.locator('text=REST')).toBeVisible()
+
+    // Wait for rest timer to expire (2s + buffer)
+    await page.waitForTimeout(3000)
+
+    // Second exercise
+    await expect(page.locator('text=Mountain Climbers')).toBeVisible()
+    await expect(page.locator('text=Exercise 2 of 2')).toBeVisible()
+
+    // Wait for second work timer
+    await page.waitForTimeout(4000)
+
+    // Session completes (last exercise of last round — no rest, goes to finish)
+    await expect(page).toHaveURL(/\/finish/)
   })
 
   test('opens plan review before and during a session without losing progress', async ({ page }) => {
