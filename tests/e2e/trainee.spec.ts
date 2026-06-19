@@ -128,7 +128,7 @@ test.describe('Trainee — Full plan session', () => {
 
     // First exercise work phase
     await expect(page.locator('text=Jump Squats')).toBeVisible()
-    await expect(page.locator('text=TABATA')).toBeVisible()
+    await expect(page.getByText('TABATA', { exact: true })).toBeVisible()
     await expect(page.locator('text=Round 1 of 1')).toBeVisible()
 
     // Wait for work timer to expire (3s + buffer)
