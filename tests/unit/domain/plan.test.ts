@@ -172,3 +172,62 @@ describe('AddPlanItemSchema', () => {
     expect(result.success).toBe(true)
   })
 })
+
+describe('AddPlanItemSchema — alternative exercise co-validation', () => {
+  const base = { exerciseId: 'ex1', sets: 3, reps: 10, order: 1 }
+
+  it('accepts item with all three alternative fields set', () => {
+    const result = AddPlanItemSchema.safeParse({
+      position: 1,
+      exercises: [{ ...base, alternativeExerciseId: 'alt1', alternativeSets: 3, alternativeReps: 8 }],
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects when alternativeExerciseId set but alternativeSets missing', () => {
+    const result = AddPlanItemSchema.safeParse({
+      position: 1,
+      exercises: [{ ...base, alternativeExerciseId: 'alt1', alternativeReps: 8 }],
+    })
+    expect(result.success).toBe(false)
+    expect(result.error?.issues.some((i) => i.path.includes('alternativeSets'))).toBe(true)
+  })
+
+  it('rejects when alternativeExerciseId set but alternativeReps missing', () => {
+    const result = AddPlanItemSchema.safeParse({
+      position: 1,
+      exercises: [{ ...base, alternativeExerciseId: 'alt1', alternativeSets: 3 }],
+    })
+    expect(result.success).toBe(false)
+    expect(result.error?.issues.some((i) => i.path.includes('alternativeReps'))).toBe(true)
+  })
+
+  it('rejects when alternativeExerciseId set but both alternativeSets and alternativeReps missing', () => {
+    const result = AddPlanItemSchema.safeParse({
+      position: 1,
+      exercises: [{ ...base, alternativeExerciseId: 'alt1' }],
+    })
+    expect(result.success).toBe(false)
+    const paths = result.error!.issues.flatMap((i) => i.path)
+    expect(paths).toContain('alternativeSets')
+    expect(paths).toContain('alternativeReps')
+  })
+
+  it('rejects when alternativeSets/Reps set without alternativeExerciseId', () => {
+    const result = AddPlanItemSchema.safeParse({
+      position: 1,
+      exercises: [{ ...base, alternativeSets: 3, alternativeReps: 8 }],
+    })
+    expect(result.success).toBe(false)
+    expect(result.error?.issues.some((i) => i.path.includes('alternativeExerciseId'))).toBe(true)
+  })
+
+  it('rejects when alternativeExerciseId equals exerciseId', () => {
+    const result = AddPlanItemSchema.safeParse({
+      position: 1,
+      exercises: [{ ...base, alternativeExerciseId: 'ex1', alternativeSets: 3, alternativeReps: 8 }],
+    })
+    expect(result.success).toBe(false)
+    expect(result.error?.issues.some((i) => i.path.includes('alternativeExerciseId'))).toBe(true)
+  })
+})
