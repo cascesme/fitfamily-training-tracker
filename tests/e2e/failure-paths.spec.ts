@@ -73,7 +73,7 @@ test.describe('Failure paths', () => {
     await expect(page.locator('text=+ Add Exercise')).not.toBeVisible()
   })
 
-  test('tabata toggle with 1 exercise — API returns 422', async ({ page }) => {
+  test('tabata toggle with 1 exercise — API returns 400', async ({ page }) => {
     const plan = await seedPlan({ name: 'Tabata Test Plan', items: [] })
     await seedExercise({ name: 'Solo Exercise', trackingType: 'NONE' })
 

@@ -15,6 +15,7 @@ import type { SetLogData } from '@/components/SeriesSetLogger'
 import type { TabataExercise } from '@/components/TabataRunner'
 import { fadeSlideUp, springTransition } from '@/lib/animation'
 import { playSetComplete } from '@/lib/audio'
+import { logger } from '@/lib/logger'
 import type { TrainingPlanWithDetails } from '@/lib/domain/plan'
 
 interface Props {
@@ -274,6 +275,10 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
             const isTabata = currentItem.isTabata ?? false
 
             if (isTabata) {
+              if (!currentItem.workTimeSecs || !currentItem.restTimeSecs) {
+                logger.error({ service: 'PlanSessionRunner', operation: 'render', entityId: currentItem.id, outcome: 'error' }, 'Tabata item missing workTimeSecs or restTimeSecs')
+                return null
+              }
               const sorted = currentItem.exercises.slice().sort((a, b) => a.order - b.order)
               const tabataExercises: TabataExercise[] = sorted.map((ex) => ({
                 id: ex.id,

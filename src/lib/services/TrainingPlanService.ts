@@ -81,6 +81,14 @@ export class TrainingPlanService {
       }
     }
 
+    if (tabataConfig && exercises.length < 2) {
+      logger.warn(
+        { service: 'TrainingPlanService', operation: 'addItem', entityId: planId, outcome: 'blocked', rule: 'tabata-min-exercises' },
+        'Tabata item rejected — requires at least 2 exercises',
+      )
+      throw new ValidationError('tabata requires at least 2 exercises')
+    }
+
     const item = await this.repo.addItem(planId, position, exercises, tabataConfig)
     logger.info({ service: 'TrainingPlanService', operation: 'addItem', entityId: item.id, outcome: 'created', isTabata: tabataConfig != null }, 'Plan item added')
     return item

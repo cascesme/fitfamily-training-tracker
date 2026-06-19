@@ -166,6 +166,12 @@ describe('TrainingPlanService', () => {
         undefined,
       )
     })
+
+    it('throws ValidationError when tabata has fewer than 2 exercises', async () => {
+      await expect(
+        service.addItem('p1', 1, [{ exerciseId: 'e1', sets: 8, reps: 0, order: 1 }], { workTimeSecs: 20, restTimeSecs: 10 }),
+      ).rejects.toThrow(ValidationError)
+    })
   })
 
   describe('removeItem', () => {

@@ -67,8 +67,8 @@ test.describe('Trainer — Tabata plan item', () => {
   })
 
   test('trainer creates tabata series — badge shows TABATA in plan builder', async ({ page }) => {
-    const exA = await seedExercise({ name: 'Push Ups', trackingType: 'NONE' })
-    const exB = await seedExercise({ name: 'Burpees', trackingType: 'NONE' })
+    await seedExercise({ name: 'Push Ups', trackingType: 'NONE' })
+    await seedExercise({ name: 'Burpees', trackingType: 'NONE' })
     const plan = await seedPlan({ name: 'HIIT Plan', items: [] })
 
     await page.goto(`/trainer/plans/${plan.id}`)
