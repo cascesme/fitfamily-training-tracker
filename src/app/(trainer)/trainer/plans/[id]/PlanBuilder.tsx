@@ -36,6 +36,9 @@ interface PlanItem {
   id: string
   planId: string
   position: number
+  isTabata?: boolean
+  workTimeSecs?: number | null
+  restTimeSecs?: number | null
   exercises?: PlanItemExercise[]
 }
 
@@ -66,10 +69,17 @@ function SortablePlanItem({
 
   const exercises = (item.exercises ?? []).slice().sort((a, b) => a.order - b.order)
   const isSeries = exercises.length > 1
+  const isTabata = item.isTabata ?? false
 
   function lookupName(exerciseId: string): string {
     return allExercises.find((e) => e.id === exerciseId)?.name ?? exerciseId
   }
+
+  const badge = isTabata
+    ? t('tabataBadge', { count: exercises.length, sets: exercises[0]?.sets ?? 0, work: item.workTimeSecs ?? 0, rest: item.restTimeSecs ?? 0 })
+    : isSeries
+      ? t('series', { count: exercises.length })
+      : t('single')
 
   return (
     <div
@@ -83,14 +93,16 @@ function SortablePlanItem({
       <div className="flex flex-1 flex-col gap-1">
         <div className="flex items-center gap-2">
           <span className="text-xs text-[rgba(255,255,255,0.4)]">#{item.position}</span>
-          <Badge variant={isSeries ? 'accent' : 'default'}>
-            {isSeries ? t('series', { count: exercises.length }) : t('single')}
+          <Badge variant={isSeries || isTabata ? 'accent' : 'default'}>
+            {badge}
           </Badge>
         </div>
         {exercises.map((ex) => (
           <p key={ex.id} className="text-sm">
             <span className="font-semibold">{lookupName(ex.exerciseId)}</span>
-            <span className="ml-2 text-[rgba(255,255,255,0.6)]">{ex.sets} × {ex.reps}</span>
+            {!isTabata && (
+              <span className="ml-2 text-[rgba(255,255,255,0.6)]">{ex.sets} × {ex.reps}</span>
+            )}
           </p>
         ))}
       </div>
