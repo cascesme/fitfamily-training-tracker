@@ -300,6 +300,7 @@ export function PlanSessionRunner({ plan, traineeId }: Props) {
                     </div>
                   </div>
                   <TabataRunner
+                    key={currentItem.id}
                     exercises={tabataExercises}
                     totalRounds={sorted[0].sets}
                     workTimeSecs={currentItem.workTimeSecs!}
