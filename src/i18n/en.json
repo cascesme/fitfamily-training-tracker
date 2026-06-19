@@ -132,6 +132,10 @@
     "restSeconds": "SECONDS",
     "startRest": "Start Rest",
     "skipRest": "Skip → Next Set",
+    "tabataBadge": "TABATA",
+    "tabataRound": "Round {current} of {total}",
+    "tabataExercise": "Exercise {current} of {total}",
+    "stopAndNext": "Stop & Next Exercise",
     "ready": {
       "exerciseCount": "{count} exercises · {sets} sets",
       "tagline": "Show up. Push hard.",
@@ -253,6 +257,11 @@
     "exerciseRequired": "Exercise {n} is required",
     "addExercise": "+ Add Exercise",
     "addItemError": "Failed to add item",
+    "tabataMode": "Tabata mode",
+    "workTime": "Work time (sec)",
+    "restTime": "Rest time (sec)",
+    "rounds": "Rounds",
+    "tabataBadge": "TABATA · {count} ex · {sets} rounds · {work}s/{rest}s",
     "deleteItemError": "Failed to remove item",
     "reorderError": "Failed to reorder items"
   },
