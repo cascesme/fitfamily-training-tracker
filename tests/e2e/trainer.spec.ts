@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { seedExercise, cleanDatabase } from './helpers/setup'
+import { seedExercise, seedPlan, cleanDatabase } from './helpers/setup'
 
 test.describe('Trainer — Add media to exercise', () => {
   test.beforeEach(async () => {
@@ -58,6 +58,37 @@ test.describe('Trainer — Add media to exercise', () => {
     })
 
     await expect(page.locator('text=technique-guide.pdf')).toBeVisible()
+  })
+})
+
+test.describe('Trainer — Tabata plan item', () => {
+  test.beforeEach(async () => {
+    await cleanDatabase()
+  })
+
+  test('trainer creates tabata series — badge shows TABATA in plan builder', async ({ page }) => {
+    const exA = await seedExercise({ name: 'Push Ups', trackingType: 'NONE' })
+    const exB = await seedExercise({ name: 'Burpees', trackingType: 'NONE' })
+    const plan = await seedPlan({ name: 'HIIT Plan', items: [] })
+
+    await page.goto(`/trainer/plans/${plan.id}`)
+    await page.click('text=Add Item')
+
+    // Add two exercises
+    await page.fill('[placeholder="Exercise 1"]', 'Push Ups')
+    await page.click('text=Push Ups')
+    await page.click('text=+ Add Exercise')
+    await page.fill('[placeholder="Exercise 2"]', 'Burpees')
+    await page.click('text=Burpees')
+
+    // Enable tabata mode
+    await page.check('input[type="checkbox"]')
+    await page.fill('[name=workTimeSecs]', '20')
+    await page.fill('[name=restTimeSecs]', '10')
+
+    await page.getByRole('dialog').getByRole('button', { name: 'Add Item' }).click()
+
+    await expect(page.locator('text=TABATA')).toBeVisible()
   })
 })
 
