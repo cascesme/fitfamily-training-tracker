@@ -64,6 +64,7 @@ export function TabataRunner({
   // Effect 1: start countdown whenever circuit position (phase/exerciseIdx/round) changes
   useEffect(() => {
     const duration = phase === 'work' ? workTimeSecs : restTimeSecs
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTimeLeft(duration)
     timeLeftRef.current = duration
 
@@ -88,6 +89,7 @@ export function TabataRunner({
     if (phase === 'rest') {
       playTimeUp()
       navigator.vibrate?.(200)
+      /* eslint-disable react-hooks/set-state-in-effect */
       if (exerciseIdx === exercises.length - 1) {
         setExerciseIdx(0)
         setRound((r) => r + 1)
@@ -95,6 +97,7 @@ export function TabataRunner({
         setExerciseIdx((i) => i + 1)
       }
       setPhase('work')
+      /* eslint-enable react-hooks/set-state-in-effect */
     } else if (!loadingRef.current) {
       playTimeUp()
       navigator.vibrate?.(200)

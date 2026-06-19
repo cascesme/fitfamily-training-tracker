@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -82,17 +82,15 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
   const [workTimeSecs, setWorkTimeSecs] = useState('20')
   const [restTimeSecs, setRestTimeSecs] = useState('10')
 
-  useEffect(() => {
-    if (rows.length < 2) setIsTabata(false)
-  }, [rows.length])
-
   function addRow() {
     if (rows.length >= MAX_SERIES_EXERCISES) return
     setRows((prev) => [...prev, { ...EMPTY_ROW, sets: prev[0].sets }])
   }
 
   function removeRow(index: number) {
-    setRows((prev) => prev.filter((_, i) => i !== index))
+    const next = rows.filter((_, i) => i !== index)
+    if (next.length < 2) setIsTabata(false)
+    setRows(next)
   }
 
   function updateRow(index: number, patch: Partial<Row>) {
