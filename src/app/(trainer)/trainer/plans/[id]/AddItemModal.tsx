@@ -78,6 +78,9 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
   const [rows, setRows] = useState<Row[]>([{ ...EMPTY_ROW }])
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [isTabata, setIsTabata] = useState(false)
+  const [workTimeSecs, setWorkTimeSecs] = useState('20')
+  const [restTimeSecs, setRestTimeSecs] = useState('10')
 
   function addRow() {
     if (rows.length >= MAX_SERIES_EXERCISES) return
@@ -85,7 +88,9 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
   }
 
   function removeRow(index: number) {
-    setRows((prev) => prev.filter((_, i) => i !== index))
+    const next = rows.filter((_, i) => i !== index)
+    if (next.length < 2) setIsTabata(false)
+    setRows(next)
   }
 
   function updateRow(index: number, patch: Partial<Row>) {
@@ -108,17 +113,35 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
       return
     }
 
+    if (isTabata && (!Number(workTimeSecs) || !Number(restTimeSecs))) {
+      setError(t('invalidTime'))
+      return
+    }
+
     setSaving(true)
     try {
-      const body = {
-        position: nextPosition,
-        exercises: rows.map((r, i) => ({
-          exerciseId: r.exerciseId,
-          sets: Number(r.sets),
-          reps: Number(r.reps),
-          order: i + 1,
-        })),
-      }
+      const body = isTabata
+        ? {
+            position: nextPosition,
+            isTabata: true,
+            workTimeSecs: Number(workTimeSecs),
+            restTimeSecs: Number(restTimeSecs),
+            exercises: rows.map((r, i) => ({
+              exerciseId: r.exerciseId,
+              sets: Number(r.sets),
+              reps: 0,
+              order: i + 1,
+            })),
+          }
+        : {
+            position: nextPosition,
+            exercises: rows.map((r, i) => ({
+              exerciseId: r.exerciseId,
+              sets: Number(r.sets),
+              reps: Number(r.reps),
+              order: i + 1,
+            })),
+          }
 
       const res = await fetch(`/api/plans/${planId}/items`, {
         method: 'POST',
@@ -164,7 +187,9 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
                 />
                 <div className="flex gap-3">
                   <div className="min-w-0 flex-1">
-                    <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">{t('sets')}</label>
+                    <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">
+                      {isTabata ? t('rounds') : t('sets')}
+                    </label>
                     <Input
                       name={`sets${i + 1}`}
                       type="number"
@@ -174,19 +199,21 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
                       required
                     />
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">
-                      {selectedEx?.trackingType === 'TIME' ? t('duration') : t('reps')}
-                    </label>
-                    <Input
-                      name={`reps${i + 1}`}
-                      type="number"
-                      min="1"
-                      value={row.reps}
-                      onChange={(e) => updateRow(i, { reps: e.target.value })}
-                      required
-                    />
-                  </div>
+                  {!isTabata && (
+                    <div className="min-w-0 flex-1">
+                      <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">
+                        {selectedEx?.trackingType === 'TIME' ? t('duration') : t('reps')}
+                      </label>
+                      <Input
+                        name={`reps${i + 1}`}
+                        type="number"
+                        min="1"
+                        value={row.reps}
+                        onChange={(e) => updateRow(i, { reps: e.target.value })}
+                        required
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             )
@@ -196,6 +223,46 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
             <Button type="button" variant="ghost" onClick={addRow}>
               {t('addExercise')}
             </Button>
+          )}
+
+          {rows.length >= 2 && (
+            <div className="flex flex-col gap-3 border-t border-[rgba(255,255,255,0.08)] pt-4">
+              <label className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={isTabata}
+                  onChange={(e) => setIsTabata(e.target.checked)}
+                  className="h-4 w-4 accent-[#E85D26]"
+                />
+                <span className="text-sm">{t('tabataMode')}</span>
+              </label>
+              {isTabata && (
+                <div className="flex gap-3">
+                  <div className="min-w-0 flex-1">
+                    <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">{t('workTime')}</label>
+                    <Input
+                      name="workTimeSecs"
+                      type="number"
+                      min="5"
+                      value={workTimeSecs}
+                      onChange={(e) => setWorkTimeSecs(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">{t('restTime')}</label>
+                    <Input
+                      name="restTimeSecs"
+                      type="number"
+                      min="5"
+                      value={restTimeSecs}
+                      onChange={(e) => setRestTimeSecs(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
           )}
 
           {error && <p className="text-sm text-red-400">{error}</p>}

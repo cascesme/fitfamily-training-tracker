@@ -64,11 +64,14 @@ model TrainingPlan {
 }
 
 model TrainingPlanItem {
-  id        String                     @id @default(cuid())
-  planId    String
-  plan      TrainingPlan               @relation(fields: [planId], references: [id])
-  position  Int
-  exercises TrainingPlanItemExercise[]
+  id           String                     @id @default(cuid())
+  planId       String
+  plan         TrainingPlan               @relation(fields: [planId], references: [id])
+  position     Int
+  isTabata     Boolean                    @default(false)
+  workTimeSecs Int?
+  restTimeSecs Int?
+  exercises    TrainingPlanItemExercise[]
 
   @@unique([planId, position])
 }

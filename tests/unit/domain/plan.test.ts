@@ -98,4 +98,77 @@ describe('AddPlanItemSchema', () => {
     })
     expect(result.success).toBe(false)
   })
+
+  it('accepts tabata item with 2 exercises and both times', () => {
+    const result = AddPlanItemSchema.safeParse({
+      position: 1,
+      isTabata: true,
+      workTimeSecs: 20,
+      restTimeSecs: 10,
+      exercises: [
+        { exerciseId: 'ex1', sets: 8, reps: 0, order: 1 },
+        { exerciseId: 'ex2', sets: 8, reps: 0, order: 2 },
+      ],
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects tabata with only 1 exercise', () => {
+    const result = AddPlanItemSchema.safeParse({
+      position: 1,
+      isTabata: true,
+      workTimeSecs: 20,
+      restTimeSecs: 10,
+      exercises: [{ exerciseId: 'ex1', sets: 8, reps: 0, order: 1 }],
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects tabata missing workTimeSecs', () => {
+    const result = AddPlanItemSchema.safeParse({
+      position: 1,
+      isTabata: true,
+      restTimeSecs: 10,
+      exercises: [
+        { exerciseId: 'ex1', sets: 8, reps: 0, order: 1 },
+        { exerciseId: 'ex2', sets: 8, reps: 0, order: 2 },
+      ],
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects tabata missing restTimeSecs', () => {
+    const result = AddPlanItemSchema.safeParse({
+      position: 1,
+      isTabata: true,
+      workTimeSecs: 20,
+      exercises: [
+        { exerciseId: 'ex1', sets: 8, reps: 0, order: 1 },
+        { exerciseId: 'ex2', sets: 8, reps: 0, order: 2 },
+      ],
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects reps:0 for non-tabata exercise', () => {
+    const result = AddPlanItemSchema.safeParse({
+      position: 1,
+      exercises: [{ exerciseId: 'ex1', sets: 3, reps: 0, order: 1 }],
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts reps:0 for tabata exercises', () => {
+    const result = AddPlanItemSchema.safeParse({
+      position: 1,
+      isTabata: true,
+      workTimeSecs: 20,
+      restTimeSecs: 10,
+      exercises: [
+        { exerciseId: 'ex1', sets: 3, reps: 0, order: 1 },
+        { exerciseId: 'ex2', sets: 3, reps: 0, order: 2 },
+      ],
+    })
+    expect(result.success).toBe(true)
+  })
 })

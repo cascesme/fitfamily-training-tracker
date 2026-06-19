@@ -139,4 +139,50 @@ describe('TrainingPlanRepository', () => {
     const result = await repo.findItemAtOrder(itemId, 2)
     expect(result).toBeNull()
   })
+
+  it('addItem persists tabata config on item', async () => {
+    const ex2 = await db.prisma.exercise.create({ data: { name: 'Pull Ups', trackingType: 'NONE' } })
+    const plan = await repo.create({ name: 'Tabata Plan' })
+    await repo.addItem(
+      plan.id, 1,
+      [
+        { exerciseId, sets: 8, reps: 0, order: 1 },
+        { exerciseId: ex2.id, sets: 8, reps: 0, order: 2 },
+      ],
+      { workTimeSecs: 20, restTimeSecs: 10 },
+    )
+    const full = await repo.findWithItems(plan.id)
+    const item = full?.items![0]
+    expect(item?.isTabata).toBe(true)
+    expect(item?.workTimeSecs).toBe(20)
+    expect(item?.restTimeSecs).toBe(10)
+    expect(item?.exercises).toHaveLength(2)
+  })
+
+  it('addItem stores isTabata=false and nulls for non-tabata item', async () => {
+    const plan = await repo.create({ name: 'Normal Plan' })
+    await repo.addItem(plan.id, 1, [{ exerciseId, sets: 3, reps: 10, order: 1 }])
+    const full = await repo.findWithItems(plan.id)
+    const item = full?.items![0]
+    expect(item?.isTabata).toBe(false)
+    expect(item?.workTimeSecs).toBeNull()
+    expect(item?.restTimeSecs).toBeNull()
+  })
+
+  it('findForSession returns tabata fields on items', async () => {
+    const ex2 = await db.prisma.exercise.create({ data: { name: 'Burpees', trackingType: 'NONE' } })
+    const plan = await repo.create({ name: 'Tabata Session Plan' })
+    await repo.addItem(
+      plan.id, 1,
+      [
+        { exerciseId, sets: 4, reps: 0, order: 1 },
+        { exerciseId: ex2.id, sets: 4, reps: 0, order: 2 },
+      ],
+      { workTimeSecs: 30, restTimeSecs: 15 },
+    )
+    const result = await repo.findForSession(plan.id)
+    expect(result?.items[0].isTabata).toBe(true)
+    expect(result?.items[0].workTimeSecs).toBe(30)
+    expect(result?.items[0].restTimeSecs).toBe(15)
+  })
 })
