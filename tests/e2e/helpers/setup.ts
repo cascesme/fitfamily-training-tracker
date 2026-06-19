@@ -115,6 +115,34 @@ export async function seedTabataPlan(data: {
   return plan
 }
 
+export async function seedPlanWithAlternative(data: {
+  name: string
+  exerciseId: string
+  altExerciseId: string
+  sets: number
+  reps: number
+  altSets: number
+  altReps: number
+}) {
+  const plan = await prisma.trainingPlan.create({ data: { name: data.name } })
+  const item = await prisma.trainingPlanItem.create({
+    data: { planId: plan.id, position: 1 },
+  })
+  await prisma.trainingPlanItemExercise.create({
+    data: {
+      itemId: item.id,
+      exerciseId: data.exerciseId,
+      sets: data.sets,
+      reps: data.reps,
+      order: 1,
+      alternativeExerciseId: data.altExerciseId,
+      alternativeSets: data.altSets,
+      alternativeReps: data.altReps,
+    },
+  })
+  return plan
+}
+
 export async function seedSession(data: {
   traineeId: string
   exerciseId?: string
