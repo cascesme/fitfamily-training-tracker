@@ -56,6 +56,7 @@ export class TrainingPlanService {
     planId: string,
     position: number,
     exercises: PlanItemExerciseInput[],
+    tabataConfig?: { workTimeSecs: number; restTimeSecs: number },
   ): Promise<TrainingPlanItem> {
     logger.info({ service: 'TrainingPlanService', operation: 'addItem', entityId: planId }, 'Adding item to plan')
 
@@ -80,8 +81,8 @@ export class TrainingPlanService {
       }
     }
 
-    const item = await this.repo.addItem(planId, position, exercises)
-    logger.info({ service: 'TrainingPlanService', operation: 'addItem', entityId: item.id, outcome: 'created' }, 'Plan item added')
+    const item = await this.repo.addItem(planId, position, exercises, tabataConfig)
+    logger.info({ service: 'TrainingPlanService', operation: 'addItem', entityId: item.id, outcome: 'created', isTabata: tabataConfig != null }, 'Plan item added')
     return item
   }
 

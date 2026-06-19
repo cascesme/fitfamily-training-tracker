@@ -67,13 +67,13 @@ describe('TrainingPlanService', () => {
     })
   })
 
-  const mockPlanItem = { id: 'item1', planId: 'p1', position: 1 }
+  const mockPlanItem = { id: 'item1', planId: 'p1', position: 1, isTabata: false, workTimeSecs: null, restTimeSecs: null }
 
   describe('addItem', () => {
     it('adds single exercise item without order validation', async () => {
       mockRepo.addItem.mockResolvedValue(mockPlanItem)
       await service.addItem('p1', 1, [{ exerciseId: 'e1', sets: 3, reps: 10, order: 1 }])
-      expect(mockRepo.addItem).toHaveBeenCalledWith('p1', 1, [{ exerciseId: 'e1', sets: 3, reps: 10, order: 1 }])
+      expect(mockRepo.addItem).toHaveBeenCalledWith('p1', 1, [{ exerciseId: 'e1', sets: 3, reps: 10, order: 1 }], undefined)
     })
 
     it('allows series when order 1 and order 2 both present with equal sets', async () => {
@@ -139,6 +139,32 @@ describe('TrainingPlanService', () => {
         service.addItem('p1', 1, [{ exerciseId: 'e2', sets: 3, reps: 10, order: 2 }])
       ).rejects.toThrow(ValidationError)
       expect(mockRepo.addItem).not.toHaveBeenCalled()
+    })
+
+    it('passes tabataConfig to repo when isTabata is true', async () => {
+      mockRepo.addItem.mockResolvedValue(mockPlanItem)
+      await service.addItem('p1', 1, [
+        { exerciseId: 'e1', sets: 8, reps: 0, order: 1 },
+        { exerciseId: 'e2', sets: 8, reps: 0, order: 2 },
+      ], { workTimeSecs: 20, restTimeSecs: 10 })
+      expect(mockRepo.addItem).toHaveBeenCalledWith(
+        'p1', 1,
+        [
+          { exerciseId: 'e1', sets: 8, reps: 0, order: 1 },
+          { exerciseId: 'e2', sets: 8, reps: 0, order: 2 },
+        ],
+        { workTimeSecs: 20, restTimeSecs: 10 },
+      )
+    })
+
+    it('passes undefined tabataConfig to repo for non-tabata item', async () => {
+      mockRepo.addItem.mockResolvedValue(mockPlanItem)
+      await service.addItem('p1', 1, [{ exerciseId: 'e1', sets: 3, reps: 10, order: 1 }])
+      expect(mockRepo.addItem).toHaveBeenCalledWith(
+        'p1', 1,
+        [{ exerciseId: 'e1', sets: 3, reps: 10, order: 1 }],
+        undefined,
+      )
     })
   })
 
