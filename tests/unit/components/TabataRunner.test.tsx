@@ -9,6 +9,8 @@ const SESSION_TRANSLATIONS: Record<string, string> = {
   tabataExercise: 'Exercise {current} of {total}',
   stopAndNext: 'Stop & Next Exercise',
   restTitle: 'REST',
+  tabataStart: 'Start Tabata',
+  tabataPreviewParams: '{rounds} rounds · {work}s / {rest}s',
 }
 
 jest.mock('next-intl', () => ({
@@ -32,10 +34,18 @@ jest.mock('@/components/MediaViewer', () => ({
   MediaViewer: () => null,
 }))
 
+jest.mock('@/components/MediaStrip', () => ({
+  MediaStrip: () => null,
+}))
+
 Object.defineProperty(globalThis, 'navigator', {
   value: { vibrate: jest.fn() },
   writable: true,
 })
+
+function startTabata() {
+  fireEvent.click(screen.getByRole('button', { name: 'Start Tabata' }))
+}
 
 const exercises: TabataExercise[] = [
   { id: 'item-1', exerciseId: 'ex-1', name: 'Push Ups', media: [] },
@@ -61,16 +71,33 @@ describe('TabataRunner', () => {
     jest.clearAllMocks()
   })
 
-  it('shows first exercise, round 1, exercise 1 of 2 on mount', () => {
-    render(<TabataRunner {...makeProps()} />)
-    expect(screen.getByText('Push Ups')).toBeInTheDocument()
-    expect(screen.getByText('Round 1 of 2')).toBeInTheDocument()
-    expect(screen.getByText('Exercise 1 of 2')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Stop & Next Exercise' })).toBeInTheDocument()
+  describe('preview state', () => {
+    it('shows TABATA badge, exercise names, and Start button on mount', () => {
+      render(<TabataRunner {...makeProps()} />)
+      expect(screen.getByText('TABATA')).toBeInTheDocument()
+      expect(screen.getByText('Push Ups')).toBeInTheDocument()
+      expect(screen.getByText('Pull Ups')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Start Tabata' })).toBeInTheDocument()
+    })
+
+    it('does not start the timer before Start is clicked', () => {
+      render(<TabataRunner {...makeProps({ workTimeSecs: 10 })} />)
+      act(() => { jest.advanceTimersByTime(5000) })
+      expect(screen.queryByText('0:05')).not.toBeInTheDocument()
+    })
+
+    it('transitions to timer UI after Start is clicked', () => {
+      render(<TabataRunner {...makeProps()} />)
+      startTabata()
+      expect(screen.getByText('Round 1 of 2')).toBeInTheDocument()
+      expect(screen.getByText('Exercise 1 of 2')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Stop & Next Exercise' })).toBeInTheDocument()
+    })
   })
 
-  it('work timer counts down from workTimeSecs', () => {
+  it('work timer counts down from workTimeSecs after start', () => {
     render(<TabataRunner {...makeProps({ workTimeSecs: 10 })} />)
+    startTabata()
     act(() => { jest.advanceTimersByTime(3000) })
     expect(screen.getByText('0:07')).toBeInTheDocument()
   })
@@ -78,18 +105,21 @@ describe('TabataRunner', () => {
   it('calls onExerciseDone with full workTimeSecs when work timer expires', async () => {
     const onExerciseDone = jest.fn().mockResolvedValue(undefined)
     render(<TabataRunner {...makeProps({ workTimeSecs: 5, onExerciseDone })} />)
+    startTabata()
     await act(async () => { jest.advanceTimersByTime(5000) })
     expect(onExerciseDone).toHaveBeenCalledWith('ex-1', 1, 5)
   })
 
   it('shows REST phase after work timer expires', async () => {
     render(<TabataRunner {...makeProps({ workTimeSecs: 5 })} />)
+    startTabata()
     await act(async () => { jest.advanceTimersByTime(5000) })
     expect(screen.getByText('REST')).toBeInTheDocument()
   })
 
   it('advances to next exercise after rest timer expires', async () => {
     render(<TabataRunner {...makeProps({ workTimeSecs: 5, restTimeSecs: 3 })} />)
+    startTabata()
     await act(async () => { jest.advanceTimersByTime(5000) }) // work done
     await act(async () => { jest.advanceTimersByTime(3000) }) // rest done
     expect(screen.getByText('Pull Ups')).toBeInTheDocument()
@@ -98,6 +128,7 @@ describe('TabataRunner', () => {
 
   it('increments round after all exercises complete', async () => {
     render(<TabataRunner {...makeProps({ workTimeSecs: 5, restTimeSecs: 3 })} />)
+    startTabata()
     // exercise 1 work + rest
     await act(async () => { jest.advanceTimersByTime(5000) })
     await act(async () => { jest.advanceTimersByTime(3000) })
@@ -113,6 +144,7 @@ describe('TabataRunner', () => {
   it('calls onComplete directly after last exercise of last round — no rest', async () => {
     const onComplete = jest.fn()
     render(<TabataRunner {...makeProps({ totalRounds: 1, workTimeSecs: 5, restTimeSecs: 3, onComplete })} />)
+    startTabata()
     // exercise 1 work + rest
     await act(async () => { jest.advanceTimersByTime(5000) })
     await act(async () => { jest.advanceTimersByTime(3000) })
@@ -125,6 +157,7 @@ describe('TabataRunner', () => {
   it('Stop & Next calls onExerciseDone with elapsed time and shows REST', async () => {
     const onExerciseDone = jest.fn().mockResolvedValue(undefined)
     render(<TabataRunner {...makeProps({ workTimeSecs: 20, onExerciseDone })} />)
+    startTabata()
     act(() => { jest.advanceTimersByTime(8000) }) // 8 seconds elapsed
     fireEvent.click(screen.getByRole('button', { name: 'Stop & Next Exercise' }))
     await act(async () => {})
@@ -135,6 +168,7 @@ describe('TabataRunner', () => {
   it('Stop & Next on last exercise of last round calls onComplete immediately', async () => {
     const onComplete = jest.fn()
     render(<TabataRunner {...makeProps({ totalRounds: 1, workTimeSecs: 20, restTimeSecs: 10, onComplete })} />)
+    startTabata()
     // complete exercise 1 naturally (work + rest)
     await act(async () => { jest.advanceTimersByTime(20000) })
     await act(async () => { jest.advanceTimersByTime(10000) })
@@ -149,6 +183,7 @@ describe('TabataRunner', () => {
     let resolve!: () => void
     const onExerciseDone = jest.fn().mockReturnValue(new Promise<void>((r) => { resolve = r }))
     render(<TabataRunner {...makeProps({ workTimeSecs: 20, onExerciseDone })} />)
+    startTabata()
     act(() => { jest.advanceTimersByTime(5000) })
     fireEvent.click(screen.getByRole('button', { name: 'Stop & Next Exercise' }))
     expect(screen.getByRole('button', { name: 'Stop & Next Exercise' })).toBeDisabled()

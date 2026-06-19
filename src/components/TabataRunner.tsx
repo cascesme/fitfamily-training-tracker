@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { MediaViewer } from '@/components/MediaViewer'
 import { playTick, playTimeUp } from '@/lib/audio'
 import type { ExerciseMedia } from '@prisma/client'
+import { TabataPreviewScreen } from '@/components/TabataPreviewScreen'
 
 const RING_RADIUS = 45
 const RING_CX = 60
@@ -50,6 +51,7 @@ export function TabataRunner({
   const [timeLeft, setTimeLeft] = useState(workTimeSecs)
   const [loading, setLoading] = useState(false)
   const [viewerOpenFor, setViewerOpenFor] = useState<string | null>(null)
+  const [started, setStarted] = useState(false)
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const timeLeftRef = useRef(workTimeSecs)
@@ -61,8 +63,9 @@ export function TabataRunner({
   const isCritical = phase === 'work' && timeLeft <= CRITICAL_THRESHOLD
   const ringColor = isCritical ? '#EF4444' : '#E85D26'
 
-  // Effect 1: start countdown whenever circuit position (phase/exerciseIdx/round) changes
+  // Effect 1: start countdown whenever circuit position (phase/exerciseIdx/round) changes or started flips
   useEffect(() => {
+    if (!started) return
     const duration = phase === 'work' ? workTimeSecs : restTimeSecs
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setTimeLeft(duration)
@@ -78,7 +81,7 @@ export function TabataRunner({
     }, 1000)
 
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
-  }, [phase, exerciseIdx, round]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [phase, exerciseIdx, round, started]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Effect 2: handle timer expiry — runs with fresh closure on each render,
   // so phase/exerciseIdx/round are always current when timeLeft hits 0
@@ -137,6 +140,18 @@ export function TabataRunner({
   }
 
   const currentExercise = exercises[exerciseIdx]
+
+  if (!started) {
+    return (
+      <TabataPreviewScreen
+        exercises={exercises}
+        totalRounds={totalRounds}
+        workTimeSecs={workTimeSecs}
+        restTimeSecs={restTimeSecs}
+        onStart={() => setStarted(true)}
+      />
+    )
+  }
 
   return (
     <div className="flex flex-col gap-6">
