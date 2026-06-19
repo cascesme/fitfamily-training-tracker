@@ -4,6 +4,7 @@ import { TrainingPlanRepository } from '@/lib/repositories/TrainingPlanRepositor
 let db: TestDb
 let repo: TrainingPlanRepository
 let exerciseId: string
+let altExerciseId: string
 
 beforeAll(async () => {
   db = await setupTestDb()
@@ -15,6 +16,8 @@ afterAll(async () => { await teardownTestDb(db) })
 beforeEach(async () => {
   const ex = await db.prisma.exercise.create({ data: { name: 'Squat', trackingType: 'WEIGHT' } })
   exerciseId = ex.id
+  const alt = await db.prisma.exercise.create({ data: { name: 'Leg Press', trackingType: 'WEIGHT' } })
+  altExerciseId = alt.id
 })
 
 afterEach(async () => {
@@ -184,5 +187,50 @@ describe('TrainingPlanRepository', () => {
     expect(result?.items[0].isTabata).toBe(true)
     expect(result?.items[0].workTimeSecs).toBe(30)
     expect(result?.items[0].restTimeSecs).toBe(15)
+  })
+
+  it('addItem stores alternative exercise columns', async () => {
+    const plan = await repo.create({ name: 'Alt Plan' })
+    await repo.addItem(plan.id, 1, [{
+      exerciseId, sets: 3, reps: 10, order: 1,
+      alternativeExerciseId: altExerciseId, alternativeSets: 3, alternativeReps: 8,
+    }])
+    const full = await repo.findWithItems(plan.id)
+    const ex = full!.items![0].exercises![0] as any
+    expect(ex.alternativeExerciseId).toBe(altExerciseId)
+    expect(ex.alternativeSets).toBe(3)
+    expect(ex.alternativeReps).toBe(8)
+  })
+
+  it('addItem sets alternative columns to null when not provided', async () => {
+    const plan = await repo.create({ name: 'No Alt Plan' })
+    await repo.addItem(plan.id, 1, [{ exerciseId, sets: 3, reps: 10, order: 1 }])
+    const full = await repo.findWithItems(plan.id)
+    const ex = full!.items![0].exercises![0] as any
+    expect(ex.alternativeExerciseId).toBeNull()
+    expect(ex.alternativeSets).toBeNull()
+    expect(ex.alternativeReps).toBeNull()
+  })
+
+  it('findForSession hydrates alternativeExercise with media', async () => {
+    const plan = await repo.create({ name: 'Hydrate Alt Plan' })
+    await repo.addItem(plan.id, 1, [{
+      exerciseId, sets: 3, reps: 10, order: 1,
+      alternativeExerciseId: altExerciseId, alternativeSets: 3, alternativeReps: 8,
+    }])
+    const result = await repo.findForSession(plan.id)
+    const ex = result?.items[0].exercises[0]
+    expect(ex?.alternativeExercise).not.toBeNull()
+    expect(ex?.alternativeExercise?.id).toBe(altExerciseId)
+    expect(ex?.alternativeExercise?.name).toBe('Leg Press')
+    expect(Array.isArray(ex?.alternativeExercise?.media)).toBe(true)
+  })
+
+  it('findForSession returns null alternativeExercise when not set', async () => {
+    const plan = await repo.create({ name: 'No Alt Session Plan' })
+    await repo.addItem(plan.id, 1, [{ exerciseId, sets: 3, reps: 10, order: 1 }])
+    const result = await repo.findForSession(plan.id)
+    const ex = result?.items[0].exercises[0]
+    expect(ex?.alternativeExercise).toBeNull()
   })
 })
