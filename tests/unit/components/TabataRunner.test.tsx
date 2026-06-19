@@ -3,12 +3,22 @@ import { render, screen, fireEvent, act } from '@testing-library/react'
 import { TabataRunner } from '@/components/TabataRunner'
 import type { TabataExercise } from '@/components/TabataRunner'
 
+const SESSION_TRANSLATIONS: Record<string, string> = {
+  tabataBadge: 'TABATA',
+  tabataRound: 'Round {current} of {total}',
+  tabataExercise: 'Exercise {current} of {total}',
+  stopAndNext: 'Stop & Next Exercise',
+  restTitle: 'REST',
+}
+
 jest.mock('next-intl', () => ({
-  useTranslations: () => (key: string, params?: Record<string, unknown>) => {
-    if (!params) return key
+  useTranslations: (ns?: string) => (key: string, params?: Record<string, unknown>) => {
+    const map = ns === 'sessionRunner' ? { viewMedia: 'View Media' } : SESSION_TRANSLATIONS
+    const template = map[key] ?? key
+    if (!params) return template
     return Object.entries(params).reduce(
       (s, [k, v]) => s.replace(`{${k}}`, String(v)),
-      key,
+      template,
     )
   },
 }))
@@ -56,7 +66,7 @@ describe('TabataRunner', () => {
     expect(screen.getByText('Push Ups')).toBeInTheDocument()
     expect(screen.getByText('Round 1 of 2')).toBeInTheDocument()
     expect(screen.getByText('Exercise 1 of 2')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'stopAndNext' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Stop & Next Exercise' })).toBeInTheDocument()
   })
 
   it('work timer counts down from workTimeSecs', () => {
@@ -75,7 +85,7 @@ describe('TabataRunner', () => {
   it('shows REST phase after work timer expires', async () => {
     render(<TabataRunner {...makeProps({ workTimeSecs: 5 })} />)
     await act(async () => { jest.advanceTimersByTime(5000) })
-    expect(screen.getByText('restTitle')).toBeInTheDocument()
+    expect(screen.getByText('REST')).toBeInTheDocument()
   })
 
   it('advances to next exercise after rest timer expires', async () => {
@@ -109,17 +119,17 @@ describe('TabataRunner', () => {
     // exercise 2 work (last of last round)
     await act(async () => { jest.advanceTimersByTime(5000) })
     expect(onComplete).toHaveBeenCalled()
-    expect(screen.queryByText('restTitle')).not.toBeInTheDocument()
+    expect(screen.queryByText('REST')).not.toBeInTheDocument()
   })
 
   it('Stop & Next calls onExerciseDone with elapsed time and shows REST', async () => {
     const onExerciseDone = jest.fn().mockResolvedValue(undefined)
     render(<TabataRunner {...makeProps({ workTimeSecs: 20, onExerciseDone })} />)
     act(() => { jest.advanceTimersByTime(8000) }) // 8 seconds elapsed
-    fireEvent.click(screen.getByRole('button', { name: 'stopAndNext' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Stop & Next Exercise' }))
     await act(async () => {})
     expect(onExerciseDone).toHaveBeenCalledWith('ex-1', 1, 8)
-    expect(screen.getByText('restTitle')).toBeInTheDocument()
+    expect(screen.getByText('REST')).toBeInTheDocument()
   })
 
   it('Stop & Next on last exercise of last round calls onComplete immediately', async () => {
@@ -130,7 +140,7 @@ describe('TabataRunner', () => {
     await act(async () => { jest.advanceTimersByTime(10000) })
     // now on exercise 2 (last of last round) — stop early
     act(() => { jest.advanceTimersByTime(5000) })
-    fireEvent.click(screen.getByRole('button', { name: 'stopAndNext' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Stop & Next Exercise' }))
     await act(async () => {})
     expect(onComplete).toHaveBeenCalled()
   })
@@ -140,8 +150,8 @@ describe('TabataRunner', () => {
     const onExerciseDone = jest.fn().mockReturnValue(new Promise<void>((r) => { resolve = r }))
     render(<TabataRunner {...makeProps({ workTimeSecs: 20, onExerciseDone })} />)
     act(() => { jest.advanceTimersByTime(5000) })
-    fireEvent.click(screen.getByRole('button', { name: 'stopAndNext' }))
-    expect(screen.getByRole('button', { name: 'stopAndNext' })).toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: 'Stop & Next Exercise' }))
+    expect(screen.getByRole('button', { name: 'Stop & Next Exercise' })).toBeDisabled()
     resolve()
     await act(async () => {})
   })

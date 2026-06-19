@@ -43,6 +43,7 @@ export function TabataRunner({
   onComplete,
 }: TabataRunnerProps) {
   const t = useTranslations('session')
+  const tRunner = useTranslations('sessionRunner')
   const [phase, setPhase] = useState<'work' | 'rest'>('work')
   const [exerciseIdx, setExerciseIdx] = useState(0)
   const [round, setRound] = useState(1)
@@ -107,10 +108,12 @@ export function TabataRunner({
     setLoading(true)
     if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null }
 
-    await onExerciseDone(exercises[exerciseIdx].exerciseId, round, elapsed)
-
-    loadingRef.current = false
-    setLoading(false)
+    try {
+      await onExerciseDone(exercises[exerciseIdx].exerciseId, round, elapsed)
+    } finally {
+      loadingRef.current = false
+      setLoading(false)
+    }
 
     const isLastExercise = exerciseIdx === exercises.length - 1
     const isLastRound = round === totalRounds
@@ -140,8 +143,8 @@ export function TabataRunner({
           {t('tabataBadge')}
         </span>
         <div className="text-right text-sm text-[rgba(255,255,255,0.6)]">
-          <div>{`Round ${round} of ${totalRounds}`}</div>
-          <div>{`Exercise ${exerciseIdx + 1} of ${exercises.length}`}</div>
+          <div>{t('tabataRound', { current: round, total: totalRounds })}</div>
+          <div>{t('tabataExercise', { current: exerciseIdx + 1, total: exercises.length })}</div>
         </div>
       </div>
 
@@ -156,7 +159,7 @@ export function TabataRunner({
                 className="mb-4"
                 onClick={() => setViewerOpenFor(currentExercise.id)}
               >
-                View Media ({currentExercise.media.length})
+                {tRunner('viewMedia')} ({currentExercise.media.length})
               </Button>
               {viewerOpenFor === currentExercise.id && (
                 <MediaViewer media={currentExercise.media} onClose={() => setViewerOpenFor(null)} />
