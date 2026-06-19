@@ -1,4 +1,5 @@
 import type { ITrainingPlanRepository, CreatePlanInput, UpdatePlanInput, TrainingPlan, TrainingPlanItem, TrainingPlanWithDetails } from '@/lib/domain/plan'
+import type { IExerciseRepository } from '@/lib/domain/exercise'
 import { NotFoundError, ValidationError } from '@/lib/errors'
 import { logger } from '@/lib/logger'
 
@@ -7,10 +8,16 @@ interface PlanItemExerciseInput {
   sets: number
   reps: number
   order: number
+  alternativeExerciseId?: string
+  alternativeSets?: number
+  alternativeReps?: number
 }
 
 export class TrainingPlanService {
-  constructor(private repo: ITrainingPlanRepository) {}
+  constructor(
+    private repo: ITrainingPlanRepository,
+    private exerciseRepo: IExerciseRepository,
+  ) {}
 
   list(): Promise<TrainingPlan[]> {
     return this.repo.findAll()
@@ -89,8 +96,21 @@ export class TrainingPlanService {
       throw new ValidationError('tabata requires at least 2 exercises')
     }
 
+    for (const ex of exercises) {
+      if (ex.alternativeExerciseId) {
+        const altEx = await this.exerciseRepo.findById(ex.alternativeExerciseId)
+        if (!altEx) {
+          logger.warn(
+            { service: 'TrainingPlanService', operation: 'addItem', entityId: planId, outcome: 'blocked', alternativeExerciseId: ex.alternativeExerciseId },
+            'Plan item rejected — alternative exercise not found',
+          )
+          throw new ValidationError(`Alternative exercise ${ex.alternativeExerciseId} not found`)
+        }
+      }
+    }
+
     const item = await this.repo.addItem(planId, position, exercises, tabataConfig)
-    logger.info({ service: 'TrainingPlanService', operation: 'addItem', entityId: item.id, outcome: 'created', isTabata: tabataConfig != null }, 'Plan item added')
+    logger.info({ service: 'TrainingPlanService', operation: 'addItem', entityId: item.id, outcome: 'created', isTabata: tabataConfig != null, hasAlternative: exercises.some((e) => !!e.alternativeExerciseId) }, 'Plan item added')
     return item
   }
 

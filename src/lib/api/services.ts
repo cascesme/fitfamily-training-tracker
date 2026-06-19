@@ -14,7 +14,7 @@ import { ProgressionService } from '@/lib/services/ProgressionService'
 
 export const exerciseService = new ExerciseService(new ExerciseRepository(prisma))
 export const exerciseMediaService = new ExerciseMediaService(new ExerciseMediaRepository(prisma), new ExerciseRepository(prisma))
-export const trainingPlanService = new TrainingPlanService(new TrainingPlanRepository(prisma))
+export const trainingPlanService = new TrainingPlanService(new TrainingPlanRepository(prisma), new ExerciseRepository(prisma))
 export const traineeService = new TraineeService(new TraineeRepository(prisma))
 export const sessionService = new SessionService(new SessionRepository(prisma), new SessionLogRepository(prisma))
 export const progressionService = new ProgressionService(new SessionRepository(prisma), new SessionLogRepository(prisma))
