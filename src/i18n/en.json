@@ -263,7 +263,8 @@
     "rounds": "Rounds",
     "tabataBadge": "TABATA · {count} ex · {sets} rounds · {work}s/{rest}s",
     "deleteItemError": "Failed to remove item",
-    "reorderError": "Failed to reorder items"
+    "reorderError": "Failed to reorder items",
+    "invalidTime": "Work and rest times must be greater than 0"
   },
   "home": {
     "greeting": "Who's training today?",

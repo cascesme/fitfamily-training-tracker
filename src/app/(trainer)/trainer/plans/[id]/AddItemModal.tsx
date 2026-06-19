@@ -115,6 +115,11 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
       return
     }
 
+    if (isTabata && (!Number(workTimeSecs) || !Number(restTimeSecs))) {
+      setError(t('invalidTime'))
+      return
+    }
+
     setSaving(true)
     try {
       const body = isTabata
