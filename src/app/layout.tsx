@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Manrope, Inter } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
-import { ModeProvider } from '@/lib/context/ModeContext'
+import { ClerkProvider } from '@clerk/nextjs'
 import { AppLayout } from '@/components/layout/AppLayout'
 import './globals.css'
 
@@ -21,16 +21,16 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const messages = await getMessages()
   return (
-    <html lang="en" className={`${manrope.variable} ${inter.variable}`}>
-      <body>
-        <NextIntlClientProvider messages={messages}>
-          <ModeProvider>
+    <ClerkProvider>
+      <html lang="en" className={`${manrope.variable} ${inter.variable}`}>
+        <body>
+          <NextIntlClientProvider messages={messages}>
             <AppLayout>
               {children}
             </AppLayout>
-          </ModeProvider>
-        </NextIntlClientProvider>
-      </body>
-    </html>
+          </NextIntlClientProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   )
 }
