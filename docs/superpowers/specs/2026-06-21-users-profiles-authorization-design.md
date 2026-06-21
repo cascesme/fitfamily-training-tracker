@@ -110,11 +110,11 @@ If either write fails the whole transaction rolls back.
 | `/access-denied` | Public |
 | `/api/webhooks/clerk` | Public (Clerk calls unauthenticated) |
 | `/trainer/**` | Auth + `role === 'trainer'`; trainee → redirect `/trainee` |
-| `/trainee/**` | Auth + any role |
+| `/trainee/**` | Auth + `role === 'trainee'`; trainer → redirect `/trainer` |
 | `/api/**` (except webhook) | Auth required; trainer-only API routes return 403 for trainees |
 | Everything else | Redirect `/sign-in` |
 
-Trainers may access `/trainee/**` (they can view the trainee side). Trainees hitting `/trainer/**` are redirected to `/trainee`.
+Roles are fully siloed: trainers can only access `/trainer/**`, trainees can only access `/trainee/**`. No cross-role browsing — trainers have no `Trainee` record so the trainee shell would have no data to show.
 
 ---
 
@@ -196,4 +196,4 @@ NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
 - Trainer signs in → trainer shell visible, no mode toggle
 - Trainee signs in → trainee shell visible, sessions scoped to their profile
 - Trainee navigates to `/trainer/exercises` directly → redirected to `/trainee`
-- Trainer navigates to `/trainee` → allowed through
+- Trainer navigates to `/trainee` directly → redirected to `/trainer`
