@@ -11,13 +11,16 @@ const prisma = new PrismaClient({ adapter })
 
 export async function cleanDatabase() {
   await prisma.$executeRawUnsafe(
-    `TRUNCATE "TrainingSessionLog", "TrainingSession", "TrainingPlanItemExercise", "TrainingPlanItem", "TrainingPlan", "ExerciseMedia", "Exercise", "Trainee" CASCADE`
+    `TRUNCATE "TrainingSessionLog", "TrainingSession", "TrainingPlanItemExercise", "TrainingPlanItem", "TrainingPlan", "ExerciseMedia", "Exercise", "Trainee", "AllowedUser" CASCADE`
   )
 }
 
-export async function seedTrainee(data: { name: string; email?: string }) {
-  const email = data.email ?? `${data.name.toLowerCase().replace(/\s+/g, '.')}@example.com`
-  return prisma.trainee.create({ data: { name: data.name, email } })
+export async function seedAllowedUser(data: { email: string; role: 'trainer' | 'trainee' }) {
+  return prisma.allowedUser.create({ data })
+}
+
+export async function seedTrainee(data: { name: string; email: string; clerkUserId?: string }) {
+  return prisma.trainee.create({ data })
 }
 
 export async function seedExercise(data: {
