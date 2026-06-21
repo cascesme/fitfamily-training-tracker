@@ -1,3 +1,4 @@
+import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@prisma/client'
 
 // Replace these with real trainer emails before deploying
@@ -13,7 +14,10 @@ export async function runSeed(prisma: PrismaClient): Promise<void> {
 }
 
 if (require.main === module) {
-  const prisma = new PrismaClient()
+  const connectionString = process.env.DATABASE_URL
+  if (!connectionString) throw new Error('DATABASE_URL environment variable is not set')
+  const adapter = new PrismaPg({ connectionString })
+  const prisma = new PrismaClient({ adapter })
   runSeed(prisma)
     .then(() => prisma.$disconnect())
     .catch(async (e) => {
