@@ -30,6 +30,9 @@ interface PlanItemExercise {
   sets: number
   reps: number
   order: number
+  alternativeExerciseId?: string | null
+  alternativeSets?: number | null
+  alternativeReps?: number | null
 }
 
 interface PlanItem {
@@ -98,12 +101,23 @@ function SortablePlanItem({
           </Badge>
         </div>
         {exercises.map((ex) => (
-          <p key={ex.id} className="text-sm">
-            <span className="font-semibold">{lookupName(ex.exerciseId)}</span>
-            {!isTabata && (
-              <span className="ml-2 text-[rgba(255,255,255,0.6)]">{ex.sets} × {ex.reps}</span>
+          <div key={ex.id} className="flex flex-col gap-0.5">
+            <p className="text-sm">
+              <span className="font-semibold">{lookupName(ex.exerciseId)}</span>
+              {!isTabata && (
+                <span className="ml-2 text-[rgba(255,255,255,0.6)]">{ex.sets} × {ex.reps}</span>
+              )}
+            </p>
+            {ex.alternativeExerciseId && (
+              <p className="text-xs text-[rgba(255,255,255,0.4)]">
+                <span className="mr-1">{t('alternativeLabel')}:</span>
+                <span>{lookupName(ex.alternativeExerciseId)}</span>
+                {!isTabata && (
+                  <span className="ml-1">{ex.alternativeSets ?? ex.sets} × {ex.alternativeReps ?? ex.reps}</span>
+                )}
+              </p>
             )}
-          </p>
+          </div>
         ))}
       </div>
       <button onClick={() => onDelete(item.id)} className="text-sm text-red-400 hover:text-red-300">
