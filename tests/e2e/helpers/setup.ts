@@ -15,8 +15,9 @@ export async function cleanDatabase() {
   )
 }
 
-export async function seedTrainee(data: { name: string }) {
-  return prisma.trainee.create({ data })
+export async function seedTrainee(data: { name: string; email?: string }) {
+  const email = data.email ?? `${data.name.toLowerCase().replace(/\s+/g, '.')}@example.com`
+  return prisma.trainee.create({ data: { name: data.name, email } })
 }
 
 export async function seedExercise(data: {

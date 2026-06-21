@@ -18,6 +18,8 @@ const service = new TraineeService(mockRepo)
 const baseTrainee = {
   id: 't1',
   name: 'Alice',
+  email: 'alice@example.com',
+  clerkUserId: null,
   createdAt: new Date(),
   updatedAt: new Date(),
 }
@@ -26,8 +28,8 @@ describe('TraineeService', () => {
   describe('create', () => {
     it('creates trainee via repo', async () => {
       mockRepo.create.mockResolvedValue(baseTrainee)
-      const result = await service.create({ name: 'Alice' })
-      expect(mockRepo.create).toHaveBeenCalledWith({ name: 'Alice' })
+      const result = await service.create({ name: 'Alice', email: 'alice@example.com' })
+      expect(mockRepo.create).toHaveBeenCalledWith({ name: 'Alice', email: 'alice@example.com' })
       expect(result).toEqual(baseTrainee)
     })
   })

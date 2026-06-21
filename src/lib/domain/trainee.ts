@@ -3,7 +3,10 @@ import type { Trainee as PrismaTrainee } from '@prisma/client'
 
 export type Trainee = PrismaTrainee
 
-export const CreateTraineeSchema = z.object({ name: z.string().min(1).max(100) })
+export const CreateTraineeSchema = z.object({
+  name: z.string().min(1).max(100),
+  email: z.string().email(),
+})
 export type CreateTraineeInput = z.infer<typeof CreateTraineeSchema>
 export const UpdateTraineeSchema = CreateTraineeSchema.partial()
 export type UpdateTraineeInput = z.infer<typeof UpdateTraineeSchema>

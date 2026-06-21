@@ -19,12 +19,26 @@ enum MediaType {
   YOUTUBE
 }
 
+enum Role {
+  trainer
+  trainee
+}
+
+model AllowedUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  role      Role
+  createdAt DateTime @default(now())
+}
+
 model Trainee {
-  id        String           @id @default(cuid())
-  name      String
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-  sessions  TrainingSession[]
+  id          String            @id @default(cuid())
+  name        String
+  email       String            @unique
+  clerkUserId String?           @unique
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  sessions    TrainingSession[]
 }
 
 model Exercise {
@@ -35,7 +49,7 @@ model Exercise {
   createdAt    DateTime                   @default(now())
   updatedAt    DateTime                   @updatedAt
   media        ExerciseMedia[]
-  planItems    TrainingPlanItemExercise[] @relation("PrimaryExercise")
+  planItems    TrainingPlanItemExercise[]  @relation("PrimaryExercise")
   alternativePlanItems TrainingPlanItemExercise[] @relation("AlternativeExercise")
   sessionLogs  TrainingSessionLog[]
 }

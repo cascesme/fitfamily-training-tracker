@@ -14,14 +14,14 @@ beforeEach(async () => {
 
 describe('TraineeRepository', () => {
   it('creates a trainee', async () => {
-    const t = await repo.create({ name: 'Alice' })
+    const t = await repo.create({ name: 'Alice', email: 'alice@example.com' })
     expect(t.id).toBeDefined()
     expect(t.name).toBe('Alice')
   })
 
   it('findAll returns all trainees', async () => {
-    await repo.create({ name: 'Alice' })
-    await repo.create({ name: 'Bob' })
+    await repo.create({ name: 'Alice', email: 'alice@example.com' })
+    await repo.create({ name: 'Bob', email: 'bob@example.com' })
     const all = await repo.findAll()
     expect(all).toHaveLength(2)
   })
@@ -31,24 +31,24 @@ describe('TraineeRepository', () => {
   })
 
   it('update changes name', async () => {
-    const t = await repo.create({ name: 'Alice' })
+    const t = await repo.create({ name: 'Alice', email: 'alice@example.com' })
     const updated = await repo.update(t.id, { name: 'Alicia' })
     expect(updated.name).toBe('Alicia')
   })
 
   it('delete removes trainee', async () => {
-    const t = await repo.create({ name: 'Alice' })
+    const t = await repo.create({ name: 'Alice', email: 'alice@example.com' })
     await repo.delete(t.id)
     expect(await repo.findById(t.id)).toBeNull()
   })
 
   it('hasSessions returns false when no sessions', async () => {
-    const t = await repo.create({ name: 'Alice' })
+    const t = await repo.create({ name: 'Alice', email: 'alice@example.com' })
     expect(await repo.hasSessions(t.id)).toBe(false)
   })
 
   it('hasSessions returns true when sessions exist', async () => {
-    const t = await repo.create({ name: 'Alice' })
+    const t = await repo.create({ name: 'Alice', email: 'alice@example.com' })
     await db.prisma.trainingSession.create({
       data: { traineeId: t.id }
     })
