@@ -17,11 +17,12 @@
     "optional": "Optional",
     "required": "Required"
   },
-  "mode": {
-    "trainer": "Trainer Mode",
-    "trainee": "Trainee Mode",
-    "switchToTrainer": "Switch to Trainer",
-    "switchToTrainee": "Switch to Trainee"
+  "auth": {
+    "pendingTitle": "Setting up your account…",
+    "pendingSubtitle": "You'll be redirected automatically.",
+    "accessDeniedTitle": "Access not granted.",
+    "accessDeniedSubtitle": "Contact your trainer to get access.",
+    "signInTitle": "Welcome to FitFamily"
   },
   "nav": {
     "exercises": "Exercises",
