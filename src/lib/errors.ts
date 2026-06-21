@@ -25,3 +25,10 @@ export class MediaLimitError extends Error {
     this.name = 'MediaLimitError'
   }
 }
+
+export class ForbiddenError extends Error {
+  constructor() {
+    super('Forbidden')
+    this.name = 'ForbiddenError'
+  }
+}
