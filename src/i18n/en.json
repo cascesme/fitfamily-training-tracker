@@ -334,7 +334,9 @@
   "trainees": {
     "title": "Trainees",
     "empty": "No trainees yet.",
-    "namePlaceholder": "Trainee name",
+    "namePlaceholder": "Full name",
+    "emailPlaceholder": "Email address",
+    "emailLabel": "Email",
     "add": "Add",
     "adding": "Adding…",
     "addError": "Failed to add trainee",
