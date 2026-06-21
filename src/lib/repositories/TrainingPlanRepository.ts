@@ -47,6 +47,9 @@ export class TrainingPlanRepository implements ITrainingPlanRepository {
                 exercise: {
                   include: { media: { orderBy: { position: 'asc' } } },
                 },
+                alternativeExercise: {
+                  include: { media: { orderBy: { position: 'asc' } } },
+                },
               },
             },
           },
@@ -70,7 +73,15 @@ export class TrainingPlanRepository implements ITrainingPlanRepository {
   async addItem(
     planId: string,
     position: number,
-    exercises: Array<{ exerciseId: string; sets: number; reps: number; order: number }>,
+    exercises: Array<{
+      exerciseId: string
+      sets: number
+      reps: number
+      order: number
+      alternativeExerciseId?: string
+      alternativeSets?: number
+      alternativeReps?: number
+    }>,
     tabataConfig?: { workTimeSecs: number; restTimeSecs: number },
   ): Promise<TrainingPlanItem> {
     return this.prisma.trainingPlanItem.create({
@@ -80,7 +91,17 @@ export class TrainingPlanRepository implements ITrainingPlanRepository {
         isTabata: tabataConfig != null,
         workTimeSecs: tabataConfig?.workTimeSecs ?? null,
         restTimeSecs: tabataConfig?.restTimeSecs ?? null,
-        exercises: { create: exercises },
+        exercises: {
+          create: exercises.map((ex) => ({
+            exerciseId: ex.exerciseId,
+            sets: ex.sets,
+            reps: ex.reps,
+            order: ex.order,
+            alternativeExerciseId: ex.alternativeExerciseId ?? null,
+            alternativeSets: ex.alternativeSets ?? null,
+            alternativeReps: ex.alternativeReps ?? null,
+          })),
+        },
       },
       include: { exercises: true },
     })

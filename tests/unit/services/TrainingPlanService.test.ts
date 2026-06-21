@@ -1,5 +1,6 @@
 import { TrainingPlanService } from '@/lib/services/TrainingPlanService'
 import type { ITrainingPlanRepository } from '@/lib/domain/plan'
+import type { IExerciseRepository } from '@/lib/domain/exercise'
 import { NotFoundError, ValidationError } from '@/lib/errors'
 
 const mockRepo: jest.Mocked<ITrainingPlanRepository> = {
@@ -16,9 +17,19 @@ const mockRepo: jest.Mocked<ITrainingPlanRepository> = {
   findItemAtOrder: jest.fn(),
 }
 
+const mockExerciseRepo: jest.Mocked<IExerciseRepository> = {
+  findAll: jest.fn(),
+  findById: jest.fn(),
+  findWithMedia: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
+  hasSessionLogs: jest.fn(),
+}
+
 beforeEach(() => { jest.clearAllMocks() })
 
-const service = new TrainingPlanService(mockRepo)
+const service = new TrainingPlanService(mockRepo, mockExerciseRepo)
 
 const basePlan = {
   id: 'p1',
@@ -171,6 +182,39 @@ describe('TrainingPlanService', () => {
       await expect(
         service.addItem('p1', 1, [{ exerciseId: 'e1', sets: 8, reps: 0, order: 1 }], { workTimeSecs: 20, restTimeSecs: 10 }),
       ).rejects.toThrow(ValidationError)
+    })
+
+    it('throws ValidationError when alternativeExerciseId references non-existent exercise', async () => {
+      mockExerciseRepo.findById.mockResolvedValue(null)
+      await expect(
+        service.addItem('p1', 1, [{
+          exerciseId: 'e1', sets: 3, reps: 10, order: 1,
+          alternativeExerciseId: 'nope', alternativeSets: 3, alternativeReps: 8,
+        }]),
+      ).rejects.toThrow(ValidationError)
+      expect(mockRepo.addItem).not.toHaveBeenCalled()
+    })
+
+    it('passes alternative fields through to repo when alternative exercise exists', async () => {
+      const altExercise = {
+        id: 'alt1', name: 'Alt', trackingType: 'WEIGHT' as const,
+        description: null, createdAt: new Date(), updatedAt: new Date(),
+      }
+      mockExerciseRepo.findById.mockResolvedValue(altExercise)
+      mockRepo.addItem.mockResolvedValue(mockPlanItem)
+      const exercises = [{
+        exerciseId: 'e1', sets: 3, reps: 10, order: 1,
+        alternativeExerciseId: 'alt1', alternativeSets: 3, alternativeReps: 8,
+      }]
+      await service.addItem('p1', 1, exercises)
+      expect(mockRepo.addItem).toHaveBeenCalledWith('p1', 1, exercises, undefined)
+    })
+
+    it('does not call exerciseRepo.findById when no alternative specified', async () => {
+      mockRepo.addItem.mockResolvedValue(mockPlanItem)
+      await service.addItem('p1', 1, [{ exerciseId: 'e1', sets: 3, reps: 10, order: 1 }])
+      expect(mockExerciseRepo.findById).not.toHaveBeenCalled()
+      expect(mockRepo.addItem).toHaveBeenCalled()
     })
   })
 

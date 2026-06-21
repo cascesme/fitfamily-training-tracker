@@ -14,6 +14,7 @@ export type TrainingPlan = PrismaTrainingPlan & { items?: TrainingPlanItem[] }
 
 export type TrainingPlanItemExerciseWithDetails = PrismaTrainingPlanItemExercise & {
   exercise: PrismaExercise & { media: ExerciseMedia[] }
+  alternativeExercise: (PrismaExercise & { media: ExerciseMedia[] }) | null
 }
 export type TrainingPlanItemWithDetails = PrismaTrainingPlanItem & {
   exercises: TrainingPlanItemExerciseWithDetails[]
@@ -35,12 +36,33 @@ export const AddPlanItemSchema = z.object({
   isTabata: z.boolean().optional().default(false),
   workTimeSecs: z.number().int().positive().optional(),
   restTimeSecs: z.number().int().positive().optional(),
-  exercises: z.array(z.object({
-    exerciseId: z.string().min(1),
-    sets: z.number().int().positive(),
-    reps: z.number().int().nonnegative(),
-    order: z.number().int().min(1).max(MAX_SERIES_EXERCISES),
-  })).min(1).max(MAX_SERIES_EXERCISES),
+  exercises: z.array(
+    z.object({
+      exerciseId: z.string().min(1),
+      sets: z.number().int().positive(),
+      reps: z.number().int().nonnegative(),
+      order: z.number().int().min(1).max(MAX_SERIES_EXERCISES),
+      alternativeExerciseId: z.string().min(1).optional(),
+      alternativeSets: z.number().int().positive().optional(),
+      alternativeReps: z.number().int().positive().optional(),
+    }).superRefine((ex, ctx) => {
+      const hasAlt = !!ex.alternativeExerciseId
+      const hasSets = ex.alternativeSets !== undefined
+      const hasReps = ex.alternativeReps !== undefined
+      if (hasAlt && !hasSets) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'alternativeSets required when alternativeExerciseId is set', path: ['alternativeSets'] })
+      }
+      if (hasAlt && !hasReps) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'alternativeReps required when alternativeExerciseId is set', path: ['alternativeReps'] })
+      }
+      if (!hasAlt && (hasSets || hasReps)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'alternativeExerciseId required when alternativeSets or alternativeReps is set', path: ['alternativeExerciseId'] })
+      }
+      if (hasAlt && ex.alternativeExerciseId === ex.exerciseId) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'alternativeExerciseId must differ from exerciseId', path: ['alternativeExerciseId'] })
+      }
+    }),
+  ).min(1).max(MAX_SERIES_EXERCISES),
 }).superRefine((val, ctx) => {
   if (!val.isTabata) {
     val.exercises.forEach((ex, i) => {
@@ -78,7 +100,15 @@ export interface ITrainingPlanRepository {
   addItem(
     planId: string,
     position: number,
-    exercises: Array<{ exerciseId: string; sets: number; reps: number; order: number }>,
+    exercises: Array<{
+      exerciseId: string
+      sets: number
+      reps: number
+      order: number
+      alternativeExerciseId?: string
+      alternativeSets?: number
+      alternativeReps?: number
+    }>,
     tabataConfig?: { workTimeSecs: number; restTimeSecs: number },
   ): Promise<TrainingPlanItem>
   removeItem(itemId: string): Promise<void>

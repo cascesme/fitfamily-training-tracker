@@ -36,6 +36,9 @@ function buildPlan(): TrainingPlanWithDetails {
             sets: 3,
             reps: 10,
             order: 1,
+            alternativeExerciseId: null,
+            alternativeSets: null,
+            alternativeReps: null,
             exercise: {
               id: 'e1',
               name: 'Bench Press',
@@ -56,6 +59,7 @@ function buildPlan(): TrainingPlanWithDetails {
                 },
               ],
             },
+            alternativeExercise: null,
           },
         ],
       },
@@ -74,6 +78,9 @@ function buildPlan(): TrainingPlanWithDetails {
             sets: 4,
             reps: 8,
             order: 1,
+            alternativeExerciseId: null,
+            alternativeSets: null,
+            alternativeReps: null,
             exercise: {
               id: 'e2',
               name: 'Incline Press',
@@ -83,6 +90,7 @@ function buildPlan(): TrainingPlanWithDetails {
               updatedAt: new Date(),
               media: [],
             },
+            alternativeExercise: null,
           },
           {
             id: 'tpe3',
@@ -91,6 +99,9 @@ function buildPlan(): TrainingPlanWithDetails {
             sets: 4,
             reps: 8,
             order: 2,
+            alternativeExerciseId: null,
+            alternativeSets: null,
+            alternativeReps: null,
             exercise: {
               id: 'e3',
               name: 'Cable Fly',
@@ -100,6 +111,7 @@ function buildPlan(): TrainingPlanWithDetails {
               updatedAt: new Date(),
               media: [],
             },
+            alternativeExercise: null,
           },
         ],
       },

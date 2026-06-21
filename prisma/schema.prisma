@@ -35,7 +35,8 @@ model Exercise {
   createdAt    DateTime                   @default(now())
   updatedAt    DateTime                   @updatedAt
   media        ExerciseMedia[]
-  planItems    TrainingPlanItemExercise[]
+  planItems    TrainingPlanItemExercise[] @relation("PrimaryExercise")
+  alternativePlanItems TrainingPlanItemExercise[] @relation("AlternativeExercise")
   sessionLogs  TrainingSessionLog[]
 }
 
@@ -81,10 +82,15 @@ model TrainingPlanItemExercise {
   itemId     String
   item       TrainingPlanItem @relation(fields: [itemId], references: [id])
   exerciseId String
-  exercise   Exercise         @relation(fields: [exerciseId], references: [id])
+  exercise   Exercise         @relation(fields: [exerciseId], references: [id], name: "PrimaryExercise")
   sets       Int
   reps       Int
   order      Int
+
+  alternativeExerciseId String?
+  alternativeExercise   Exercise? @relation(fields: [alternativeExerciseId], references: [id], name: "AlternativeExercise", onDelete: SetNull)
+  alternativeSets       Int?
+  alternativeReps       Int?
 
   @@unique([itemId, order])
 }

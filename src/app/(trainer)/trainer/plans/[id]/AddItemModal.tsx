@@ -69,9 +69,13 @@ interface Row {
   exerciseId: string
   sets: string
   reps: string
+  altOpen: boolean
+  altExerciseId: string
+  altSets: string
+  altReps: string
 }
 
-const EMPTY_ROW: Row = { exerciseId: '', sets: '3', reps: '10' }
+const EMPTY_ROW: Row = { exerciseId: '', sets: '3', reps: '10', altOpen: false, altExerciseId: '', altSets: '3', altReps: '10' }
 
 export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, onClose }: Props) {
   const t = useTranslations('planBuilder')
@@ -140,6 +144,13 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
               sets: Number(r.sets),
               reps: Number(r.reps),
               order: i + 1,
+              ...(r.altExerciseId
+                ? {
+                    alternativeExerciseId: r.altExerciseId,
+                    alternativeSets: Number(r.altSets),
+                    alternativeReps: Number(r.altReps),
+                  }
+                : {}),
             })),
           }
 
@@ -215,6 +226,50 @@ export function AddItemModal({ planId, allExercises, nextPosition, onSuccess, on
                     </div>
                   )}
                 </div>
+                {!isTabata && (
+                  <div className="mt-1">
+                    <button
+                      type="button"
+                      className="text-xs text-[rgba(255,255,255,0.4)] hover:text-[rgba(255,255,255,0.7)]"
+                      onClick={() => updateRow(i, { altOpen: !row.altOpen, altExerciseId: row.altOpen ? '' : row.altExerciseId })}
+                    >
+                      {t('alternativeLabel')} {row.altOpen ? '▲' : '▼'}
+                    </button>
+                    {row.altOpen && (
+                      <div className="mt-2 flex flex-col gap-2 rounded border border-[rgba(255,255,255,0.06)] p-2">
+                        <label className="text-xs text-[rgba(255,255,255,0.4)]">{t('alternativeExercise')}</label>
+                        <ExercisePicker
+                          placeholder={t('alternativeExercise')}
+                          exercises={allExercises.filter((e) => e.id !== row.exerciseId)}
+                          value={row.altExerciseId}
+                          onChange={(id) => updateRow(i, { altExerciseId: id })}
+                        />
+                        <div className="flex gap-2">
+                          <div className="min-w-0 flex-1">
+                            <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">{t('alternativeSets')}</label>
+                            <Input
+                              name={`altSets${i + 1}`}
+                              type="number"
+                              min="1"
+                              value={row.altSets}
+                              onChange={(e) => updateRow(i, { altSets: e.target.value })}
+                            />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <label className="mb-1 block text-xs text-[rgba(255,255,255,0.4)]">{t('alternativeReps')}</label>
+                            <Input
+                              name={`altReps${i + 1}`}
+                              type="number"
+                              min="1"
+                              value={row.altReps}
+                              onChange={(e) => updateRow(i, { altReps: e.target.value })}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )
           })}
