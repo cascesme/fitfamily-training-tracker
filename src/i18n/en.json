@@ -136,6 +136,8 @@
     "tabataRound": "Round {current} of {total}",
     "tabataExercise": "Exercise {current} of {total}",
     "stopAndNext": "Stop & Next Exercise",
+    "tabataStart": "Start Tabata",
+    "tabataPreviewParams": "{rounds} rounds · {work}s / {rest}s",
     "ready": {
       "exerciseCount": "{count} exercises · {sets} sets",
       "tagline": "Show up. Push hard.",
