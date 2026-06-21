@@ -1,5 +1,6 @@
 import { setupTestDb, teardownTestDb, TestDb } from '../helpers/db'
 import { TrainingPlanRepository } from '@/lib/repositories/TrainingPlanRepository'
+import type { TrainingPlanItemExercise } from '@/lib/domain/plan'
 
 let db: TestDb
 let repo: TrainingPlanRepository
@@ -196,7 +197,7 @@ describe('TrainingPlanRepository', () => {
       alternativeExerciseId: altExerciseId, alternativeSets: 3, alternativeReps: 8,
     }])
     const full = await repo.findWithItems(plan.id)
-    const ex = full!.items![0].exercises![0] as any
+    const ex = full!.items![0].exercises![0] as TrainingPlanItemExercise
     expect(ex.alternativeExerciseId).toBe(altExerciseId)
     expect(ex.alternativeSets).toBe(3)
     expect(ex.alternativeReps).toBe(8)
@@ -206,7 +207,7 @@ describe('TrainingPlanRepository', () => {
     const plan = await repo.create({ name: 'No Alt Plan' })
     await repo.addItem(plan.id, 1, [{ exerciseId, sets: 3, reps: 10, order: 1 }])
     const full = await repo.findWithItems(plan.id)
-    const ex = full!.items![0].exercises![0] as any
+    const ex = full!.items![0].exercises![0] as TrainingPlanItemExercise
     expect(ex.alternativeExerciseId).toBeNull()
     expect(ex.alternativeSets).toBeNull()
     expect(ex.alternativeReps).toBeNull()

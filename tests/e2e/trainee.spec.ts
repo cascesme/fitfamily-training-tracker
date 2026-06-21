@@ -114,7 +114,7 @@ test.describe('Trainee — Full plan session', () => {
     const trainee = await seedTrainee({ name: 'Tabata Athlete' })
     const exA = await seedExercise({ name: 'Jump Squats', trackingType: 'NONE' })
     const exB = await seedExercise({ name: 'Mountain Climbers', trackingType: 'NONE' })
-    const plan = await seedTabataPlan({
+    await seedTabataPlan({
       name: 'Quick Tabata',
       exercises: [{ exerciseId: exA.id }, { exerciseId: exB.id }],
       sets: 1,
