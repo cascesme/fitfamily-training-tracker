@@ -2,11 +2,12 @@ import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { ForbiddenError } from '@/lib/errors'
 import { traineeService } from './services'
+import { getUserRole } from './role'
 import type { Trainee } from '@/lib/domain/trainee'
 
 export async function requireTrainerRole(): Promise<void> {
-  const { sessionClaims } = await auth()
-  if (sessionClaims?.publicMetadata?.role !== 'trainer') {
+  const { userId } = await auth()
+  if (!userId || (await getUserRole(userId)) !== 'trainer') {
     throw new ForbiddenError()
   }
 }

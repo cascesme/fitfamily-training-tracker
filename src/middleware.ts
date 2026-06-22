@@ -1,5 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
+import { getUserRole } from '@/lib/api/role'
 
 const isPublic = createRouteMatcher([
   '/sign-in(.*)',
@@ -14,7 +15,7 @@ const isTraineeRoute = createRouteMatcher(['/trainee(.*)'])
 export default clerkMiddleware(async (auth, req) => {
   if (isPublic(req)) return NextResponse.next()
 
-  const { userId, sessionClaims } = await auth()
+  const { userId } = await auth()
 
   if (isPending(req)) {
     if (!userId) return NextResponse.redirect(new URL('/sign-in', req.url))
@@ -23,7 +24,7 @@ export default clerkMiddleware(async (auth, req) => {
 
   if (!userId) return NextResponse.redirect(new URL('/sign-in', req.url))
 
-  const role = sessionClaims?.publicMetadata?.role
+  const role = await getUserRole(userId)
 
   if (!role) return NextResponse.redirect(new URL('/auth/pending', req.url))
 
