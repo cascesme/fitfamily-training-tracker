@@ -50,3 +50,7 @@ next-env.d.ts
 # git worktrees
 .worktrees/
 .superpowers/
+
+# pnpm — project uses npm
+pnpm-lock.yaml
+pnpm-workspace.yaml
