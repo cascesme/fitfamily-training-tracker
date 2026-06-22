@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { UserButton, useAuth } from '@clerk/nextjs'
+import { LanguageToggle } from './LanguageToggle'
 
 export function Header() {
   const { sessionClaims } = useAuth()
@@ -13,13 +14,16 @@ export function Header() {
         <Link href={homeHref} className="font-display text-lg font-bold tracking-tight">
           FitFamily
         </Link>
-        <UserButton
-          appearance={{
-            elements: {
-              avatarBox: 'w-8 h-8',
-            },
-          }}
-        />
+        <div className="flex items-center gap-3">
+          <LanguageToggle />
+          <UserButton
+            appearance={{
+              elements: {
+                avatarBox: 'w-8 h-8',
+              },
+            }}
+          />
+        </div>
       </div>
     </header>
   )
