@@ -1,16 +1,26 @@
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@prisma/client'
 
-// Replace these with real trainer emails before deploying
-const TRAINER_EMAILS: string[] = [
-  'trainer@example.com',
-]
+// Trainer emails come from the TRAINER_EMAILS env var (comma-separated),
+// so the image stays generic and operators set their own.
+function parseTrainerEmails(raw: string | undefined): string[] {
+  return (raw ?? '')
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean)
+}
 
 export async function runSeed(prisma: PrismaClient): Promise<void> {
+  const emails = parseTrainerEmails(process.env.TRAINER_EMAILS)
+  if (emails.length === 0) {
+    console.warn('TRAINER_EMAILS not set — no trainer AllowedUser rows seeded')
+    return
+  }
   await prisma.allowedUser.createMany({
-    data: TRAINER_EMAILS.map((email) => ({ email, role: 'trainer' as const })),
+    data: emails.map((email) => ({ email, role: 'trainer' as const })),
     skipDuplicates: true,
   })
+  console.log(`Seeded ${emails.length} trainer allowed-user row(s)`)
 }
 
 if (require.main === module) {

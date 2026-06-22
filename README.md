@@ -84,6 +84,7 @@ npm run dev
 | `CLERK_PUBLISHABLE_KEY` | Clerk publishable key | `pk_test_...` |
 | `CLERK_SECRET_KEY` | Clerk secret key | `sk_test_...` |
 | `CLERK_WEBHOOK_SECRET` | Svix signing secret for the user webhook | `whsec_...` |
+| `TRAINER_EMAILS` | Comma-separated trainer allow-list (seeded as `role=trainer`) | `me@example.com,partner@example.com` |
 
 > All Clerk keys are read at **runtime** — none are baked into the Docker image. The publishable key is passed to `ClerkProvider`/`clerkMiddleware` explicitly (note: no `NEXT_PUBLIC_` prefix), so the published image stays generic and each operator supplies their own keys via `.env`. Changing any key requires only a container restart, not a rebuild.
 
@@ -111,6 +112,27 @@ Then in the [Clerk dashboard](https://dashboard.clerk.com) → **Webhooks → Ad
 Verify with the endpoint's **Send test event** (`user.created`) and watch the app logs. The free ngrok URL changes on each restart — update the Clerk endpoint URL each time.
 
 **Production:** point the endpoint at your NAS public URL (reverse proxy / DDNS), e.g. `https://yourdomain/api/webhooks/clerk`.
+
+---
+
+## Trainer Setup
+
+Roles are driven by the `AllowedUser` table. On `user.created`, the webhook looks up the new user's email:
+
+- **In the allow-list** → role assigned from the matching row (`trainer` rows are seeded from `TRAINER_EMAILS`); a `trainee` row also links the existing trainee record.
+- **Not in the allow-list** → the Clerk user is deleted (sign-up rejected).
+
+Set `TRAINER_EMAILS` (comma-separated), then seed the `AllowedUser` rows:
+
+```bash
+# In the running container (no package.json in the image, so call the script directly)
+docker compose exec app npx tsx prisma/seed.ts
+
+# Or locally against the dev DB
+npx prisma db seed
+```
+
+The seed is idempotent (`skipDuplicates`) — safe to re-run after adding emails. Trainees are added from within the app by a trainer, not via this list.
 
 ---
 
