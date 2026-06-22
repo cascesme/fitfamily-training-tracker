@@ -11,11 +11,13 @@ test.describe('Locale toggle', () => {
     await context.clearCookies()
     await page.goto('/access-denied')
     await expect(page.getByText('Acceso no concedido.')).toBeVisible()
+    await expect(page.locator('html')).toHaveAttribute('lang', 'es')
 
     await page.getByRole('button', { name: 'EN' }).click()
 
     await expect(page.getByText('Access not granted.')).toBeVisible()
     await expect(page.getByText('Acceso no concedido.')).not.toBeVisible()
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
   })
 
   test('English locale persists on reload', async ({ page, context }) => {
