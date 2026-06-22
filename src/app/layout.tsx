@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Manrope, Inter } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
-import { getMessages } from 'next-intl/server'
+import { getMessages, getLocale } from 'next-intl/server'
 import { ClerkProvider } from '@clerk/nextjs'
 import { AppLayout } from '@/components/layout/AppLayout'
 import './globals.css'
@@ -19,10 +19,10 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const messages = await getMessages()
+  const [messages, locale] = await Promise.all([getMessages(), getLocale()])
   return (
     <ClerkProvider publishableKey={process.env.CLERK_PUBLISHABLE_KEY} signInUrl="/sign-in">
-      <html lang="en" className={`${manrope.variable} ${inter.variable}`}>
+      <html lang={locale} className={`${manrope.variable} ${inter.variable}`}>
         <body>
           <NextIntlClientProvider messages={messages}>
             <AppLayout>
