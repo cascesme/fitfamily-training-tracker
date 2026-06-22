@@ -35,7 +35,8 @@
     "svix": "1.96.0",
     "swagger-ui-react": "^5.32.6",
     "tailwind-merge": "^3.6.0",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "tsx": "4.22.4"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
@@ -59,7 +60,6 @@
     "tailwindcss": "^4",
     "testcontainers": "^12.0.1",
     "ts-jest": "^29.4.11",
-    "tsx": "4.22.4",
     "typescript": "^5"
   }
 }
