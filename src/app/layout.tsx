@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const messages = await getMessages()
   return (
-    <ClerkProvider>
+    <ClerkProvider publishableKey={process.env.CLERK_PUBLISHABLE_KEY} signInUrl="/sign-in">
       <html lang="en" className={`${manrope.variable} ${inter.variable}`}>
         <body>
           <NextIntlClientProvider messages={messages}>
