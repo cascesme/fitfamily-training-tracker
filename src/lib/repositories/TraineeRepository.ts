@@ -17,8 +17,27 @@ export class TraineeRepository implements ITraineeRepository {
     return this.prisma.trainee.findUnique({ where: { id } })
   }
 
+  findByClerkUserId(clerkUserId: string): Promise<Trainee | null> {
+    return this.prisma.trainee.findUnique({ where: { clerkUserId } })
+  }
+
+  findByEmail(email: string): Promise<Trainee | null> {
+    return this.prisma.trainee.findUnique({ where: { email } })
+  }
+
   create(data: CreateTraineeInput): Promise<Trainee> {
     return this.prisma.trainee.create({ data })
+  }
+
+  async createWithAllowedUser(data: CreateTraineeInput): Promise<Trainee> {
+    return this.prisma.$transaction(async (tx) => {
+      await tx.allowedUser.create({ data: { email: data.email, role: 'trainee' } })
+      return tx.trainee.create({ data: { name: data.name, email: data.email } })
+    })
+  }
+
+  async linkClerkUser(email: string, clerkUserId: string): Promise<void> {
+    await this.prisma.trainee.update({ where: { email }, data: { clerkUserId } })
   }
 
   update(id: string, data: UpdateTraineeInput): Promise<Trainee> {

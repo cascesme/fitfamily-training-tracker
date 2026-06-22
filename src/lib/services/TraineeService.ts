@@ -15,11 +15,20 @@ export class TraineeService {
     return trainee
   }
 
+  findByClerkUserId(clerkUserId: string): Promise<Trainee | null> {
+    return this.repo.findByClerkUserId(clerkUserId)
+  }
+
   async create(data: CreateTraineeInput): Promise<Trainee> {
     logger.info({ service: 'TraineeService', operation: 'create' }, 'Creating trainee')
-    const trainee = await this.repo.create(data)
+    const trainee = await this.repo.createWithAllowedUser(data)
     logger.info({ service: 'TraineeService', operation: 'create', entityId: trainee.id, outcome: 'created' }, 'Trainee created')
     return trainee
+  }
+
+  async linkClerkUserByEmail(email: string, clerkUserId: string): Promise<void> {
+    logger.info({ service: 'TraineeService', operation: 'linkClerkUser', entityId: email }, 'Linking Clerk user to trainee')
+    await this.repo.linkClerkUser(email, clerkUserId)
   }
 
   async update(id: string, data: UpdateTraineeInput): Promise<Trainee> {

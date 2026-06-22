@@ -7,7 +7,7 @@ test.describe('Failure paths', () => {
   })
 
   test('cannot delete exercise that is in use', async ({ page }) => {
-    const trainee = await seedTrainee({ name: 'Active User' })
+    const trainee = await seedTrainee({ name: 'Active User', email: 'active.user@example.com' })
     const exercise = await seedExercise({ name: 'In-Use Exercise', trackingType: 'WEIGHT' })
     await seedSession({ traineeId: trainee.id, exerciseId: exercise.id })
 
@@ -21,7 +21,7 @@ test.describe('Failure paths', () => {
   })
 
   test('cannot delete trainee with sessions', async ({ page }) => {
-    const trainee = await seedTrainee({ name: 'Busy Trainee' })
+    const trainee = await seedTrainee({ name: 'Busy Trainee', email: 'busy.trainee@example.com' })
     await seedSession({ traineeId: trainee.id })
 
     await page.goto('/trainer/trainees')

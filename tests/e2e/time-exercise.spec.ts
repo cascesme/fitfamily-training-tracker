@@ -37,7 +37,7 @@ test.describe('TIME exercise — Add Item modal', () => {
 
 test.describe('TIME exercise — single session runner', () => {
   test('setup form shows Duration label for TIME exercise', async ({ page }) => {
-    const trainee = await seedTrainee({ name: 'Alex' })
+    const trainee = await seedTrainee({ name: 'Alex', email: 'alex@example.com' })
     await seedExercise({ name: 'Running', trackingType: 'TIME' })
     await page.goto(`/trainee/${trainee.id}`)
     await page.fill('input[placeholder*="Search"]', 'Running')
@@ -47,7 +47,7 @@ test.describe('TIME exercise — single session runner', () => {
   })
 
   test('running phase shows Duration field in SetLogger for TIME exercise', async ({ page }) => {
-    const trainee = await seedTrainee({ name: 'Alex' })
+    const trainee = await seedTrainee({ name: 'Alex', email: 'alex@example.com' })
     await seedExercise({ name: 'Running', trackingType: 'TIME' })
     await page.goto(`/trainee/${trainee.id}`)
     await page.fill('input[placeholder*="Search"]', 'Running')
@@ -60,7 +60,7 @@ test.describe('TIME exercise — single session runner', () => {
   })
 
   test('logs duration and advances when marking done for TIME exercise', async ({ page }) => {
-    const trainee = await seedTrainee({ name: 'Alex' })
+    const trainee = await seedTrainee({ name: 'Alex', email: 'alex@example.com' })
     await seedExercise({ name: 'Running', trackingType: 'TIME' })
     await page.goto(`/trainee/${trainee.id}`)
     await page.fill('input[placeholder*="Search"]', 'Running')
@@ -76,7 +76,7 @@ test.describe('TIME exercise — single session runner', () => {
 
 test.describe('TIME exercise — plan session runner', () => {
   test('plan session runner shows countdown for TIME exercise', async ({ page }) => {
-    const trainee = await seedTrainee({ name: 'Alex' })
+    const trainee = await seedTrainee({ name: 'Alex', email: 'alex@example.com' })
     const ex = await seedExercise({ name: 'Running', trackingType: 'TIME' })
     await seedPlan({ name: 'Cardio Plan', items: [{ exerciseId: ex.id, sets: 2, reps: 30 }] })
     await page.goto(`/trainee/${trainee.id}`)

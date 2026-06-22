@@ -7,7 +7,7 @@ test.beforeEach(async () => {
 
 test.describe('Media viewer — single exercise session', () => {
   test('View Media button visible when exercise has media', async ({ page }) => {
-    const trainee = await seedTrainee({ name: 'Alex' })
+    const trainee = await seedTrainee({ name: 'Alex', email: 'alex@example.com' })
     await seedExercise({ name: 'Bench Press', trackingType: 'WEIGHT', mediaCount: 2 })
     await page.goto(`/trainee/${trainee.id}`)
     await page.fill('input[placeholder*="Search"]', 'Bench Press')
@@ -16,7 +16,7 @@ test.describe('Media viewer — single exercise session', () => {
   })
 
   test('View Media button not shown when exercise has no media', async ({ page }) => {
-    const trainee = await seedTrainee({ name: 'Alex' })
+    const trainee = await seedTrainee({ name: 'Alex', email: 'alex@example.com' })
     await seedExercise({ name: 'Bench Press', trackingType: 'WEIGHT' })
     await page.goto(`/trainee/${trainee.id}`)
     await page.fill('input[placeholder*="Search"]', 'Bench Press')
@@ -25,7 +25,7 @@ test.describe('Media viewer — single exercise session', () => {
   })
 
   test('clicking View Media opens fullscreen viewer', async ({ page }) => {
-    const trainee = await seedTrainee({ name: 'Alex' })
+    const trainee = await seedTrainee({ name: 'Alex', email: 'alex@example.com' })
     await seedExercise({ name: 'Bench Press', trackingType: 'WEIGHT', mediaCount: 1 })
     await page.goto(`/trainee/${trainee.id}`)
     await page.fill('input[placeholder*="Search"]', 'Bench Press')
@@ -36,7 +36,7 @@ test.describe('Media viewer — single exercise session', () => {
   })
 
   test('close button dismisses the viewer', async ({ page }) => {
-    const trainee = await seedTrainee({ name: 'Alex' })
+    const trainee = await seedTrainee({ name: 'Alex', email: 'alex@example.com' })
     await seedExercise({ name: 'Bench Press', trackingType: 'WEIGHT', mediaCount: 1 })
     await page.goto(`/trainee/${trainee.id}`)
     await page.fill('input[placeholder*="Search"]', 'Bench Press')
@@ -48,7 +48,7 @@ test.describe('Media viewer — single exercise session', () => {
   })
 
   test('next and prev arrows navigate between media items', async ({ page }) => {
-    const trainee = await seedTrainee({ name: 'Alex' })
+    const trainee = await seedTrainee({ name: 'Alex', email: 'alex@example.com' })
     await seedExercise({ name: 'Bench Press', trackingType: 'WEIGHT', mediaCount: 3 })
     await page.goto(`/trainee/${trainee.id}`)
     await page.fill('input[placeholder*="Search"]', 'Bench Press')
@@ -62,7 +62,7 @@ test.describe('Media viewer — single exercise session', () => {
   })
 
   test('View Media button still visible during running phase', async ({ page }) => {
-    const trainee = await seedTrainee({ name: 'Alex' })
+    const trainee = await seedTrainee({ name: 'Alex', email: 'alex@example.com' })
     await seedExercise({ name: 'Bench Press', trackingType: 'WEIGHT', mediaCount: 2 })
     await page.goto(`/trainee/${trainee.id}`)
     await page.fill('input[placeholder*="Search"]', 'Bench Press')
@@ -75,7 +75,7 @@ test.describe('Media viewer — single exercise session', () => {
 
 test.describe('Media viewer — plan session', () => {
   test('View Media button visible in plan session for exercise with media', async ({ page }) => {
-    const trainee = await seedTrainee({ name: 'Alex' })
+    const trainee = await seedTrainee({ name: 'Alex', email: 'alex@example.com' })
     const ex = await seedExercise({ name: 'Bench Press', trackingType: 'WEIGHT', mediaCount: 2 })
     await seedPlan({ name: 'Plan A', items: [{ exerciseId: ex.id, sets: 1, reps: 8 }] })
     await page.goto(`/trainee/${trainee.id}`)
@@ -85,7 +85,7 @@ test.describe('Media viewer — plan session', () => {
   })
 
   test('clicking View Media in plan session opens viewer', async ({ page }) => {
-    const trainee = await seedTrainee({ name: 'Alex' })
+    const trainee = await seedTrainee({ name: 'Alex', email: 'alex@example.com' })
     const ex = await seedExercise({ name: 'Bench Press', trackingType: 'WEIGHT', mediaCount: 2 })
     await seedPlan({ name: 'Plan A', items: [{ exerciseId: ex.id, sets: 1, reps: 8 }] })
     await page.goto(`/trainee/${trainee.id}`)

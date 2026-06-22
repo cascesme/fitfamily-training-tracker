@@ -38,6 +38,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -49,3 +50,7 @@ next-env.d.ts
 # git worktrees
 .worktrees/
 .superpowers/
+
+# pnpm — project uses npm
+pnpm-lock.yaml
+pnpm-workspace.yaml

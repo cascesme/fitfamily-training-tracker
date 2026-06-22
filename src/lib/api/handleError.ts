@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server'
-import { NotFoundError, DeleteBlockedError, ValidationError, MediaLimitError } from '@/lib/errors'
+import { NotFoundError, DeleteBlockedError, ValidationError, MediaLimitError, ForbiddenError } from '@/lib/errors'
 import { logger } from '@/lib/logger'
 
 export function handleError(error: unknown, path: string): NextResponse {
+  if (error instanceof ForbiddenError) {
+    logger.warn({ path, status: 403 }, 'Forbidden')
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
   if (error instanceof NotFoundError) {
     logger.warn({ path, status: 404, error: error.message }, 'Not found')
     return NextResponse.json({ error: error.message }, { status: 404 })

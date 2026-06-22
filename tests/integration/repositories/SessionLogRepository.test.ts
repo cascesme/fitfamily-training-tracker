@@ -14,7 +14,7 @@ beforeAll(async () => {
 afterAll(async () => { await teardownTestDb(db) })
 
 beforeEach(async () => {
-  const trainee = await db.prisma.trainee.create({ data: { name: 'T' } })
+  const trainee = await db.prisma.trainee.create({ data: { name: 'T', email: 't@example.com' } })
   const session = await db.prisma.trainingSession.create({ data: { traineeId: trainee.id } })
   const exercise = await db.prisma.exercise.create({ data: { name: 'Bench', trackingType: 'WEIGHT' } })
   sessionId = session.id

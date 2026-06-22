@@ -17,6 +17,7 @@ export function TraineeList({ initialTrainees }: Props) {
   const router = useRouter()
   const [trainees, setTrainees] = useState<Trainee[]>(initialTrainees)
   const [newName, setNewName] = useState('')
+  const [newEmail, setNewEmail] = useState('')
   const [addError, setAddError] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -33,7 +34,7 @@ export function TraineeList({ initialTrainees }: Props) {
       const res = await fetch('/api/trainees', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newName }),
+        body: JSON.stringify({ name: newName, email: newEmail }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
@@ -43,6 +44,7 @@ export function TraineeList({ initialTrainees }: Props) {
       const created: Trainee = await res.json()
       setTrainees((prev) => [...prev, created])
       setNewName('')
+      setNewEmail('')
       router.refresh()
     } catch {
       setAddError(t('addError'))
@@ -83,10 +85,7 @@ export function TraineeList({ initialTrainees }: Props) {
     const res = await fetch(`/api/trainees/${id}`, { method: 'DELETE' })
     if (res.status === 409) {
       const data = await res.json().catch(() => ({}))
-      setDeleteErrors((prev) => ({
-        ...prev,
-        [id]: data.error ?? t('deleteBlockedError'),
-      }))
+      setDeleteErrors((prev) => ({ ...prev, [id]: data.error ?? t('deleteBlockedError') }))
       return
     }
     if (!res.ok) {
@@ -99,12 +98,21 @@ export function TraineeList({ initialTrainees }: Props) {
 
   return (
     <div className="flex flex-col gap-6">
-      <form onSubmit={handleAdd} className="flex gap-3">
+      <form onSubmit={handleAdd} className="flex flex-col gap-3 sm:flex-row">
         <Input
           name="name"
           placeholder={t('namePlaceholder')}
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
+          required
+          className="flex-1"
+        />
+        <Input
+          name="email"
+          type="email"
+          placeholder={t('emailPlaceholder')}
+          value={newEmail}
+          onChange={(e) => setNewEmail(e.target.value)}
           required
           className="flex-1"
         />
@@ -132,16 +140,14 @@ export function TraineeList({ initialTrainees }: Props) {
                   </>
                 ) : (
                   <>
-                    <span className="flex-1 font-semibold">{trainee.name}</span>
+                    <div className="flex-1">
+                      <p className="font-semibold">{trainee.name}</p>
+                      <p className="text-sm text-[rgba(255,255,255,0.4)]">{trainee.email}</p>
+                    </div>
                     <Button variant="ghost" onClick={() => startEdit(trainee)}>{t('edit')}</Button>
                     {confirmingDeleteId === trainee.id ? (
                       <>
-                        <Button
-                          variant="danger"
-                          onClick={() => handleDelete(trainee.id)}
-                        >
-                          {t('confirm')}
-                        </Button>
+                        <Button variant="danger" onClick={() => handleDelete(trainee.id)}>{t('confirm')}</Button>
                         <Button variant="ghost" onClick={() => setConfirmingDeleteId(null)}>{t('cancel')}</Button>
                       </>
                     ) : (

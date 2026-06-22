@@ -4,12 +4,18 @@
  *   get:
  *     summary: List all trainees
  *     tags: [Trainees]
+ *     security:
+ *       - ClerkAuth: []
  *     responses:
  *       200:
  *         description: Array of trainees
+ *       403:
+ *         description: Forbidden — trainer role required
  *   post:
- *     summary: Create trainee
+ *     summary: Create trainee (trainer only)
  *     tags: [Trainees]
+ *     security:
+ *       - ClerkAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -21,14 +27,18 @@
  *         description: Created trainee
  *       400:
  *         description: Validation error
+ *       403:
+ *         description: Forbidden — trainer role required
  */
 import { NextResponse } from 'next/server'
 import { traineeService } from '@/lib/api/services'
+import { requireTrainerRole } from '@/lib/api/auth'
 import { CreateTraineeSchema } from '@/lib/domain/trainee'
 import { handleError } from '@/lib/api/handleError'
 
 export async function GET() {
   try {
+    await requireTrainerRole()
     const trainees = await traineeService.list()
     return NextResponse.json(trainees)
   } catch (error) {
@@ -38,6 +48,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    await requireTrainerRole()
     const body = await request.json()
     const parsed = CreateTraineeSchema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })

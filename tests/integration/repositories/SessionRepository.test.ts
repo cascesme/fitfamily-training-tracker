@@ -13,7 +13,7 @@ beforeAll(async () => {
 afterAll(async () => { await teardownTestDb(db) })
 
 beforeEach(async () => {
-  const t = await db.prisma.trainee.create({ data: { name: 'Tester' } })
+  const t = await db.prisma.trainee.create({ data: { name: 'Tester', email: 'tester@example.com' } })
   traineeId = t.id
 })
 
@@ -45,7 +45,7 @@ describe('SessionRepository', () => {
   })
 
   it('findByTrainee returns only sessions for the specified trainee', async () => {
-    const other = await db.prisma.trainee.create({ data: { name: 'Other' } })
+    const other = await db.prisma.trainee.create({ data: { name: 'Other', email: 'other@example.com' } })
     await repo.create({ traineeId })
     await repo.create({ traineeId })
     await repo.create({ traineeId: other.id })

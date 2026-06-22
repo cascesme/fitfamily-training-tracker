@@ -1,8 +1,9 @@
 export const dynamic = 'force-dynamic'
 
+import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
 import { traineeService, trainingPlanService, exerciseService, sessionService } from '@/lib/api/services'
 import { getTranslations } from 'next-intl/server'
-import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Card } from '@/components/ui/Card'
 import { ExercisePicker } from './ExercisePicker'
@@ -13,15 +14,15 @@ interface Props {
 
 export default async function TraineeDashboardPage({ params }: Props) {
   const { traineeId } = await params
-  const t = await getTranslations('traineeDashboard')
+  const { userId } = await auth()
+  if (!userId) redirect('/sign-in')
 
-  let trainee
-  try {
-    trainee = await traineeService.findById(traineeId)
-  } catch {
-    notFound()
+  const myTrainee = await traineeService.findByClerkUserId(userId)
+  if (!myTrainee || myTrainee.id !== traineeId) {
+    redirect(myTrainee ? `/trainee/${myTrainee.id}` : '/access-denied')
   }
 
+  const t = await getTranslations('traineeDashboard')
   const [plans, exercises, lastSession] = await Promise.all([
     trainingPlanService.list(),
     exerciseService.list(),
@@ -31,12 +32,10 @@ export default async function TraineeDashboardPage({ params }: Props) {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="font-display text-3xl font-bold">{trainee!.name}</h1>
+        <h1 className="font-display text-3xl font-bold">{myTrainee.name}</h1>
         {lastSession && (
           <p className="mt-1 text-sm text-[rgba(255,255,255,0.4)]">
-            {t('lastSession', {
-              date: new Date(lastSession.startedAt).toLocaleDateString(),
-            })}
+            {t('lastSession', { date: new Date(lastSession.startedAt).toLocaleDateString() })}
           </p>
         )}
       </div>

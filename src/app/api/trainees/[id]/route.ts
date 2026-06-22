@@ -4,6 +4,8 @@
  *   get:
  *     summary: Get trainee by ID
  *     tags: [Trainees]
+ *     security:
+ *       - ClerkAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -13,11 +15,15 @@
  *     responses:
  *       200:
  *         description: Trainee
+ *       403:
+ *         description: Forbidden — trainer role required
  *       404:
  *         description: Trainee not found
  *   put:
  *     summary: Update trainee
  *     tags: [Trainees]
+ *     security:
+ *       - ClerkAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -35,11 +41,15 @@
  *         description: Updated trainee
  *       400:
  *         description: Validation error
+ *       403:
+ *         description: Forbidden — trainer role required
  *       404:
  *         description: Trainee not found
  *   delete:
  *     summary: Delete trainee
  *     tags: [Trainees]
+ *     security:
+ *       - ClerkAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -49,6 +59,8 @@
  *     responses:
  *       204:
  *         description: Deleted
+ *       403:
+ *         description: Forbidden — trainer role required
  *       404:
  *         description: Trainee not found
  *       409:
@@ -56,12 +68,14 @@
  */
 import { NextResponse } from 'next/server'
 import { traineeService } from '@/lib/api/services'
+import { requireTrainerRole } from '@/lib/api/auth'
 import { UpdateTraineeSchema } from '@/lib/domain/trainee'
 import { handleError } from '@/lib/api/handleError'
 
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   try {
+    await requireTrainerRole()
     const trainee = await traineeService.findById(id)
     return NextResponse.json(trainee)
   } catch (error) {
@@ -72,6 +86,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   try {
+    await requireTrainerRole()
     const body = await request.json()
     const parsed = UpdateTraineeSchema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
@@ -85,6 +100,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   try {
+    await requireTrainerRole()
     await traineeService.delete(id)
     return new NextResponse(null, { status: 204 })
   } catch (error) {

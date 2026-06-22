@@ -7,7 +7,7 @@ test.describe('Trainee — Full plan session', () => {
   })
 
   test('runs full training plan and logs sets', async ({ page }) => {
-    const trainee = await seedTrainee({ name: 'Test User' })
+    const trainee = await seedTrainee({ name: 'Test User', email: 'test.user@example.com' })
     const exercise = await seedExercise({ name: 'Bench Press', trackingType: 'WEIGHT' })
     await seedPlan({
       name: 'Push Day',
@@ -38,7 +38,7 @@ test.describe('Trainee — Full plan session', () => {
   })
 
   test('trains single exercise outside a plan', async ({ page }) => {
-    const trainee = await seedTrainee({ name: 'Solo User' })
+    const trainee = await seedTrainee({ name: 'Solo User', email: 'solo.user@example.com' })
     await seedExercise({ name: 'Pull-up', trackingType: 'NONE' })
 
     await page.goto('/')
@@ -60,7 +60,7 @@ test.describe('Trainee — Full plan session', () => {
   })
 
   test('runs series plan — interleaved sets with rest timer', async ({ page }) => {
-    await seedTrainee({ name: 'Super User' })
+    await seedTrainee({ name: 'Super User', email: 'super.user@example.com' })
     const exerciseA = await seedExercise({ name: 'Bench Press', trackingType: 'WEIGHT' })
     const exerciseB = await seedExercise({ name: 'Barbell Row', trackingType: 'WEIGHT' })
     const exerciseC = await seedExercise({ name: 'Lat Pulldown', trackingType: 'WEIGHT' })
@@ -111,7 +111,7 @@ test.describe('Trainee — Full plan session', () => {
   })
 
   test('trainee runs tabata plan — timers fire and session completes', async ({ page }) => {
-    const trainee = await seedTrainee({ name: 'Tabata Athlete' })
+    const trainee = await seedTrainee({ name: 'Tabata Athlete', email: 'tabata.athlete@example.com' })
     const exA = await seedExercise({ name: 'Jump Squats', trackingType: 'NONE' })
     const exB = await seedExercise({ name: 'Mountain Climbers', trackingType: 'NONE' })
     await seedTabataPlan({
@@ -161,7 +161,7 @@ test.describe('Trainee — Full plan session', () => {
   })
 
   test('opens plan review before and during a session without losing progress', async ({ page }) => {
-    await seedTrainee({ name: 'Review User' })
+    await seedTrainee({ name: 'Review User', email: 'review.user@example.com' })
     const exercise = await seedExercise({ name: 'Bench Press', trackingType: 'WEIGHT', mediaCount: 1 })
     await seedPlan({
       name: 'Push Day',
@@ -193,7 +193,7 @@ test.describe('Trainee — Full plan session', () => {
   })
 
   test('opens plan review mid-series session without losing progress', async ({ page }) => {
-    await seedTrainee({ name: 'Series Review User' })
+    await seedTrainee({ name: 'Series Review User', email: 'series.review.user@example.com' })
     const exerciseA = await seedExercise({ name: 'Squat', trackingType: 'WEIGHT' })
     const exerciseB = await seedExercise({ name: 'Deadlift', trackingType: 'WEIGHT' })
     await seedSeriesPlan({

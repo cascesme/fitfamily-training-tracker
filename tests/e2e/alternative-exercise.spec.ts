@@ -36,7 +36,7 @@ test.describe('Alternative exercise — Trainee session', () => {
   })
 
   test('switch to alternative button visible when alternative is configured', async ({ page }) => {
-    await seedTrainee({ name: 'Alt User' })
+    await seedTrainee({ name: 'Alt User', email: 'alt.user@example.com' })
     const primary = await seedExercise({ name: 'Bench Press', trackingType: 'WEIGHT' })
     const alt = await seedExercise({ name: 'Push Ups', trackingType: 'NONE' })
     await seedPlanWithAlternative({
@@ -59,7 +59,7 @@ test.describe('Alternative exercise — Trainee session', () => {
   })
 
   test('trainee can switch to alternative and session uses alternative details', async ({ page }) => {
-    await seedTrainee({ name: 'Switch User' })
+    await seedTrainee({ name: 'Switch User', email: 'switch.user@example.com' })
     const primary = await seedExercise({ name: 'Bench Press', trackingType: 'WEIGHT' })
     const alt = await seedExercise({ name: 'Push Ups', trackingType: 'NONE' })
     await seedPlanWithAlternative({
@@ -85,7 +85,7 @@ test.describe('Alternative exercise — Trainee session', () => {
   })
 
   test('no switch button shown when no alternative configured', async ({ page }) => {
-    await seedTrainee({ name: 'No Alt User' })
+    await seedTrainee({ name: 'No Alt User', email: 'no.alt.user@example.com' })
     const exercise = await seedExercise({ name: 'Squat', trackingType: 'WEIGHT' })
     await seedPlan({
       name: 'Leg Day',
