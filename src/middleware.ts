@@ -6,6 +6,7 @@ const isPublic = createRouteMatcher([
   '/sign-in(.*)',
   '/access-denied',
   '/api/webhooks/clerk',
+  '/api/media/(.*)',
 ])
 
 const isPending = createRouteMatcher(['/auth/pending'])
